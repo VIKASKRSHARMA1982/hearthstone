@@ -17,6 +17,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
+    }
 }
 
 dependencies {
@@ -37,6 +41,8 @@ dependencies {
     compile 'com.google.android.gms:play-services-maps:8.1.0'
     compile 'com.google.android.gms:play-services-location:8.1.0'
     compile 'jp.wasabeef:recyclerview-animators:1.2.0@aar'
+    compile 'com.parse:parse-android:1.10.3'
+    compile 'com.parse.bolts:bolts-android:1.2.1'
     compile ('com.firebase:geofire:1.1.0+') {
         exclude module: 'httpclient' //by artifact name
         exclude group: 'org.apache.httpcomponents' //by group

@@ -8,10 +8,12 @@ import com.firebase.geofire.GeoFire;
  */
 public class AppConstants {
 
-    //public static final String BASE_URL = "https://vanbookingapp.firebaseio.com/";
-    public static final String BASE_URL = "https://vanbookingapp.firebaseio.com/";
+    public static final String BASE_URL = "";
     public static Firebase FIREBASE = null;
     public static GeoFire GEOFIRE = null;
+
+    public static final String PARSE_APP_ID = "owxkS2NUrby5SC31HJPwXC8WrnJh4FniMVcuS0Of";
+    public static final String PARSE_CLIENT_KEY = "ysZnHImfR08TMzgzFpUUNOnwBVL3Bzvi1yLfWYbZ";
 
     /** end points */
     public static final String BOOKINGS = "Bookings";
@@ -25,13 +27,18 @@ public class AppConstants {
     public static final String WARN_INVALID_PASSENGER_COUNT = "Passenger count must be greater than zero";
     public static final String WARN_TOO_MANY_PASSENGER_COUNT = "Too many passenger count, seating capacity only limited to 20";
     public static final String WARN_FETCHING = "Currently fetching data, Please try again after a few seconds!";
+    public static final String WARN_INVALID_EMAIL_FORMAT = "Invalid email format!";
+
+    /** loading messages */
+    public static final String LOAD_CREATE_ACCOUNT = "Creating your account, Please wait";
 
     /** error messages */
     public static final String ERR_CONNECTION = "Connection error, Please check your network connection and try again!";
     public static final String ERR_LOGIN = "Either email or password is incorrect!";
+    public static final String ERR_CREATE_ACCOUNT = "Sorry, but your email address was already taken!";
 
     /** success messages */
-    public static final String OK_BOOKING = "Your booking was sucessfully created!";
+    public static final String OK_ACCOUNT_CREATED = "Congratulations, Your account was successfully created!";
 
     /** default values */
     public static final String DEFAULT_STATUS = "Awaiting";

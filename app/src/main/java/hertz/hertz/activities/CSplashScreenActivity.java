@@ -11,7 +11,7 @@ import android.os.Handler;
 
 import hertz.hertz.R;
 
-public class CSplashScreenActivity extends Activity {
+public class CSplashScreenActivity extends BaseActivity {
 
     // Splash screen timer
     private static int SPLASH_TIME_OUT = 3000;
@@ -34,7 +34,8 @@ public class CSplashScreenActivity extends Activity {
                 // Start your app main activity
                 Intent i = new Intent(CSplashScreenActivity.this, COpeningScreenActivity.class);
                 startActivity(i);
-
+                animateToLeft(CSplashScreenActivity.this);
+                finish();
                 // close this activity
                 finish();
             }

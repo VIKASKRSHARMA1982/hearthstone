@@ -144,7 +144,7 @@ public class BaseActivity extends AppCompatActivity {
         listView.requestLayout();
     }
 
-    public void showSweetDialog(String message, String type) {
+    public void showSweetDialog(String message, String type, final boolean finish) {
         int dialogType = 0;
         if (type.equals("error")) {
             dialogType = SweetAlertDialog.ERROR_TYPE;
@@ -154,13 +154,16 @@ public class BaseActivity extends AppCompatActivity {
             dialogType = SweetAlertDialog.SUCCESS_TYPE;
         }
         new SweetAlertDialog(this,dialogType)
-                .setTitleText("Comet")
+                .setTitleText("Hertz")
                 .setContentText(message)
                 .setConfirmText("Close")
                 .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
                     @Override
                     public void onClick(SweetAlertDialog sweetAlertDialog) {
                         sweetAlertDialog.dismiss();
+                        if (finish) {
+                            finish();
+                        }
                     }
                 }).show();
     }

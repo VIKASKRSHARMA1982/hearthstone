@@ -4,6 +4,7 @@ import android.app.Application;
 
 import com.firebase.client.Firebase;
 import com.firebase.geofire.GeoFire;
+import com.parse.Parse;
 
 import hertz.hertz.helpers.AppConstants;
 
@@ -16,9 +17,10 @@ public class BaseApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Firebase.setAndroidContext(this);
+/*        Firebase.setAndroidContext(this);
         Firebase.getDefaultConfig().setPersistenceEnabled(true);
         AppConstants.FIREBASE = new Firebase(AppConstants.BASE_URL);
-        AppConstants.GEOFIRE = new GeoFire(AppConstants.FIREBASE);
+        AppConstants.GEOFIRE = new GeoFire(AppConstants.FIREBASE);*/
+        Parse.initialize(this,AppConstants.PARSE_APP_ID,AppConstants.PARSE_CLIENT_KEY);
     }
 }
