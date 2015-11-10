@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
 
+import com.parse.ParseUser;
+
 import hertz.hertz.R;
 import hertz.hertz.helpers.AppConstants;
 
@@ -34,7 +36,15 @@ public class COpeningScreenActivity extends BaseActivity {
     public void onClick(View view) {
         switch(view.getId()){
             case R.id.bLogin:
-                startActivity(new Intent(this, CLoginActivity.class));
+                /** check if there's still a logged in parse user */
+                if (ParseUser.getCurrentUser() != null) {
+                    /** skip login screen and proceed to home screen */
+                    startActivity(new Intent(this,CMapsActivity.class));
+                    finish();
+                } else {
+                    /** if there's none, redirect user to login screen */
+                    startActivity(new Intent(this, CLoginActivity.class));
+                }
                 animateToLeft(this);
                 break;
             case R.id.bSignUp:

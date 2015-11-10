@@ -31,6 +31,7 @@ public class AppConstants {
 
     /** loading messages */
     public static final String LOAD_CREATE_ACCOUNT = "Creating your account, Please wait";
+    public static final String LOAD_LOGIN = "Authenticating your credentials, Please wait";
 
     /** error messages */
     public static final String ERR_CONNECTION = "Connection error, Please check your network connection and try again!";

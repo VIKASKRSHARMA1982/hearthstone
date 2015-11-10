@@ -4,102 +4,79 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.parse.LogInCallback;
+import com.parse.ParseException;
+import com.parse.ParseUser;
+import com.parse.SignUpCallback;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import hertz.hertz.R;
+import hertz.hertz.helpers.AppConstants;
 import hertz.hertz.loginregister.MainActivity;
 import hertz.hertz.services.ServerRequests;
 import hertz.hertz.model.User;
 import hertz.hertz.services.UserLocalStore;
 
-public class CLoginActivity extends ActionBarActivity implements View.OnClickListener {
+public class CLoginActivity extends BaseActivity {
 
-    Button bLogin;
-    EditText etUsername, etPassword;
-    TextView tvRegisterLink;
-
-    UserLocalStore userLocalStore;
+    @Bind(R.id.etEmail) EditText etEmail;
+    @Bind(R.id.etPassword) EditText etPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
-
-        etUsername = (EditText) findViewById(R.id.etUsername);
-        etPassword = (EditText) findViewById(R.id.etPassword);
-        tvRegisterLink = (TextView) findViewById(R.id.tvRegisterLink);
-        bLogin = (Button) findViewById(R.id.bLogin);
-
-        tvRegisterLink.setOnClickListener(this);
-        bLogin.setOnClickListener(this);
-
-        userLocalStore = new UserLocalStore(this);
+        setContentView(R.layout.activity_login_2);
+        ButterKnife.bind(this);
     }
 
-    @Override
-    public void onClick(View v) {
-        switch(v.getId()){
-            case R.id.bLogin:
-                /*String username = etUsername.getText().toString();
-                String password = etPassword.getText().toString();
+    @OnClick(R.id.btnLogin)
+    public void login() {
+        String email = etEmail.getText().toString();
+        String password = etPassword.getText().toString();
 
-                User user = new User(username, password);
-
-                authenticate(user);
-                */
-
-                //startActivity(new Intent(this, CReservationActivity.class));
-                startActivity(new Intent(this, CMapsActivity.class));
-                finish();
-
-                break;
-
-            case R.id.tvRegisterLink:
-                //startActivity(new Intent(this, CRegistrationActivity.class));
-                break;
-
-
-        }
-
-
-    }
-
-    private void authenticate(User user){
-        ServerRequests serverRequests = new ServerRequests(this);
-        serverRequests.fetchUserDataInBackground(user, new GetUserCallback() {
-            @Override
-            public void done(User returnedUser) {
-                if (returnedUser == null){
-                    showErrorMessage();
-                }else{
-                    logUserIn(returnedUser);
+        /** validations */
+        if (!isNetworkAvailable()) {
+            showSweetDialog(AppConstants.ERR_CONNECTION, "error", false, null, null);
+        } else if (email.isEmpty()) {
+            setError(etEmail, AppConstants.WARN_FIELD_REQUIRED);
+        } else if (password.isEmpty()) {
+            setError(etPassword, AppConstants.WARN_FIELD_REQUIRED);
+        } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            setError(etEmail, AppConstants.WARN_INVALID_EMAIL_FORMAT);
+        } else {
+            /** authenticate user's credentials */
+            showProgressDialog(AppConstants.LOAD_LOGIN);
+            ParseUser.logInInBackground(email, password, new LogInCallback() {
+                @Override
+                public void done(ParseUser user, ParseException e) {
+                    dismissProgressDialog();
+                    if (e == null) {
+                        showSweetDialog("Welcome " + user.getString("firstName") + " " +
+                        user.getString("lastName"),"success",false,null,null);
+                    } else {
+                        showSweetDialog(e.getMessage(),"error",false,null,null);
+                    }
                 }
-
-            }
-        });
+            });
+        }
     }
-
-    private void showErrorMessage(){
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(CLoginActivity.this);
-        dialogBuilder.setMessage("Incorrect User Details");
-        dialogBuilder.setPositiveButton("OK", null);
-        dialogBuilder.show();
-    }
-
-    private void  logUserIn(User returnedUser) {
-        userLocalStore.storeUserData(returnedUser);
-        userLocalStore.setUserLoggedIn(true);
-        startActivity(new Intent(this, MainActivity.class));
-        finish();
-
-    }
-
 
     public interface GetUserCallback {
         public abstract void done(User returnedUser);
+    }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+        animateToRight(this);
     }
 }
