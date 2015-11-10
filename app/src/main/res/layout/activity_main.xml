@@ -1,0 +1,56 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:orientation="vertical"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+    >
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg"
+        android:clickable="false" />
+    <ImageView
+        android:layout_width="120pt"
+        android:layout_height="170px"
+        android:background="@drawable/logo"
+        android:layout_marginLeft="60dp"
+        android:layout_marginTop="35pt"
+        android:id="@+id/imageView" />
+
+    <TextView
+        android:layout_width="100pt"
+        android:layout_height="170px"
+        android:text="Hello,"
+        android:id="@+id/ethello"
+        android:textSize="@dimen/abc_action_button_min_width_overflow_material"
+        android:layout_marginTop="170dp"
+        android:layout_marginLeft="100dp"/>
+
+
+    <EditText
+        android:id="@+id/etName"
+        android:layout_width="120pt"
+        android:layout_marginBottom="10dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="60dp"
+        android:layout_marginTop="120pt"/>
+
+
+
+    <Button
+        android:id="@+id/bLogout"
+        android:text="Logout"
+        android:layout_width="120pt"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="60dp"
+        android:layout_marginTop="180pt"/>
+
+    <Button
+        android:layout_width="120pt"
+        android:layout_height="wrap_content"
+        android:text="Book Now!"
+        android:id="@+id/bBook"
+        android:layout_marginLeft="60dp"
+        android:layout_marginTop="150pt"/>
+</RelativeLayout>

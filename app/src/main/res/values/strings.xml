@@ -1,0 +1,59 @@
+<resources>
+    <string name="app_name">Hertz</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_creservation">CReservationActivity</string>
+    <string name="title_activity_cchoose_ride">CChooseRideActivity</string>
+    <string name="title_activity_cdriver_location">CDriverLocationActivity</string>
+    <string name="title_activity_cinformation">CInformationActivity</string>
+    <string name="title_activity_cinformation_contact_activtity">CInformationContactActivtity
+    </string>
+    <string name="title_activity_cinformation_my_account">CInformationMyAccountActivity</string>
+    <string name="title_activity_copening_screen">COpeningScreenActivity</string>
+    <string name="title_activity_clogin">CLoginActivity</string>
+    <string name="title_activity_cmap">CMapActivity</string>
+
+    <string name="title_section1">Section 1</string>
+    <string name="title_section2">Section 2</string>
+    <string name="title_section3">Section 3</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_example">Example action</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_sample_maps_activtiy">Map</string>
+
+    <string name="googleAPIKey">AIzaSyB9IQq-</string>
+    <string name="title_activity_cvehicle">Hertz</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="car_note">Please Note: The vehicles shown are examples.
+        Specific makes/models within a car class may vary in availability and features
+        such as passenger seating, luggage capacity, equipment and mileage.</string>
+
+    <string name="car_suv">6 Passengers\n
+    2 Large Suitcases\n
+    2 Small Suitcases\n
+    Manual Transmission\n
+    Air Conditioning\n
+    ABS</string>
+
+    <string name="car_sedan">4 Passengers\n
+    2 Large Suitcases\n
+    Manual Transmission\n
+    Air Conditioning\n
+    0 CO2 emmissions\n</string>
+
+    <string name="car_sedan_auto">4 Passengers\n
+    2 Large Suitcases\n
+    Automatic Transmission\n
+    Air Conditioning\n
+    0 CO2 emmissions\n</string>
+
+    <array name="arr_hours">
+        <item>3 hours</item>
+        <item>5 hours</item>
+    </array>
+    <string name="title_activity_cassigned_driver">CAssignedDriver</string>
+
+</resources>
