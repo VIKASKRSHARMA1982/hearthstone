@@ -44,7 +44,7 @@ public class CRegistrationActivity extends BaseActivity {
 
         /** validations */
         if (!isNetworkAvailable()) {
-            showSweetDialog(AppConstants.ERR_CONNECTION, "error", false);
+            showSweetDialog(AppConstants.ERR_CONNECTION, "error", false, null, null);
         } else if (firstName.isEmpty()) {
             setError(etFirstName, AppConstants.WARN_FIELD_REQUIRED);
         } else if (lastName.isEmpty()) {
@@ -73,13 +73,13 @@ public class CRegistrationActivity extends BaseActivity {
                 public void done(ParseException e) {
                     dismissProgressDialog();
                     if (e == null) {
-                        showSweetDialog(AppConstants.OK_ACCOUNT_CREATED,"success",true);
-                        animateToRight(CRegistrationActivity.this);
+                        showSweetDialog(AppConstants.OK_ACCOUNT_CREATED, "success",
+                                true, CRegistrationActivity.this,"right");
                     } else {
                         if (e.getCode() == ParseException.EMAIL_TAKEN) {
-                            showSweetDialog(AppConstants.ERR_CREATE_ACCOUNT,"error",false);
+                            showSweetDialog(AppConstants.ERR_CREATE_ACCOUNT,"error",false, null, null);
                         } else {
-                            showSweetDialog(e.getMessage(),"error",false);
+                            showSweetDialog(e.getMessage(),"error",false, null, null);
                         }
                     }
                 }

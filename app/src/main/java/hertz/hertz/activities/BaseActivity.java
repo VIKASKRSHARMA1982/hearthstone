@@ -144,7 +144,8 @@ public class BaseActivity extends AppCompatActivity {
         listView.requestLayout();
     }
 
-    public void showSweetDialog(String message, String type, final boolean finish) {
+    public void showSweetDialog(String message, String type, final boolean finish,
+                                final Activity activity, final String direction) {
         int dialogType = 0;
         if (type.equals("error")) {
             dialogType = SweetAlertDialog.ERROR_TYPE;
@@ -163,6 +164,11 @@ public class BaseActivity extends AppCompatActivity {
                         sweetAlertDialog.dismiss();
                         if (finish) {
                             finish();
+                            if (direction.equals("left")) {
+                                animateToLeft(activity);
+                            } else {
+                                animateToRight(activity);
+                            }
                         }
                     }
                 }).show();
