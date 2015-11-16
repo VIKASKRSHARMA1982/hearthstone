@@ -52,4 +52,6 @@ public class AppConstants {
     public static final double RADIUS_IN_METERS = 1500.0; //equivalent to 1.5 kilometers
     public static final int MAP_CIRCLE_STROKE_COLOR = 0xff000000; //black outline
     public static final int MAP_CIRCLE_SHADE_COLOR = 0x44000000; //opaque black fill
+
+    public static String FULL_NAME = "";
 }

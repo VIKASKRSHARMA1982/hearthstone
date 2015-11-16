@@ -64,7 +64,7 @@
     <string name="password">Password</string>
 
     <!-- drawer header -->
-    <string name="welcome">Welcome</string>
+    <string name="welcome">Welcome to <b>Hertz Philippines</b></string>
     <string name="sample_name">Juan Dela Cruz</string>
     
     <!-- drawer menu -->
@@ -77,5 +77,6 @@
     <!-- booking -->
     <string name="origin">Origin</string>
     <string name="destination">Destination</string>
+    <string name="enter_email">Enter your email</string>
 
 </resources>

@@ -1,5 +1,6 @@
 package hertz.hertz.activities;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -30,6 +32,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,9 +42,11 @@ import butterknife.Bind;
 import butterknife.BindColor;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import cn.pedant.SweetAlert.SweetAlertDialog;
 import hertz.hertz.R;
 import hertz.hertz.adapters.PlaceAutocompleteAdapter;
 import hertz.hertz.customviews.DrawerArrowDrawable;
+import hertz.hertz.helpers.AppConstants;
 import hertz.hertz.helpers.MapHelper;
 import hertz.hertz.interfaces.OnCalculateDirectionListener;
 import hertz.hertz.tasks.GetDirectionsAsyncTask;
@@ -74,6 +79,7 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
     private PlaceAutocompleteAdapter mAdapter;
     private String selectedPlace;
     private boolean plotExisting = false;
+    private TextView tvFullName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,7 +146,6 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
             }
         });
         //tvFullName = (TextView)navDrawer.findViewById(R.id.tvFullName);
-        //tvFullName.setText(DaoHelper.getUserInfo().getFullName());
         navDrawer.setNavigationItemSelectedListener(this);
     }
 
@@ -201,7 +206,33 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
     }
 
     private void navigate(int menu) {
-
+        switch (menu) {
+            case R.id.navigation_item_5:
+                new SweetAlertDialog(this,SweetAlertDialog.WARNING_TYPE)
+                        .setTitleText("Hertz")
+                        .setContentText("Are you sure you want to logout from the app?")
+                        .setConfirmText("Yes")
+                        .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                            @Override
+                            public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                sweetAlertDialog.dismiss();
+                                ParseUser.logOut();
+                                startActivity(new Intent(HomeActivity.this, CLoginActivity.class));
+                                animateToRight(HomeActivity.this);
+                                finish();
+                            }
+                        })
+                        .setCancelText("No")
+                        .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                            @Override
+                            public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                sweetAlertDialog.dismiss();
+                            }
+                        })
+                        .show();
+                break;
+            default:
+        }
     }
 
     @Override
@@ -278,4 +309,15 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
             //places.release();
         }
     };
+
+    @OnClick(R.id.btnBook)
+    public void bookNow() {
+        if (placeOrigin == null) {
+            showSweetDialog("Please select your origin location","warning",false,null,null);
+        } else if (placeDesti == null) {
+            showSweetDialog("Please select your destination location","warning",false,null,null);
+        } else {
+            showSweetDialog("OK","success",false,null,null);
+        }
+    }
 }
