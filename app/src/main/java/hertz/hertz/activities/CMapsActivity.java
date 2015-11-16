@@ -34,48 +34,34 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.pedant.SweetAlert.SweetAlertDialog;
 import hertz.hertz.R;
 import hertz.hertz.model.PlaceData;
 import hertz.hertz.services.PlaceAPI;
 
 
-public class CMapsActivity extends ActionBarActivity
+public class CMapsActivity extends BaseActivity
         implements CNavDrawerFragment.NavigationDrawerCallbacks, View.OnClickListener {
 
     private static String TAG = CMapsActivity.class.getSimpleName();
-
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-
     private CNavDrawerFragment mNavigationDrawerFragment;
-
     private CharSequence mTitle;
-
-
     private AutoCompleteTextView editTextPick, editTextDest;
     ArrayAdapter<String> adapterPick, adapterDest;
-
     ArrayList<LatLng> arrLatLng;
-
     Polyline polyline;
     String placeIdOrigin = "", placeIdDest = "";
-
-/*
-    Button btnBook;
-    LinearLayout llSearch, llDriver, llPrice;
-    RelativeLayout llCall;
-    ImageView imgLogo;*/
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cmap);
-
-
         mNavigationDrawerFragment = (CNavDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
@@ -373,18 +359,8 @@ public class CMapsActivity extends ActionBarActivity
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
-            // Try to obtain the map from the SupportMapFragment.
-
-            //mMap = ((GoogleMap) view.findViewById(R.id.map));
-            /*mMap = ((SupportMapFragment) getFragmentManager().findFragmentById(R.id.map))
-                    .getMap();
-*/
-
             mMap = ((SupportMapFragment) CMapsActivity.this.getSupportFragmentManager()
                     .findFragmentById(R.id.map)).getMap();
-
-
-
             // Check if we were successful in obtaining the map.
             if (mMap != null) {
                 setUpMap();
@@ -429,12 +405,6 @@ public class CMapsActivity extends ActionBarActivity
     @Override
     public void onDestroy() {
         super.onDestroy();
-
-        // Get rid of our Place API Handlers
-/*        if (mThreadHandler != null) {
-            mThreadHandler.removeCallbacksAndMessages(null);
-            mHandlerThread.quit();
-        }*/
     }
 
     ArrayList<PlaceData> tempAutoCompList;
@@ -453,7 +423,6 @@ public class CMapsActivity extends ActionBarActivity
             for(PlaceData pData: tempAutoCompList){
                 addressList.add(pData.getDesc());
             }
-
             return addressList;
         }
 
@@ -555,6 +524,27 @@ public class CMapsActivity extends ActionBarActivity
 
             case R.id.btn_reserve:
                 //intent = new Intent(CNavDrawerFragment.this.getActivity(),CInformationActivity.class);
+                new SweetAlertDialog(CMapsActivity.this,SweetAlertDialog.WARNING_TYPE)
+                        .setTitleText("Hertz")
+                        .setContentText("Are you sure you want to logout your account?")
+                        .setConfirmText("Yes")
+                        .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                            @Override
+                            public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                sweetAlertDialog.dismiss();
+                                ParseUser.logOut();
+                                startActivity(new Intent(CMapsActivity.this, COpeningScreenActivity.class));
+                                animateToLeft(CMapsActivity.this);
+                                finish();
+                            }
+                        })
+                        .setCancelText("No")
+                        .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                            @Override
+                            public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                sweetAlertDialog.dismiss();
+                            }
+                        }).show();
 
                 break;
             case R.id.btn_info:

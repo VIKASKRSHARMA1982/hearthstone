@@ -37,9 +37,11 @@ public class AppConstants {
     public static final String ERR_CONNECTION = "Connection error, Please check your network connection and try again!";
     public static final String ERR_LOGIN = "Either email or password is incorrect!";
     public static final String ERR_CREATE_ACCOUNT = "Sorry, but your email address was already taken!";
+    public static final String ERR_EMAIL_NOT_VERIFIED = "Please validate your email address first to proceed!";
 
     /** success messages */
-    public static final String OK_ACCOUNT_CREATED = "Congratulations, Your account was successfully created!";
+    public static final String OK_ACCOUNT_CREATED = "Congratulations, Your account was successfully created"+
+            ", Please do validate your email address!";
 
     /** default values */
     public static final String DEFAULT_STATUS = "Awaiting";

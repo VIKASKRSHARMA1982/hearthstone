@@ -62,4 +62,16 @@
     <string name="mobile">Mobile No</string>
     <string name="email">Email Address</string>
     <string name="password">Password</string>
+
+    <!-- drawer header -->
+    <string name="welcome">Welcome</string>
+    <string name="sample_name">Juan Dela Cruz</string>
+    
+    <!-- drawer menu -->
+    <string name="menu_reservation">Reservations</string>
+    <string name="menu_info">Information</string>
+    <string name="menu_my_account">My Account</string>
+    <string name="menu_contact_us">Contact Us</string>
+    <string name="menu_logout">Log Out</string>
+    
 </resources>

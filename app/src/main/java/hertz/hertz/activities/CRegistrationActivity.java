@@ -1,5 +1,6 @@
 package hertz.hertz.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Patterns;
@@ -12,6 +13,7 @@ import com.parse.SignUpCallback;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import cn.pedant.SweetAlert.SweetAlertDialog;
 import hertz.hertz.R;
 import hertz.hertz.helpers.AppConstants;
 
@@ -73,8 +75,20 @@ public class CRegistrationActivity extends BaseActivity {
                 public void done(ParseException e) {
                     dismissProgressDialog();
                     if (e == null) {
-                        showSweetDialog(AppConstants.OK_ACCOUNT_CREATED, "success",
-                                true, CRegistrationActivity.this,"right");
+                        new SweetAlertDialog(CRegistrationActivity.this,SweetAlertDialog.SUCCESS_TYPE)
+                                .setTitleText("Hertz")
+                                .setContentText(AppConstants.OK_ACCOUNT_CREATED)
+                                .setConfirmText("Close")
+                                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                                    @Override
+                                    public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                        ParseUser.logOut();
+                                        sweetAlertDialog.dismiss();
+                                        startActivity(new Intent(CRegistrationActivity.this, CLoginActivity.class));
+                                        animateToLeft(CRegistrationActivity.this);
+                                        finish();
+                                    }
+                                }).show();
                     } else {
                         if (e.getCode() == ParseException.EMAIL_TAKEN) {
                             showSweetDialog(AppConstants.ERR_CREATE_ACCOUNT,"error",false, null, null);

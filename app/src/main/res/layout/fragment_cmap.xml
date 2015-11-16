@@ -3,8 +3,6 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg">
 
-
-
     <ImageView
         android:layout_width="120pt"
         android:layout_height="160px"

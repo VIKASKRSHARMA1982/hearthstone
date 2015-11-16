@@ -119,7 +119,7 @@
         <!-- Need to change this when you run on a diff comp. -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBKcWNVwET0yL30N38ZRRO4bIkANOTf_Ig" />
+            android:value="AIzaSyBqLJW-KpOrSDSw9T_PZ-tt7HoCdLixF-Y" />
 
         <activity
             android:name=".activities.CVehicleActivity"
@@ -133,6 +133,7 @@
             android:name=".views.CAssignedDriver"
             android:label="@string/title_activity_cassigned_driver" >
         </activity>
+        <activity android:name=".activities.HomeActivity" />
     </application>
 
 </manifest>

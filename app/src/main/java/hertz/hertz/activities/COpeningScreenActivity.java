@@ -39,7 +39,8 @@ public class COpeningScreenActivity extends BaseActivity {
                 /** check if there's still a logged in parse user */
                 if (ParseUser.getCurrentUser() != null) {
                     /** skip login screen and proceed to home screen */
-                    startActivity(new Intent(this,CMapsActivity.class));
+                    startActivity(new Intent(this,HomeActivity.class));
+                    animateToLeft(this);
                     finish();
                 } else {
                     /** if there's none, redirect user to login screen */
