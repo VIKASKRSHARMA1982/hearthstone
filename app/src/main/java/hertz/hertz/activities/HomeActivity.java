@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import butterknife.Bind;
+import butterknife.BindColor;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import hertz.hertz.R;
@@ -51,14 +52,14 @@ import hertz.hertz.tasks.GetDirectionsAsyncTask;
 public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
                                                     NavigationView.OnNavigationItemSelectedListener,
                                                     OnCalculateDirectionListener,
-                                                    GoogleApiClient.OnConnectionFailedListener,
-                                                    AdapterView.OnItemClickListener {
+                                                    GoogleApiClient.OnConnectionFailedListener {
 
     @Bind(R.id.drawerLayout) DrawerLayout drawerLayout;
     @Bind(R.id.drawerIndicator) ImageView drawerIndicator;
     @Bind(R.id.navDrawer) NavigationView navDrawer;
     @Bind(R.id.autoOrigin) AutoCompleteTextView autoOrigin;
     @Bind(R.id.autoDestination) AutoCompleteTextView autoDestination;
+    @BindColor(R.color.metro_teal) int metro_teal;
     private static final LatLngBounds BOUNDS_GREATER_SYDNEY = new LatLngBounds(
             new LatLng(-34.041458, 150.790100), new LatLng(-33.682247, 151.383362));
     private GoogleApiClient googleApiClient;
@@ -71,9 +72,8 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
     private Place placeOrigin = null;
     private Place placeDesti = null;
     private PlaceAutocompleteAdapter mAdapter;
-    private double latitude;
-    private double longitude;
     private String selectedPlace;
+    private boolean plotExisting = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,10 +95,28 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
                 .build();
         mAdapter = new PlaceAutocompleteAdapter(this, googleApiClient, BOUNDS_GREATER_SYDNEY, null);
         autoOrigin.setAdapter(mAdapter);
-        autoOrigin.setOnItemClickListener(this);
+        autoOrigin.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                final AutocompletePrediction item = mAdapter.getItem(position);
+                final String placeId = item.getPlaceId();
+                selectedPlace = "origin";
+                PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi.getPlaceById(googleApiClient, placeId);
+                placeResult.setResultCallback(mUpdatePlaceDetailsCallback);
+            }
+        });
 
         autoDestination.setAdapter(mAdapter);
-        autoDestination.setOnItemClickListener(this);
+        autoDestination.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                final AutocompletePrediction item = mAdapter.getItem(position);
+                final String placeId = item.getPlaceId();
+                selectedPlace = "destination";
+                PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi.getPlaceById(googleApiClient, placeId);
+                placeResult.setResultCallback(mUpdatePlaceDetailsCallback);
+            }
+        });
     }
 
     private void initDrawerArrowDrawable() {
@@ -149,7 +167,6 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
         GetDirectionsAsyncTask asyncTask = new GetDirectionsAsyncTask(this);
         asyncTask.execute(findDirections(origin.latitude, origin.longitude,
                 desti.latitude, desti.longitude, MapHelper.MODE_DRIVING));
-        //addMapMarker(mapMunicipal, location.getLatitude(), location.getLongitude(), "You are here", "", -1);
     }
 
     public Map<String, String> findDirections(double fromPositionDoubleLat, double fromPositionDoubleLong, double toPositionDoubleLat, double toPositionDoubleLong, String mode) {
@@ -164,7 +181,7 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
     }
 
     public PolylineOptions handleGetDirectionsResult(ArrayList<LatLng> directionPoints) {
-        PolylineOptions rectLine = new PolylineOptions().width(5).color(Color.RED);
+        PolylineOptions rectLine = new PolylineOptions().width(5).color(metro_teal);
         for(int i = 0 ; i < directionPoints.size() ; i++) {
             rectLine.add(directionPoints.get(i));
         }
@@ -213,30 +230,33 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
     }
 
     private void showPlaceMarker(Place place) {
-        map.addMarker(new MarkerOptions().position(new LatLng(place.getLatLng().latitude,
-                place.getLatLng().longitude)).title(place.getName().toString())
-                .snippet(place.getAddress().toString()).icon(BitmapDescriptorFactory
-                .defaultMarker(selectedPlace.equals("origin") ? BitmapDescriptorFactory.HUE_GREEN
-                        : BitmapDescriptorFactory.HUE_RED))).showInfoWindow();
+        if (placeOrigin != null && placeDesti != null && plotExisting) {
+            map.clear();
+            if (selectedPlace.equals("origin")) {
+                addMarker(placeDesti, BitmapDescriptorFactory.HUE_GREEN);
+            } else {
+                addMarker(placeOrigin, BitmapDescriptorFactory.HUE_RED);
+            }
+        }
+        addMarker(place, (selectedPlace.equals("origin") ? BitmapDescriptorFactory.HUE_RED :
+                BitmapDescriptorFactory.HUE_GREEN));
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 10));
         map.animateCamera(CameraUpdateFactory.zoomTo(14));
         if (placeOrigin != null && placeDesti != null) {
-            Log.d("dir","must plot direction");
-            plotDirection(placeOrigin.getLatLng(),placeDesti.getLatLng());
+            plotExisting = true;
+            Log.d("plot","must plot direction --> " + placeOrigin.getLatLng().toString() + "  "
+            + placeDesti.getLatLng().toString());
+            plotDirection(placeOrigin.getLatLng(), placeDesti.getLatLng());
+        } else {
+            Log.d("plot", "not able to plot");
         }
     }
 
-    @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-        final AutocompletePrediction item = mAdapter.getItem(position);
-        final String placeId = item.getPlaceId();
-        if (view.getId() == R.id.autoOrigin) {
-            selectedPlace = "origin";
-        } else {
-            selectedPlace = "destination";
-        }
-        PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi.getPlaceById(googleApiClient, placeId);
-        placeResult.setResultCallback(mUpdatePlaceDetailsCallback);
+    private void addMarker(Place place, float color) {
+        map.addMarker(new MarkerOptions().position(new LatLng(place.getLatLng().latitude,
+                place.getLatLng().longitude)).title(place.getName().toString())
+                .snippet(place.getAddress().toString()).icon(BitmapDescriptorFactory
+                        .defaultMarker(color))).showInfoWindow();
     }
 
     private ResultCallback<PlaceBuffer> mUpdatePlaceDetailsCallback = new ResultCallback<PlaceBuffer>() {
@@ -250,18 +270,12 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
             // Get the Place object from the buffer.
             if (selectedPlace.equals("origin")) {
                 placeOrigin = places.get(0);
-                setPlace(placeOrigin);
+                showPlaceMarker(placeOrigin);
             } else {
                 placeDesti = places.get(0);
-                setPlace(placeDesti);
+                showPlaceMarker(placeDesti);
             }
-            places.release();
+            //places.release();
         }
     };
-
-    private void setPlace(Place place) {
-        latitude = place.getLatLng().latitude;
-        longitude = place.getLatLng().longitude;
-        showPlaceMarker(place);
-    }
 }

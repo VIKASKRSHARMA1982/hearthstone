@@ -51,14 +51,10 @@ public class GetDirectionsAsyncTask extends AsyncTask<Map<String, String>, Objec
         Map<String, String> paramMap = params[0];
         try {
             LatLng fromPosition = new LatLng(Double.valueOf(paramMap.get(USER_CURRENT_LAT)) , Double.valueOf(paramMap.get(USER_CURRENT_LONG)));
-            Log.d("map","fromPosition --> " + fromPosition);
             LatLng toPosition = new LatLng(Double.valueOf(paramMap.get(DESTINATION_LAT)) , Double.valueOf(paramMap.get(DESTINATION_LONG)));
-            Log.d("map","toPosition --> " + toPosition);
             MapHelper md = new MapHelper();
             Document doc = md.getDocument(fromPosition, toPosition, paramMap.get(DIRECTIONS_MODE));
-            Log.d("map","doc uri --> " + doc.toString());
             ArrayList directionPoints = md.getDirection(doc);
-            Log.d("map","size --> " + directionPoints.size());
             return directionPoints;
         } catch (Exception e) {
             exception = e;

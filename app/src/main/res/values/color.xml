@@ -40,4 +40,7 @@
     <item name="darkred" type="color">#FFCC0000</item>
     <color name="black_alpha">#96000000</color>
 
+    <color name="metro_yellow">#ffc40d</color>
+    <color name="metro_teal">#00aba9</color>
+
 </resources>
