@@ -73,5 +73,9 @@
     <string name="menu_my_account">My Account</string>
     <string name="menu_contact_us">Contact Us</string>
     <string name="menu_logout">Log Out</string>
-    
+
+    <!-- booking -->
+    <string name="origin">Origin</string>
+    <string name="destination">Destination</string>
+
 </resources>

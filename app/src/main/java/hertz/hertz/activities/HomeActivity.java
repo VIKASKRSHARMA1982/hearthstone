@@ -9,15 +9,26 @@ import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.location.places.AutocompletePrediction;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.PlaceBuffer;
+import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
@@ -28,6 +39,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import hertz.hertz.R;
+import hertz.hertz.adapters.PlaceAutocompleteAdapter;
 import hertz.hertz.customviews.DrawerArrowDrawable;
 import hertz.hertz.helpers.MapHelper;
 import hertz.hertz.interfaces.OnCalculateDirectionListener;
@@ -38,17 +50,30 @@ import hertz.hertz.tasks.GetDirectionsAsyncTask;
  */
 public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
                                                     NavigationView.OnNavigationItemSelectedListener,
-                                                    OnCalculateDirectionListener {
+                                                    OnCalculateDirectionListener,
+                                                    GoogleApiClient.OnConnectionFailedListener,
+                                                    AdapterView.OnItemClickListener {
 
     @Bind(R.id.drawerLayout) DrawerLayout drawerLayout;
     @Bind(R.id.drawerIndicator) ImageView drawerIndicator;
     @Bind(R.id.navDrawer) NavigationView navDrawer;
+    @Bind(R.id.autoOrigin) AutoCompleteTextView autoOrigin;
+    @Bind(R.id.autoDestination) AutoCompleteTextView autoDestination;
+    private static final LatLngBounds BOUNDS_GREATER_SYDNEY = new LatLngBounds(
+            new LatLng(-34.041458, 150.790100), new LatLng(-33.682247, 151.383362));
+    private GoogleApiClient googleApiClient;
     private DrawerArrowDrawable drawerArrowDrawable;
     private final Handler mDrawerActionHandler = new Handler();
     private static final long DRAWER_CLOSE_DELAY_MS = 250;
     private float offset;
     private boolean flipped;
     private GoogleMap map;
+    private Place placeOrigin = null;
+    private Place placeDesti = null;
+    private PlaceAutocompleteAdapter mAdapter;
+    private double latitude;
+    private double longitude;
+    private String selectedPlace;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,8 +81,24 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
         setContentView(R.layout.activity_home);
         ButterKnife.bind(this);
         initDrawerArrowDrawable();
+        initGoogleClient();
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+    }
+
+    private void initGoogleClient() {
+        googleApiClient = new GoogleApiClient
+                .Builder(this)
+                .enableAutoManage(this, 0, this)
+                .addApi(Places.GEO_DATA_API)
+                .addOnConnectionFailedListener( this )
+                .build();
+        mAdapter = new PlaceAutocompleteAdapter(this, googleApiClient, BOUNDS_GREATER_SYDNEY, null);
+        autoOrigin.setAdapter(mAdapter);
+        autoOrigin.setOnItemClickListener(this);
+
+        autoDestination.setAdapter(mAdapter);
+        autoDestination.setOnItemClickListener(this);
     }
 
     private void initDrawerArrowDrawable() {
@@ -164,5 +205,63 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
         dismissProgressDialog();
         showToast(e.toString());
         Log.d("dir", "on error --> " + e.toString());
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
+
+    private void showPlaceMarker(Place place) {
+        map.addMarker(new MarkerOptions().position(new LatLng(place.getLatLng().latitude,
+                place.getLatLng().longitude)).title(place.getName().toString())
+                .snippet(place.getAddress().toString()).icon(BitmapDescriptorFactory
+                .defaultMarker(selectedPlace.equals("origin") ? BitmapDescriptorFactory.HUE_GREEN
+                        : BitmapDescriptorFactory.HUE_RED))).showInfoWindow();
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(place.getLatLng(), 10));
+        map.animateCamera(CameraUpdateFactory.zoomTo(14));
+        if (placeOrigin != null && placeDesti != null) {
+            Log.d("dir","must plot direction");
+            plotDirection(placeOrigin.getLatLng(),placeDesti.getLatLng());
+        }
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+        final AutocompletePrediction item = mAdapter.getItem(position);
+        final String placeId = item.getPlaceId();
+        if (view.getId() == R.id.autoOrigin) {
+            selectedPlace = "origin";
+        } else {
+            selectedPlace = "destination";
+        }
+        PendingResult<PlaceBuffer> placeResult = Places.GeoDataApi.getPlaceById(googleApiClient, placeId);
+        placeResult.setResultCallback(mUpdatePlaceDetailsCallback);
+    }
+
+    private ResultCallback<PlaceBuffer> mUpdatePlaceDetailsCallback = new ResultCallback<PlaceBuffer>() {
+        @Override
+        public void onResult(PlaceBuffer places) {
+            if (!places.getStatus().isSuccess()) {
+                Log.d("places", "Place query did not complete. Error: " + places.getStatus().toString());
+                places.release();
+                return;
+            }
+            // Get the Place object from the buffer.
+            if (selectedPlace.equals("origin")) {
+                placeOrigin = places.get(0);
+                setPlace(placeOrigin);
+            } else {
+                placeDesti = places.get(0);
+                setPlace(placeDesti);
+            }
+            places.release();
+        }
+    };
+
+    private void setPlace(Place place) {
+        latitude = place.getLatLng().latitude;
+        longitude = place.getLatLng().longitude;
+        showPlaceMarker(place);
     }
 }
