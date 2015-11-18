@@ -7,7 +7,7 @@ import android.widget.RadioGroup;
 
 import hertz.hertz.R;
 
-public class CReservationActivity extends ActionBarActivity {
+public class CReservationActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,30 +18,17 @@ public class CReservationActivity extends ActionBarActivity {
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                // checkedId is the RadioButton selected
-
-               // Intent i = new Intent(CReservationActivity.this, CChooseRideActivity.class);
-                switch(checkedId){
-                    case R.id.radio_pickup:
-
-                        /*i.putExtra("reserve","pickup");
-                        startActivity(i);
-                        finish();*/
+                switch(checkedId) {
+                    case R.id.rbPickUp:
                         startActivity(new Intent(CReservationActivity.this, CChooseDriverActivity.class));
+                        animateToLeft(CReservationActivity.this);
                         break;
-                    case R.id.radio_carhire:
-                        /*i.putExtra("reserve","rent");
-                        startActivity(i);
-                        finish();*/
+                    case R.id.rbCarHire:
                         startActivity(new Intent(CReservationActivity.this, CChooseRideActivity.class));
+                        animateToLeft(CReservationActivity.this);
                         break;
                 }
-
-
             }
         });
     }
-
-
-
 }

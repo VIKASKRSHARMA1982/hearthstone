@@ -3,14 +3,17 @@ package hertz.hertz.helpers;
 import com.firebase.client.Firebase;
 import com.firebase.geofire.GeoFire;
 
+import hertz.hertz.services.GPSTrackerService;
+
 /**
  * Created by rsbulanon on 11/11/15.
  */
 public class AppConstants {
 
-    public static final String BASE_URL = "";
+    public static final String BASE_URL = "https://hertz.firebaseio.com/";
     public static Firebase FIREBASE = null;
     public static GeoFire GEOFIRE = null;
+    public static GPSTrackerService GPS_TRACKER = null;
 
     public static final String PARSE_APP_ID = "owxkS2NUrby5SC31HJPwXC8WrnJh4FniMVcuS0Of";
     public static final String PARSE_CLIENT_KEY = "ysZnHImfR08TMzgzFpUUNOnwBVL3Bzvi1yLfWYbZ";
@@ -38,10 +41,13 @@ public class AppConstants {
     public static final String ERR_LOGIN = "Either email or password is incorrect!";
     public static final String ERR_CREATE_ACCOUNT = "Sorry, but your email address was already taken!";
     public static final String ERR_EMAIL_NOT_VERIFIED = "Please validate your email address first to proceed!";
+    public static final String ERR_CREATE_BOOKING = "Failed to create your booking ,Please try again!";
 
     /** success messages */
     public static final String OK_ACCOUNT_CREATED = "Congratulations, Your account was successfully created"+
             ", Please do validate your email address!";
+    public static final String OK_BOOKING_CREATED = "Congratulations, Your booking was successfully created";
+
 
     /** default values */
     public static final String DEFAULT_STATUS = "Awaiting";
@@ -54,4 +60,6 @@ public class AppConstants {
     public static final int MAP_CIRCLE_SHADE_COLOR = 0x44000000; //opaque black fill
 
     public static String FULL_NAME = "";
+
+    public static final int REQUEST_ENABLE_GPS = 1;
 }

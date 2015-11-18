@@ -1,11 +1,15 @@
 package hertz.hertz.activities;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +20,8 @@ import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -25,6 +31,7 @@ import java.text.SimpleDateFormat;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 import hertz.hertz.R;
+import hertz.hertz.helpers.AppConstants;
 
 /**
  * Created by rsbulanon on 11/11/15.
@@ -196,5 +203,30 @@ public class BaseActivity extends AppCompatActivity {
             marker.showInfoWindow();
         }
         return marker;
+    }
+
+    public void enableGPS() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Enable GPS");
+        builder.setMessage("Please do activate your GPS first to get your current location");
+        builder.setPositiveButton("Enable", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                LocationManager service = (LocationManager) getSystemService(LOCATION_SERVICE);
+                boolean enabled = service.isProviderEnabled(LocationManager.GPS_PROVIDER);
+                if (!enabled) {
+                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivityForResult(intent, AppConstants.REQUEST_ENABLE_GPS);
+                }
+            }
+        });
+        builder.setCancelable(false);
+        builder.show();
+    }
+
+    public CircleOptions drawMarkerWithCircle(double radius, GoogleMap map, LatLng position) {
+        return new CircleOptions().center(position)
+                .radius(radius).fillColor(AppConstants.MAP_CIRCLE_SHADE_COLOR)
+                .strokeColor(AppConstants.MAP_CIRCLE_STROKE_COLOR).strokeWidth(3);
     }
 }

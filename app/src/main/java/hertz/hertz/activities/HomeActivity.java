@@ -15,6 +15,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -32,7 +33,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.parse.ParseException;
+import com.parse.ParseGeoPoint;
+import com.parse.ParseObject;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,8 +70,8 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
     @Bind(R.id.autoOrigin) AutoCompleteTextView autoOrigin;
     @Bind(R.id.autoDestination) AutoCompleteTextView autoDestination;
     @BindColor(R.color.metro_teal) int metro_teal;
-    private static final LatLngBounds BOUNDS_GREATER_SYDNEY = new LatLngBounds(
-            new LatLng(-34.041458, 150.790100), new LatLng(-33.682247, 151.383362));
+    private static final LatLngBounds BOUNDS_NCR = new LatLngBounds(
+            new LatLng(14.393448, 120.842743), new LatLng(14.766915, 121.135254));
     private GoogleApiClient googleApiClient;
     private DrawerArrowDrawable drawerArrowDrawable;
     private final Handler mDrawerActionHandler = new Handler();
@@ -99,7 +104,7 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
                 .addApi(Places.GEO_DATA_API)
                 .addOnConnectionFailedListener( this )
                 .build();
-        mAdapter = new PlaceAutocompleteAdapter(this, googleApiClient, BOUNDS_GREATER_SYDNEY, null);
+        mAdapter = new PlaceAutocompleteAdapter(this, googleApiClient, BOUNDS_NCR, null);
         autoOrigin.setAdapter(mAdapter);
         autoOrigin.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -312,12 +317,39 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
 
     @OnClick(R.id.btnBook)
     public void bookNow() {
-        if (placeOrigin == null) {
+        if (!isNetworkAvailable()) {
+            showToast(AppConstants.ERR_CONNECTION);
+        } else if (placeOrigin == null) {
             showSweetDialog("Please select your origin location","warning",false,null,null);
         } else if (placeDesti == null) {
             showSweetDialog("Please select your destination location","warning",false,null,null);
         } else {
-            showSweetDialog("OK","success",false,null,null);
+            /** create booking in parse */
+            final ParseObject booking = new ParseObject("Booking");
+            ParseGeoPoint origin = new ParseGeoPoint();
+            origin.setLatitude(placeOrigin.getLatLng().latitude);
+            origin.setLongitude(placeOrigin.getLatLng().longitude);
+            booking.put("origin", origin);
+            booking.put("user", ParseUser.getCurrentUser());
+            booking.put("destiLatitude", placeDesti.getLatLng().latitude);
+            booking.put("destiLongitude", placeDesti.getLatLng().longitude);
+            booking.saveInBackground(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    if (e == null) {
+                        /** create booking in fire base */
+                        AppConstants.GEOFIRE.setLocation(booking.getObjectId(),
+                                new GeoLocation(placeOrigin.getLatLng().latitude,
+                                        placeOrigin.getLatLng().longitude));
+                        showToast(AppConstants.OK_BOOKING_CREATED);
+                        startActivity(new Intent(HomeActivity.this, CReservationActivity.class));
+                        animateToLeft(HomeActivity.this);
+                    } else {
+                        showToast(AppConstants.ERR_CREATE_BOOKING);
+                    }
+                }
+            });
+
         }
     }
 }

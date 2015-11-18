@@ -21,19 +21,30 @@ android {
         exclude 'META-INF/LICENSE'
         exclude 'META-INF/NOTICE'
     }
+    productFlavors {
+        booking {
+            applicationId "hertz.hertz.booking"
+            resValue "string", "app_name", "Hertz"
+        }
+
+        driver {
+            applicationId "hertz.hertz.driverapp"
+            resValue "string", "app_name", "Hertz Driver App"
+        }
+    }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:22.2.0'
+    compile 'com.android.support:appcompat-v7:23.0.0'
     compile 'com.facebook.android:facebook-android-sdk:4.0.0'
     compile 'com.google.maps.android:android-maps-utils:0.4+'
     testCompile 'junit:junit:4.12'
     compile 'com.firebase:firebase-client-android:2.4.0'
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.github.rey5137:material:1.2.1'
-    compile 'com.android.support:cardview-v7:22.2.0'
+    compile 'com.android.support:cardview-v7:23.0.0'
     compile 'com.android.support:design:23.1.0'
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.github.rey5137:material:1.2.1'

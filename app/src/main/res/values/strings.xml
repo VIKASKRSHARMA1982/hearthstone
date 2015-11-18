@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Hertz</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_creservation">CReservationActivity</string>
     <string name="title_activity_cchoose_ride">CChooseRideActivity</string>
@@ -78,5 +77,8 @@
     <string name="origin">Origin</string>
     <string name="destination">Destination</string>
     <string name="enter_email">Enter your email</string>
+
+    <string name="pick_up_drop_off">PICK UP AND DROP OFF</string>
+    <string name="car_hire">CAR HIRE</string>
 
 </resources>
