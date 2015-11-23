@@ -11,6 +11,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 
 import com.cocosw.bottomsheet.BottomSheet;
+import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
@@ -22,11 +23,18 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.parse.ParseException;
+import com.parse.ParseInstallation;
+import com.parse.ParsePush;
+import com.parse.ParseQuery;
+import com.parse.SendCallback;
 
 import java.util.HashMap;
 
 import hertz.hertz.R;
+import hertz.hertz.fragments.ChatDialogFragment;
 import hertz.hertz.helpers.AppConstants;
+import hertz.hertz.model.Chat;
 import hertz.hertz.services.GPSTrackerService;
 
 /**
@@ -51,6 +59,13 @@ public class AvailableDriversActivity extends BaseActivity implements OnMapReady
         if (!isGPSEnabled()) {
             enableGPS();
         }
+/*        Chat chat = new Chat("Sample","Sample","Sample","Sample");
+        AppConstants.GEOFIRE.getFirebase().child("Chat").child("Driver001").setValue(chat);
+        AppConstants.GEOFIRE.getFirebase().child("Chat").child("Driver002").setValue(chat);
+        AppConstants.GEOFIRE.getFirebase().child("Chat").child("5K2oYNXWcW").setValue(chat);
+        AppConstants.GEOFIRE.getFirebase().child("Chat").child("CtAeXj4HOw").setValue(chat);
+        AppConstants.GEOFIRE.getFirebase().child("Chat").child("yR2gfutFix").setValue(chat);
+        AppConstants.GEOFIRE.getFirebase().child("Chat").child("wFicMPHplC").setValue(chat);*/
     }
 
     @Override
@@ -179,24 +194,47 @@ public class AvailableDriversActivity extends BaseActivity implements OnMapReady
     }
 
     @Override
-    public boolean onMarkerClick(Marker marker) {
-        Log.d("marker","marker clicked --> " + marker.getTitle());
-        marker.setTitle(marker.getTitle().replace("Avail", ""));
-        marker.hideInfoWindow();
-        new BottomSheet.Builder(this).title(marker.getTitle()).sheet(R.menu.menu_avail_driver)
-                .listener(new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case R.id.action_driver_info:
-                                Log.d("marker","driver info");
-                                break;
-                            case R.id.action_rent_car:
-                                Log.d("marker","rent car");
-                                break;
+    public boolean onMarkerClick(final Marker marker) {
+        Log.d("marker", "marker clicked --> " + marker.getTitle());
+        if (marker.getTitle().contains("Driver")) {
+            marker.setTitle(marker.getTitle().replace("Avail", ""));
+            marker.hideInfoWindow();
+            new BottomSheet.Builder(this).title(marker.getTitle()).sheet(R.menu.menu_avail_driver)
+                    .listener(new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which) {
+                                case R.id.action_driver_info:
+                                    Log.d("marker", "driver info");
+                                    break;
+                                case R.id.action_rent_car:
+                                    if (isNetworkAvailable()) {
+                                        Log.d("marker", "push!");
+                                        ParsePush push = new ParsePush();
+                                        push.setChannel(marker.getTitle());
+                                        push.setMessage("Anong insekto pinaka magaling magsayaw?");
+                                        push.sendInBackground(new SendCallback() {
+                                            @Override
+                                            public void done(ParseException e) {
+                                                if (e == null) {
+                                                    Log.d("marker", "push successful!");
+                                                } else {
+                                                    Log.d("marker", "push failed --> " + e.toString());
+                                                }
+                                            }
+                                        });
+                                    } else {
+                                        showSweetDialog(AppConstants.ERR_CONNECTION, "error");
+                                    }
+                                    break;
+                                case R.id.action_chat:
+                                    ChatDialogFragment chat = ChatDialogFragment.newInstance();
+                                    chat.show(getFragmentManager(),"chat");
+                                    break;
+                            }
                         }
-                    }
-                }).show();
+                    }).show();
+        }
         return false;
     }
 

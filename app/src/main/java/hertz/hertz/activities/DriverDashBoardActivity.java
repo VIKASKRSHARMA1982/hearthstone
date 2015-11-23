@@ -24,7 +24,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParsePush;
 import com.parse.ParseQuery;
+import com.parse.SaveCallback;
 
 import java.util.HashMap;
 
@@ -53,13 +55,26 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
         setContentView(R.layout.activity_driver_dashboard);
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        Log.d("parse", "on create");
+        ParsePush.subscribeInBackground("Driver002", new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    Log.d("parse", "successfully subscribed to the broadcast channel.");
+                } else {
+                    Log.e("parse", "failed to subscribe for push", e);
+                }
+            }
+        });
+        Log.d("parse", "is GPS Enabled --> " + isGPSEnabled());
         if (!isGPSEnabled()) {
             enableGPS();
         }
+
         /** mark driver as available */
-        AvailableDriver driver = new AvailableDriver("Driver0001","Ned","Flanders","ABC 123",
-                "09274502976",true);
-        AppConstants.GEOFIRE.getFirebase().child("AvailableDriver").child("Driver001").setValue(driver);
+/*        AvailableDriver driver = new AvailableDriver("Driver0002","Maud","Flanders","DEF 456",
+                "09321622825",true);
+        AppConstants.GEOFIRE.getFirebase().child("AvailableDriver").child("Driver002").setValue(driver);*/
     }
 
     @Override
@@ -84,7 +99,7 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
                             if (googleMap != null) {
                                 moveCamera(googleMap,latLng);
                             }
-                            AppConstants.GEOFIRE.setLocation("AvailDriver001",new GeoLocation(latitude,longitude));
+                            AppConstants.GEOFIRE.setLocation("AvailDriver002",new GeoLocation(latitude,longitude));
                         }
 
                         @Override

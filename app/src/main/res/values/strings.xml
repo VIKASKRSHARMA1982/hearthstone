@@ -92,5 +92,8 @@
 
     <string name="driver_info">View Driver Info</string>
     <string name="rent_car">Rent Car</string>
+    <string name="send_chat">Send Chat</string>
+    <string name="hint_enter_message">Enter your message here</string>
+    <string name="send">Send</string>
 
 </resources>

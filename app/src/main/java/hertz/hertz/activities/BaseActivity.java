@@ -162,6 +162,27 @@ public class BaseActivity extends AppCompatActivity {
         listView.requestLayout();
     }
 
+    public void showSweetDialog(String message, String type) {
+        int dialogType = 0;
+        if (type.equals("error")) {
+            dialogType = SweetAlertDialog.ERROR_TYPE;
+        } else if (type.equals("warning")) {
+            dialogType = SweetAlertDialog.WARNING_TYPE;
+        } else if (type.equals("success")) {
+            dialogType = SweetAlertDialog.SUCCESS_TYPE;
+        }
+        new SweetAlertDialog(this,dialogType)
+                .setTitleText("Hertz")
+                .setContentText(message)
+                .setConfirmText("Close")
+                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                    @Override
+                    public void onClick(SweetAlertDialog sweetAlertDialog) {
+                        sweetAlertDialog.dismiss();
+                    }
+                }).show();
+    }
+
     public void showSweetDialog(String message, String type, final boolean finish,
                                 final Activity activity, final String direction) {
         int dialogType = 0;
