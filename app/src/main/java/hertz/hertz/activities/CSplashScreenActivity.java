@@ -4,7 +4,6 @@ package hertz.hertz.activities;
  * Created by Alyana on 9/19/2015.
  */
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -30,13 +29,10 @@ public class CSplashScreenActivity extends BaseActivity {
 
             @Override
             public void run() {
-                // This method will be executed once the timer is over
-                // Start your app main activity
-                Intent i = new Intent(CSplashScreenActivity.this, COpeningScreenActivity.class);
+                //Intent i = new Intent(CSplashScreenActivity.this, COpeningScreenActivity.class);
+                Intent i = new Intent(CSplashScreenActivity.this, AvailableDriversActivity.class);
                 startActivity(i);
                 animateToLeft(CSplashScreenActivity.this);
-                finish();
-                // close this activity
                 finish();
             }
         }, SPLASH_TIME_OUT);

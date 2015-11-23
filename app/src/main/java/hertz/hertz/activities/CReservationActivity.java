@@ -20,7 +20,7 @@ public class CReservationActivity extends BaseActivity {
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 switch(checkedId) {
                     case R.id.rbPickUp:
-                        startActivity(new Intent(CReservationActivity.this, CChooseDriverActivity.class));
+                        startActivity(new Intent(CReservationActivity.this, AvailableDriversActivity.class));
                         animateToLeft(CReservationActivity.this);
                         break;
                     case R.id.rbCarHire:

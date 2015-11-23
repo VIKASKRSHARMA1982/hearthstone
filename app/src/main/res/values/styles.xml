@@ -35,4 +35,20 @@
         <item name="android:windowExitAnimation">@anim/slide_down</item>
     </style>
 
+    <style name="FieldsStyle" parent="AppTheme">
+        //hint color And Label Color in False State
+        <item name="android:textColorHint">@android:color/darker_gray</item>
+        <item name="android:textColor">@android:color/black</item>
+        //Label color in True State And Bar Color False And True State
+        <item name="colorAccent">@android:color/black</item>
+        <item name="colorControlNormal">@android:color/black</item>
+        <item name="colorControlActivated">@android:color/black</item>
+    </style>
+
+    <style name="FloatingLabelStyle" parent="TextAppearance.AppCompat">
+        //hint color And Label Color in False State
+        <item name="android:textColor">@color/metro_yellow</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
 </resources>

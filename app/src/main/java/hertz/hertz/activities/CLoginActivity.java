@@ -48,11 +48,11 @@ public class CLoginActivity extends BaseActivity {
             setError(etEmail, AppConstants.WARN_INVALID_EMAIL_FORMAT);
         } else {
             /** authenticate user's credentials */
-            showProgressDialog(AppConstants.LOAD_LOGIN);
+            showCustomProgress(AppConstants.LOAD_LOGIN);
             ParseUser.logInInBackground(email, password, new LogInCallback() {
                 @Override
                 public void done(final ParseUser user, ParseException e) {
-                    dismissProgressDialog();
+                    dismissCustomProgress();
                     if (e == null) {
                         if (user.getBoolean("emailVerified")) {
                             AppConstants.FULL_NAME = user.getString("firstName") + " " +

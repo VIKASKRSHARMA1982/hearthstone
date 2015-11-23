@@ -28,15 +28,11 @@ public class CChooseDriverActivity extends ActionBarActivity implements View.OnC
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_driver);
-
         lvMain = (ListView) findViewById(R.id.lv_driver_list);
         DriverListAdapter adapter = new DriverListAdapter();
         lvMain.setAdapter(adapter);
         inflater = this.getLayoutInflater();
         lvMain.invalidate();
-
-
-
     }
 
     @Override

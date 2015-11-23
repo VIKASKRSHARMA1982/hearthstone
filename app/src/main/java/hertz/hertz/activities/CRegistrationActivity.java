@@ -69,11 +69,11 @@ public class CRegistrationActivity extends BaseActivity {
             user.put("lastName", lastName);
             user.put("mobileNo", mobile);
             user.put("age",age);
-            showProgressDialog(AppConstants.LOAD_CREATE_ACCOUNT);
+            showCustomProgress(AppConstants.LOAD_CREATE_ACCOUNT);
             user.signUpInBackground(new SignUpCallback() {
                 @Override
                 public void done(ParseException e) {
-                    dismissProgressDialog();
+                    dismissCustomProgress();
                     if (e == null) {
                         new SweetAlertDialog(CRegistrationActivity.this,SweetAlertDialog.SUCCESS_TYPE)
                                 .setTitleText("Hertz")

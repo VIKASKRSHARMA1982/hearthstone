@@ -243,19 +243,19 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
     @Override
     public void onCalculationBegin() {
         Log.d("dir", "begin");
-        showProgressDialog("Calculating direction, Please wait...");
+        showCustomProgress("Calculating direction, Please wait...");
     }
 
     @Override
     public void onCalculationFinished(ArrayList result) {
         Log.d("dir", "finished!");
-        dismissProgressDialog();
+        dismissCustomProgress();
         map.addPolyline(handleGetDirectionsResult(result));
     }
 
     @Override
     public void onCalculationException(Exception e) {
-        dismissProgressDialog();
+        dismissCustomProgress();
         showToast(e.toString());
         Log.d("dir", "on error --> " + e.toString());
     }
@@ -331,11 +331,15 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
             origin.setLongitude(placeOrigin.getLatLng().longitude);
             booking.put("origin", origin);
             booking.put("user", ParseUser.getCurrentUser());
+            booking.put("from",placeDesti.getName().toString());
+            booking.put("to",placeOrigin.getName().toString());
             booking.put("destiLatitude", placeDesti.getLatLng().latitude);
             booking.put("destiLongitude", placeDesti.getLatLng().longitude);
+            showCustomProgress(AppConstants.LOAD_CREATING_BOOKING);
             booking.saveInBackground(new SaveCallback() {
                 @Override
                 public void done(ParseException e) {
+                    dismissCustomProgress();
                     if (e == null) {
                         /** create booking in fire base */
                         AppConstants.GEOFIRE.setLocation(booking.getObjectId(),

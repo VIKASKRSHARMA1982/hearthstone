@@ -6,31 +6,41 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Point;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.provider.Settings;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.rey.material.app.Dialog;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 import hertz.hertz.R;
+import hertz.hertz.customviews.CustomProgress;
 import hertz.hertz.helpers.AppConstants;
 
 /**
@@ -40,6 +50,7 @@ public class BaseActivity extends AppCompatActivity {
 
     private SweetAlertDialog sweetAlertDialog;
     private ProgressDialog pDialog;
+    private CustomProgress customProgress;
 
     public void showProgressDialog(String message) {
         pDialog = new ProgressDialog(this);
@@ -198,7 +209,8 @@ public class BaseActivity extends AppCompatActivity {
         Marker marker = map.addMarker(new MarkerOptions().position(new LatLng(lat, longi)).
                 title(title).snippet(snippet).icon(
                 icon == -1 ? BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
-                        : BitmapDescriptorFactory.fromResource(icon)));
+                : icon == 1 ? BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)
+                : BitmapDescriptorFactory.fromResource(icon)));
         if (showInfo) {
             marker.showInfoWindow();
         }
@@ -206,27 +218,80 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     public void enableGPS() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Enable GPS");
-        builder.setMessage("Please do activate your GPS first to get your current location");
-        builder.setPositiveButton("Enable", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                LocationManager service = (LocationManager) getSystemService(LOCATION_SERVICE);
-                boolean enabled = service.isProviderEnabled(LocationManager.GPS_PROVIDER);
-                if (!enabled) {
-                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                    startActivityForResult(intent, AppConstants.REQUEST_ENABLE_GPS);
-                }
-            }
-        });
-        builder.setCancelable(false);
-        builder.show();
+        final Dialog mDialog = new Dialog(this);
+        mDialog.title("Enable GPS")
+                .contentView(R.layout.dialog_enable_gps)
+                .titleColor(ContextCompat.getColor(this, R.color.metro_yellow))
+                .positiveAction("OK")
+                .positiveActionTextColor(ContextCompat.getColor(this, R.color.metro_yellow))
+                .positiveActionClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        LocationManager service = (LocationManager) getSystemService(LOCATION_SERVICE);
+                        boolean enabled = service.isProviderEnabled(LocationManager.GPS_PROVIDER);
+                        if (!enabled) {
+                            mDialog.dismiss();
+                            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                            startActivityForResult(intent, AppConstants.REQUEST_ENABLE_GPS);
+                        }
+                    }
+                })
+                .cancelable(false)
+                .show();
     }
 
     public CircleOptions drawMarkerWithCircle(double radius, GoogleMap map, LatLng position) {
         return new CircleOptions().center(position)
                 .radius(radius).fillColor(AppConstants.MAP_CIRCLE_SHADE_COLOR)
-                .strokeColor(AppConstants.MAP_CIRCLE_STROKE_COLOR).strokeWidth(3);
+                .strokeColor(AppConstants.MAP_CIRCLE_STROKE_COLOR).strokeWidth(0);
+    }
+
+    public void showCustomProgress(String message) {
+        if (customProgress == null) {
+            customProgress = CustomProgress.newInstance(message);
+            customProgress.setCancelable(false);
+            customProgress.show(getSupportFragmentManager(),"load");
+        }
+    }
+
+    public void dismissCustomProgress() {
+        if (customProgress != null) {
+            customProgress.dismiss();
+            customProgress = null;
+        }
+    }
+
+    public void animateMarker(GoogleMap map, final Marker marker, final LatLng toPosition,
+                              final boolean hideMarker) {
+        final Handler handler = new Handler();
+        final long start = SystemClock.uptimeMillis();
+        Projection proj = map.getProjection();
+        Point startPoint = proj.toScreenLocation(marker.getPosition());
+        final LatLng startLatLng = proj.fromScreenLocation(startPoint);
+        final long duration = 500;
+
+        final Interpolator interpolator = new LinearInterpolator();
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                long elapsed = SystemClock.uptimeMillis() - start;
+                float t = interpolator.getInterpolation((float) elapsed
+                        / duration);
+                double lng = t * toPosition.longitude + (1 - t)
+                        * startLatLng.longitude;
+                double lat = t * toPosition.latitude + (1 - t)
+                        * startLatLng.latitude;
+                marker.setPosition(new LatLng(lat, lng));
+
+                if (t < 1.0) {
+                    // Post again 16ms later.
+                    Log.d("geo", "animate");
+                    handler.postDelayed(this, 16);
+                } else {
+                    marker.setVisible(!hideMarker);
+                }
+            }
+        });
     }
 }

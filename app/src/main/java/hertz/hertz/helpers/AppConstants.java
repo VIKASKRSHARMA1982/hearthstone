@@ -35,6 +35,8 @@ public class AppConstants {
     /** loading messages */
     public static final String LOAD_CREATE_ACCOUNT = "Creating your account, Please wait";
     public static final String LOAD_LOGIN = "Authenticating your credentials, Please wait";
+    public static final String LOAD_BOOKING_INFO = "Getting booking info, Please wait...";
+    public static final String LOAD_CREATING_BOOKING = "Creating booking, Please wait...";
 
     /** error messages */
     public static final String ERR_CONNECTION = "Connection error, Please check your network connection and try again!";
@@ -42,6 +44,7 @@ public class AppConstants {
     public static final String ERR_CREATE_ACCOUNT = "Sorry, but your email address was already taken!";
     public static final String ERR_EMAIL_NOT_VERIFIED = "Please validate your email address first to proceed!";
     public static final String ERR_CREATE_BOOKING = "Failed to create your booking ,Please try again!";
+    public static final String ERR_GET_BOOKING_INFO = "Failed to get booking info,Please try again!";
 
     /** success messages */
     public static final String OK_ACCOUNT_CREATED = "Congratulations, Your account was successfully created"+
