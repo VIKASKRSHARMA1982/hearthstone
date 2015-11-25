@@ -31,6 +31,7 @@ public class AppConstants {
     public static final String WARN_TOO_MANY_PASSENGER_COUNT = "Too many passenger count, seating capacity only limited to 20";
     public static final String WARN_FETCHING = "Currently fetching data, Please try again after a few seconds!";
     public static final String WARN_INVALID_EMAIL_FORMAT = "Invalid email format!";
+    public static final String WARN_PLEASE_ENTER_YOUR_MESSAGE = "Please enter your message";
 
     /** loading messages */
     public static final String LOAD_CREATE_ACCOUNT = "Creating your account, Please wait";

@@ -43,4 +43,7 @@
     <color name="metro_yellow">#fbe31d</color>
     <color name="metro_teal">#00aba9</color>
 
+    <color name="metro_blue">#2d89ef</color>
+    <color name="metro_green">#43a047</color>
+
 </resources>

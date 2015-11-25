@@ -29,8 +29,8 @@ public class CSplashScreenActivity extends BaseActivity {
 
             @Override
             public void run() {
-                //Intent i = new Intent(CSplashScreenActivity.this, COpeningScreenActivity.class);
-                Intent i = new Intent(CSplashScreenActivity.this, AvailableDriversActivity.class);
+                Intent i = new Intent(CSplashScreenActivity.this, COpeningScreenActivity.class);
+                //Intent i = new Intent(CSplashScreenActivity.this, AvailableDriversActivity.class);
                 startActivity(i);
                 animateToLeft(CSplashScreenActivity.this);
                 finish();

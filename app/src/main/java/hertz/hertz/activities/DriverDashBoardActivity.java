@@ -1,11 +1,14 @@
 package hertz.hertz.activities;
 
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.firebase.client.FirebaseError;
@@ -26,14 +29,20 @@ import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParsePush;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 import com.parse.SaveCallback;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 
 import hertz.hertz.R;
 import hertz.hertz.fragments.BookingInfoDialogFragment;
+import hertz.hertz.fragments.ChatDialogFragment;
 import hertz.hertz.helpers.AppConstants;
 import hertz.hertz.model.AvailableDriver;
+import hertz.hertz.model.Chat;
 import hertz.hertz.services.GPSTrackerService;
 
 /**
@@ -48,6 +57,8 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
     private HashMap<String,Marker> markers = new HashMap<>();
     private Circle circle;
     private Marker yourMarker;
+    private BroadcastReceiver broadcastReceiver;
+    private boolean isChatWindowOpen;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +86,29 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
 /*        AvailableDriver driver = new AvailableDriver("Driver0002","Maud","Flanders","DEF 456",
                 "09321622825",true);
         AppConstants.GEOFIRE.getFirebase().child("AvailableDriver").child("Driver002").setValue(driver);*/
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String data = intent.getStringExtra("com.parse.Data");
+                Log.d("push","on broadcast received! --> " + data);
+                if (!isChatWindowOpen) {
+                    isChatWindowOpen = true;
+                    try {
+                        JSONObject obj = new JSONObject(data);
+                        String room = obj.getJSONObject("json").getString("room");
+                        Log.d("push","received room --> " + room);
+                        ChatDialogFragment chat = ChatDialogFragment.newInstance(room);
+                        chat.show(getFragmentManager(),"chat");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        Log.d("push","error --> " + e.toString());
+                    }
+                }
+            }
+        };
+        LocalBroadcastManager mgr = LocalBroadcastManager.getInstance(this);
+        mgr.registerReceiver(broadcastReceiver, new IntentFilter("broadcast_action"));
+        Log.d("push","broadcast receiver initialized!");
     }
 
     @Override
@@ -82,6 +116,22 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
         super.onStart();
         Intent intent = new Intent(this, GPSTrackerService.class);
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(broadcastReceiver);
+        Log.d("push", "on pause");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("broadcast_action");
+        this.registerReceiver(broadcastReceiver, filter);
+        Log.d("push", "on resume");
     }
 
     private ServiceConnection serviceConnection = new ServiceConnection() {

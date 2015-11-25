@@ -27,6 +27,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="bottom"
+            android:layout_marginLeft="@dimen/dp_ten"
+            android:layout_marginRight="@dimen/dp_ten"
             android:layout_alignParentBottom="true"
             android:orientation="horizontal">
 
@@ -54,6 +56,9 @@
             android:id="@+id/lvChat"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:dividerHeight="@dimen/dp_five"
+            android:layout_margin="@dimen/dp_ten"
+            android:divider="@android:color/transparent"
             android:layout_above="@id/llMessage"></ListView>
 
 

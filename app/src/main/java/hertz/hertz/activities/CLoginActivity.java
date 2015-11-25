@@ -65,7 +65,11 @@ public class CLoginActivity extends BaseActivity {
                                         @Override
                                         public void onClick(SweetAlertDialog sweetAlertDialog) {
                                             sweetAlertDialog.dismiss();
-                                            startActivity(new Intent(CLoginActivity.this, HomeActivity.class));
+                                            if (user.getString("userRole").equals("driver")) {
+                                                startActivity(new Intent(CLoginActivity.this, DriverDashBoardActivity.class));
+                                            } else {
+                                                startActivity(new Intent(CLoginActivity.this, HomeActivity.class));
+                                            }
                                             animateToLeft(CLoginActivity.this);
                                             finish();
                                         }

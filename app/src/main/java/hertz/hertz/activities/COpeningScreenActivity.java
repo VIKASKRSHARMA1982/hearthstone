@@ -38,8 +38,12 @@ public class COpeningScreenActivity extends BaseActivity {
             case R.id.bLogin:
                 /** check if there's still a logged in parse user */
                 if (ParseUser.getCurrentUser() != null) {
-                    /** skip login screen and proceed to home screen */
-                    startActivity(new Intent(this,HomeActivity.class));
+                    if (ParseUser.getCurrentUser().getString("userRole").equals("driver")) {
+                        startActivity(new Intent(this, DriverDashBoardActivity.class));
+                    } else {
+                        /** skip login screen and proceed to home screen */
+                        startActivity(new Intent(this, HomeActivity.class));
+                    }
                     animateToLeft(this);
                     finish();
                 } else {
