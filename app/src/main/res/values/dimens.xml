@@ -9,7 +9,9 @@
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="sp_five">5sp</dimen>
     <dimen name="sp_ten">10sp</dimen>
+    <dimen name="sp_fourteen">14sp</dimen>
     <dimen name="sp_fifteen">15sp</dimen>
+    <dimen name="sp_seventeen">17sp</dimen>
     <dimen name="sp_twenty">20sp</dimen>
     <dimen name="sp_twenty_five">25sp</dimen>
     <dimen name="sp_thirty">30sp</dimen>

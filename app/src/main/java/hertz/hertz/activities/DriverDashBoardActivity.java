@@ -10,7 +10,10 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.BaseAdapter;
 
+import com.firebase.client.ChildEventListener;
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.FirebaseError;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
@@ -59,6 +62,7 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
     private Marker yourMarker;
     private BroadcastReceiver broadcastReceiver;
     private boolean isChatWindowOpen;
+    private boolean isListeningToRoom;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,25 +95,69 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
             public void onReceive(Context context, Intent intent) {
                 String data = intent.getStringExtra("com.parse.Data");
                 Log.d("push","on broadcast received! --> " + data);
-                if (!isChatWindowOpen) {
-                    isChatWindowOpen = true;
-                    try {
-                        JSONObject obj = new JSONObject(data);
-                        String room = obj.getJSONObject("json").getString("room");
-                        Log.d("push","received room --> " + room);
-                        ChatDialogFragment chat = ChatDialogFragment.newInstance(room);
-                        chat.show(getFragmentManager(),"chat");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        Log.d("push","error --> " + e.toString());
-                    }
-                }
+                showChatWindow(data);
             }
         };
         LocalBroadcastManager mgr = LocalBroadcastManager.getInstance(this);
         mgr.registerReceiver(broadcastReceiver, new IntentFilter("broadcast_action"));
         Log.d("push","broadcast receiver initialized!");
     }
+
+    private void showChatWindow(final String data) {
+        if (!isChatWindowOpen) {
+            isChatWindowOpen = true;
+            try {
+                JSONObject obj = new JSONObject(data);
+                final String room = obj.getJSONObject("json").getString("room");
+                final String sender = obj.getJSONObject("json").getString("senderName");
+                ChatDialogFragment chat = ChatDialogFragment.newInstance(room, sender);
+                chat.setOnDismissListener(new ChatDialogFragment.OnDismissListener() {
+                    @Override
+                    public void onDismiss() {
+                        isChatWindowOpen = false;
+                        if (!isListeningToRoom) {
+                            isListeningToRoom = true;
+                            listenToRoom(room,data);
+                        }
+                    }
+                });
+                chat.show(getFragmentManager(), "chat");
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Log.d("push","error --> " + e.toString());
+            }
+        }
+    }
+
+    private void listenToRoom(final String room, final String data) {
+        AppConstants.FIREBASE.child("Chat").child(room).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                showChatWindow(data);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+    }
+
 
     @Override
     protected void onStart() {

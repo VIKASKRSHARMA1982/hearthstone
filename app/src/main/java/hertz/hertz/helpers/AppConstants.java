@@ -32,12 +32,16 @@ public class AppConstants {
     public static final String WARN_FETCHING = "Currently fetching data, Please try again after a few seconds!";
     public static final String WARN_INVALID_EMAIL_FORMAT = "Invalid email format!";
     public static final String WARN_PLEASE_ENTER_YOUR_MESSAGE = "Please enter your message";
+    public static final String WARN_SELECT_CAR_IMAGE = "Please select the car model's image";
 
     /** loading messages */
     public static final String LOAD_CREATE_ACCOUNT = "Creating your account, Please wait";
     public static final String LOAD_LOGIN = "Authenticating your credentials, Please wait";
     public static final String LOAD_BOOKING_INFO = "Getting booking info, Please wait...";
     public static final String LOAD_CREATING_BOOKING = "Creating booking, Please wait...";
+    public static final String LOAD_CREATE_CAR = "Creating new car record, Please wait...";
+    public static final String LOAD_FETCH_CAR = "Fetching car records, Please wait...";
+    public static final String LOAD_DELETE_CAR = "Deleting car record, Please wait...";
 
     /** error messages */
     public static final String ERR_CONNECTION = "Connection error, Please check your network connection and try again!";
@@ -51,6 +55,8 @@ public class AppConstants {
     public static final String OK_ACCOUNT_CREATED = "Congratulations, Your account was successfully created"+
             ", Please do validate your email address!";
     public static final String OK_BOOKING_CREATED = "Congratulations, Your booking was successfully created";
+    public static final String OK_NEW_CAR_ADDED = "Congratulations, New car record was successfully created";
+    public static final String OK_CAR_DELETED = "Car record was successfully deleted!";
 
 
     /** default values */
@@ -66,4 +72,6 @@ public class AppConstants {
     public static String FULL_NAME = "";
 
     public static final int REQUEST_ENABLE_GPS = 1;
+
 }
+

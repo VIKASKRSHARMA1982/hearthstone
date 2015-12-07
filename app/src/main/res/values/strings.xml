@@ -96,4 +96,15 @@
     <string name="hint_enter_message">Enter your message here</string>
     <string name="send">Send</string>
 
+    <string name="manage_car">Manage Cars</string>
+    <string name="manage_drivers">Manage Drivers</string>
+    <string name="register_car">Add a Car</string>
+    <string name="add_Driver">Add Driver</string>
+    <string name="car_model">Car Model</string>
+    <string name="description">Description</string>
+    <string name="rate_per_3_hours">Rate per 3 Hours </string>
+    <string name="rate_per_10_hours">Rate per 10 Hours </string>
+    <string name="excess_rate">Excess Rate </string>
+    <string name="add_car_image">Upload the car image</string>
+
 </resources>

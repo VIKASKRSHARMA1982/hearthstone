@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="@dimen/dp_five"
+    android:layout_marginLeft="@dimen/dp_five"
+    android:layout_marginRight="@dimen/dp_five"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/cardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:elevation="@dimen/dp_ten"
+        card_view:cardCornerRadius="@dimen/dp_five">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/ivCarImage"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_centerVertical="true"
+                android:src="@drawable/car_holder"
+                app:civ_border_color="@color/metro_yellow"
+                app:civ_border_width="0dp" />
+
+            <LinearLayout
+                android:id="@+id/llOptions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="@dimen/dp_five"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/ivEdit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/dp_ten"
+                    android:src="@drawable/edit"/>
+
+                <ImageView
+                    android:id="@+id/ivDelete"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/delete"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/dp_fifteen"
+                android:layout_toRightOf="@id/ivCarImage"
+                android:layout_toLeftOf="@id/llOptions"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="40"
+                        android:text="@string/car_model"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="@dimen/sp_fourteen" />
+
+                    <TextView
+                        android:id="@+id/tvCarModel"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="60"
+                        android:paddingLeft="@dimen/dp_five"
+                        android:text="@string/car_model"
+                        android:textColor="@android:color/black"
+                        android:textSize="@dimen/sp_seventeen"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="40"
+                        android:text="@string/rate_per_3_hours"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="@dimen/sp_fourteen" />
+
+                    <TextView
+                        android:id="@+id/tvRatePer3Hours"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="60"
+                        android:paddingLeft="@dimen/dp_five"
+                        android:text="@string/car_model"
+                        android:textColor="@android:color/black"
+                        android:textSize="@dimen/sp_seventeen"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- rate per 10 hours -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="40"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/sp_fourteen"
+                        android:textColor="@android:color/darker_gray"
+                        android:text="@string/rate_per_10_hours"/>
+
+                    <TextView
+                        android:id="@+id/tvRatePer10Hours"
+                        android:layout_width="0dp"
+                        android:layout_weight="60"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="@dimen/dp_five"
+                        android:textSize="@dimen/sp_seventeen"
+                        android:textColor="@android:color/black"
+                        android:textStyle="bold"
+                        android:text="@string/car_model"/>
+                </LinearLayout>
+
+                <!-- excess rate -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_weight="40"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/sp_fourteen"
+                        android:textColor="@android:color/darker_gray"
+                        android:text="@string/excess_rate"/>
+
+                    <TextView
+                        android:id="@+id/tvExcessRate"
+                        android:layout_width="0dp"
+                        android:layout_weight="60"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/sp_seventeen"
+                        android:textColor="@android:color/black"
+                        android:paddingLeft="@dimen/dp_five"
+                        android:textStyle="bold"
+                        android:text="@string/car_model"/>
+                </LinearLayout>
+
+            </LinearLayout>
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+
+</LinearLayout>

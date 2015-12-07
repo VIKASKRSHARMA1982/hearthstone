@@ -10,6 +10,8 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.cocosw.bottomsheet.BottomSheet;
+import com.firebase.client.ChildEventListener;
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.FirebaseError;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
@@ -45,6 +47,10 @@ public class AvailableDriversActivity extends BaseActivity implements OnMapReady
     private HashMap<String,Marker> markers = new HashMap<>();
     private Circle circle;
     private Marker yourMarker;
+    private boolean isChatWindowOpen;
+    private boolean isListeningToRoom;
+    private String room;
+    private String driver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,7 +138,7 @@ public class AvailableDriversActivity extends BaseActivity implements OnMapReady
             circle = null;
         }
         circle = googleMap.addCircle(drawMarkerWithCircle(5000, googleMap, latLng));
-        yourMarker = addMapMarker(googleMap, latLng.latitude, latLng.longitude, "You're currently here", "", -1, true);
+        //yourMarker = addMapMarker(googleMap, latLng.latitude, latLng.longitude, "You're currently here", "", -1, true);
         if (geoQuery == null) {
             initGeoQuery();
         }
@@ -178,7 +184,6 @@ public class AvailableDriversActivity extends BaseActivity implements OnMapReady
         });
     }
 
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap = googleMap;
@@ -206,15 +211,62 @@ public class AvailableDriversActivity extends BaseActivity implements OnMapReady
                                 case R.id.action_rent_car:
                                     break;
                                 case R.id.action_chat:
-                                    String room = ParseUser.getCurrentUser().getObjectId()+"-"+marker.getTitle();
-                                    ChatDialogFragment chat = ChatDialogFragment.newInstance(room);
-                                    chat.show(getFragmentManager(),"chat");
+                                    driver = marker.getTitle();
+                                    room = ParseUser.getCurrentUser().getObjectId() + "-" + driver;
+                                    showChatWindow();
                                     break;
                             }
                         }
                     }).show();
         }
         return false;
+    }
+
+    private void showChatWindow() {
+        if (!isChatWindowOpen) {
+            isChatWindowOpen = true;
+            ChatDialogFragment chat = ChatDialogFragment.newInstance(room,driver);
+            chat.setOnDismissListener(new ChatDialogFragment.OnDismissListener() {
+                @Override
+                public void onDismiss() {
+                    isChatWindowOpen = false;
+                    if (!isListeningToRoom) {
+                        isListeningToRoom = true;
+                        listenToRoom(room);
+                    }
+                }
+            });
+            chat.show(getFragmentManager(), "chat");
+        }
+    }
+
+    private void listenToRoom(String room) {
+        AppConstants.FIREBASE.child("Chat").child(room).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                showChatWindow();
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
     }
 
     @Override

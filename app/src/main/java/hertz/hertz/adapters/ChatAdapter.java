@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.DataSetObserver;
 import android.graphics.drawable.GradientDrawable;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 
 import com.parse.ParseUser;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 
 import hertz.hertz.R;
@@ -58,12 +60,14 @@ public class ChatAdapter extends BaseAdapter {
         if (view == null) {
             view = inflater.inflate(R.layout.row_chat,null);
             holder = new ViewHolder();
+            holder.llMessage = (LinearLayout)view.findViewById(R.id.llMessage);
+            holder.tvDate = (TextView)view.findViewById(R.id.tvDate);
             holder.tvMessage = (TextView)view.findViewById(R.id.tvMessage);
             view.setTag(holder);
         } else {
             holder = (ViewHolder)view.getTag();
         }
-        GradientDrawable bgShape = (GradientDrawable)holder.tvMessage.getBackground();
+        GradientDrawable bgShape = (GradientDrawable)holder.llMessage.getBackground();
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                                                                 ViewGroup.LayoutParams.WRAP_CONTENT,
                                                                 ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -74,12 +78,21 @@ public class ChatAdapter extends BaseAdapter {
             bgShape.setColor(ContextCompat.getColor(context,R.color.metro_green));
             lp.gravity= Gravity.LEFT;
         }
-        holder.tvMessage.setLayoutParams(lp);
+        holder.llMessage.setLayoutParams(lp);
         holder.tvMessage.setText(getItem(position).getMessage());
+        try {
+            holder.tvDate.setText(activity.getSDFWithTime().format(activity.getSDFWithTime()
+                    .parse(getItem(position).getTimeStamp())));
+        } catch (ParseException e) {
+            Log.d("push", "error --> " + e.toString());
+            e.printStackTrace();
+        }
         return view;
     }
 
     public class ViewHolder {
+        LinearLayout llMessage;
         TextView tvMessage;
+        TextView tvDate;
     }
 }

@@ -60,7 +60,7 @@
         </receiver>
 
         <activity
-            android:name=".activities.CSplashScreenActivity"
+            android:name=".activities.CarManagementActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait" >
             <intent-filter>
@@ -147,6 +147,7 @@
         <activity
             android:name=".activities.CVehicleActivity"
             android:label="@string/title_activity_cvehicle"
+            android:screenOrientation="portrait"
             android:parentActivityName=".activities.CMapsActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -154,9 +155,15 @@
         </activity>
         <activity
             android:name=".views.CAssignedDriver"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_cassigned_driver" >
         </activity>
-        <activity android:name=".activities.HomeActivity" />
+        <activity android:name=".activities.SuperAdminActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".activities.HomeActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".activities.CSplashScreenActivity"
+            android:screenOrientation="portrait"/>
         <service android:name=".services.GPSTrackerService" />
     </application>
 
