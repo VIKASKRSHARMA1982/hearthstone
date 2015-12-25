@@ -69,6 +69,7 @@ public class CRegistrationActivity extends BaseActivity {
             user.put("lastName", lastName);
             user.put("mobileNo", mobile);
             user.put("age",age);
+            user.put("userRole","user");
             showCustomProgress(AppConstants.LOAD_CREATE_ACCOUNT);
             user.signUpInBackground(new SignUpCallback() {
                 @Override

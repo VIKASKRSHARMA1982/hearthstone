@@ -335,6 +335,8 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
             booking.put("to",placeOrigin.getName().toString());
             booking.put("destiLatitude", placeDesti.getLatLng().latitude);
             booking.put("destiLongitude", placeDesti.getLatLng().longitude);
+            booking.put("bookedBy",AppConstants.FULL_NAME);
+            booking.put("status","pending");
             showCustomProgress(AppConstants.LOAD_CREATING_BOOKING);
             booking.saveInBackground(new SaveCallback() {
                 @Override

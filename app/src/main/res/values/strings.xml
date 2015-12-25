@@ -98,6 +98,7 @@
 
     <string name="manage_car">Manage Cars</string>
     <string name="manage_drivers">Manage Drivers</string>
+    <string name="assign_driver_to_car">Assign driver to car</string>
     <string name="register_car">Add a Car</string>
     <string name="add_Driver">Add Driver</string>
     <string name="car_model">Car Model</string>

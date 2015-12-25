@@ -6,19 +6,27 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
+import android.widget.LinearLayout;
 
 import com.parse.ParseUser;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
 import hertz.hertz.R;
 import hertz.hertz.helpers.AppConstants;
 
 public class COpeningScreenActivity extends BaseActivity {
 
+    @Bind(R.id.llSignUp) LinearLayout llSignUp;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_copening_screen);
-
+        ButterKnife.bind(this);
+        if (getResources().getString(R.string.app_name).equals("Hertz Driver App")) {
+            llSignUp.setVisibility(View.GONE);
+        }
         if (!isNetworkAvailable()) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage(AppConstants.ERR_CONNECTION)

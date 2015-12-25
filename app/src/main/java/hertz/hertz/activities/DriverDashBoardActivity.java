@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
@@ -71,11 +72,21 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         Log.d("parse", "on create");
-        ParsePush.subscribeInBackground("Driver002", new SaveCallback() {
+        ParsePush.subscribeInBackground("Drivers", new SaveCallback() {
             @Override
             public void done(ParseException e) {
                 if (e == null) {
-                    Log.d("parse", "successfully subscribed to the broadcast channel.");
+                    Log.d("parse", "successfully subscribed to the broadcast channel [Drivers]");
+                } else {
+                    Log.e("parse", "failed to subscribe for push", e);
+                }
+            }
+        });
+        ParsePush.subscribeInBackground("D"+ParseUser.getCurrentUser().getObjectId(), new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    Log.d("parse", "successfully subscribed to the broadcast channel [" + "D"+ParseUser.getCurrentUser().getObjectId() +"]");
                 } else {
                     Log.e("parse", "failed to subscribe for push", e);
                 }
@@ -94,8 +105,29 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
             @Override
             public void onReceive(Context context, Intent intent) {
                 String data = intent.getStringExtra("com.parse.Data");
-                Log.d("push","on broadcast received! --> " + data);
-                showChatWindow(data);
+                Log.d("push", "on broadcast received! --> " + data);
+                JSONObject json = null;
+                try {
+                    json = new JSONObject(data);
+                    if (json.has("room")) {
+                        Log.d("push","SHOW CHAT WINDOW");
+                        showChatWindow(data);
+                    } else {
+                        if (json.getJSONObject("json").getString("bookingStatus").equals("pending")) {
+                            Log.d("push", "SHOW BOOKING MARKER");
+                            showBookingMarker(json.getJSONObject("json").getString("bookingId"),
+                                    json.getJSONObject("json").getDouble("latitude"),
+                                    json.getJSONObject("json").getDouble("longitude"));
+                        } else {
+                            Log.d("push", "REMOVE BOOKING MARKER --> " + json.getJSONObject("json").getString("bookingId"));
+                            markers.get(json.getJSONObject("json").getString("bookingId")).remove();
+                            markers.remove(json.getJSONObject("json").getString("bookingId"));
+                        }
+                    }
+                } catch (JSONException e) {
+                    Log.d("push","ERROR IN PARSING JSON --> " + e.getMessage());
+                    e.printStackTrace();
+                }
             }
         };
         LocalBroadcastManager mgr = LocalBroadcastManager.getInstance(this);
@@ -126,6 +158,27 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
                 e.printStackTrace();
                 Log.d("push","error --> " + e.toString());
             }
+        }
+    }
+
+    private void showBookingMarker(String bookingId, double latitude, double longitude) {
+        Location bookingLocation = new Location("");
+        bookingLocation.setLatitude(latitude);
+        bookingLocation.setLongitude(longitude);
+
+        Location currentLocation = new Location("");
+        currentLocation.setLatitude(latLng.latitude);
+        currentLocation.setLongitude(latLng.longitude);
+
+        float distanceInMeters = currentLocation.distanceTo(bookingLocation);
+        float distanceInKiloMeter = distanceInMeters / 1000;
+
+        Log.d("push", "DISTANCE IN METERS --> " + distanceInMeters);
+        Log.d("push", "DISTANCE IN KILOMETERS --> " + distanceInKiloMeter);
+        Log.d("push"," BOOK THIS MARKER --> " + bookingId);
+
+        if (distanceInKiloMeter > 0) {
+            markers.put(bookingId, addMapMarker(googleMap, latitude, longitude, "Booking Id : " + bookingId, "", 1, false));
         }
     }
 
@@ -197,7 +250,6 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
                             if (googleMap != null) {
                                 moveCamera(googleMap,latLng);
                             }
-                            AppConstants.GEOFIRE.setLocation("AvailDriver002",new GeoLocation(latitude,longitude));
                         }
 
                         @Override
@@ -242,12 +294,6 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
         }
         circle = googleMap.addCircle(drawMarkerWithCircle(5000, googleMap, latLng));
         yourMarker = addMapMarker(googleMap, latLng.latitude, latLng.longitude, "You're currently here", "", -1, true);
-        if (geoQuery == null) {
-            initGeoQuery();
-        }
-        geoQuery.setCenter(new GeoLocation(latLng.latitude, latLng.longitude));
-        geoQuery.setRadius(5);
-
     }
 
     @Override
@@ -267,38 +313,6 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
         }
     }
 
-    private void initGeoQuery() {
-        geoQuery = AppConstants.GEOFIRE.queryAtLocation(new GeoLocation(latLng.latitude, latLng.longitude), 5);
-        geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
-            @Override
-            public void onKeyEntered(String key, GeoLocation location) {
-                Log.d("geo", "key --> " + key + " location --> " + location.latitude + "," + location.longitude);
-                markers.put(key, addMapMarker(googleMap, location.latitude, location.longitude,
-                        key, "", 1, false));
-            }
-
-            @Override
-            public void onKeyExited(String key) {
-                Log.d("geo", "umexit na");
-                markers.remove(key);
-            }
-
-            @Override
-            public void onKeyMoved(String key, GeoLocation location) {
-                Log.d("geo", "gumalaw");
-            }
-
-            @Override
-            public void onGeoQueryReady() {
-                Log.d("geo", "geo query ready!");
-            }
-
-            @Override
-            public void onGeoQueryError(FirebaseError error) {
-                Log.d("geo", "firebase error --> " + error.getMessage());
-            }
-        });
-    }
 
     /** map marker listener */
     @Override
@@ -309,7 +323,8 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
             ParseQuery<ParseObject> query = ParseQuery.getQuery("Booking");
             query.include("user");
             showProgressDialog(AppConstants.LOAD_BOOKING_INFO);
-            query.getInBackground(marker.getTitle(), new GetCallback<ParseObject>() {
+            String bookingId = marker.getTitle().replace("Booking Id : ","");
+            query.getInBackground(bookingId, new GetCallback<ParseObject>() {
                 @Override
                 public void done(ParseObject object, ParseException e) {
                     dismissProgressDialog();
