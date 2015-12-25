@@ -52,7 +52,7 @@ public class CarManagementActivity extends BaseActivity {
         getCars();
     }
 
-    private void getCars() {
+    public void getCars() {
         if (!swipeRefresh.isRefreshing()) {
             showCustomProgress(AppConstants.LOAD_FETCH_CAR);
         }
@@ -81,7 +81,7 @@ public class CarManagementActivity extends BaseActivity {
 
     @OnClick(R.id.btnAddCar)
     public void addCar() {
-        final AddCarDialogFragment fragment = AddCarDialogFragment.newInstance();
+        final AddCarDialogFragment fragment = AddCarDialogFragment.newInstance(null);
         fragment.setOnAddCarListener(new AddCarDialogFragment.OnAddCarListener() {
             @Override
             public void onSuccessful() {

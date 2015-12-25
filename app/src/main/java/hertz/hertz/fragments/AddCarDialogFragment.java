@@ -23,6 +23,9 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
@@ -51,14 +54,18 @@ public class AddCarDialogFragment extends DialogFragment {
     @Bind(R.id.etRatePer3Hours) EditText etRatePer3Hours;
     @Bind(R.id.etRatePer10Hours) EditText etRatePer10Hours;
     @Bind(R.id.etExcess) EditText etExcess;
+    @Bind(R.id.tvHeader) TextView tvHeader;
     private static final int SELECT_IMAGE = 1;
     private View view;
     private CarManagementActivity activity;
     private Bitmap bitmap;
     private OnAddCarListener onAddCarListener;
+    private ParseObject car;
+    private boolean hasImage;
 
-    public static AddCarDialogFragment newInstance() {
+    public static AddCarDialogFragment newInstance(ParseObject car) {
         AddCarDialogFragment frag = new AddCarDialogFragment();
+        frag.car = car;
         return frag;
     }
 
@@ -73,6 +80,45 @@ public class AddCarDialogFragment extends DialogFragment {
         view = getActivity().getLayoutInflater().inflate(R.layout.dialog_fragment_add_car, null);
         ButterKnife.bind(this, view);
         activity = (CarManagementActivity)getActivity();
+
+        if (car != null) {
+            tvHeader.setText("Update car");
+            etCarModel.setText(car.getString("carModel"));
+            etDescripton.setText(car.getString("description"));
+            etRatePer3Hours.setText(car.getNumber("ratePer3Hours").toString());
+            etRatePer10Hours.setText(car.getNumber("ratePer10Hours").toString());
+            etExcess.setText(car.getNumber("excessRate").toString());
+            if (car.getParseFile("carImage") != null) {
+                ImageLoader.getInstance().loadImage(car.getParseFile("carImage").getUrl(), new ImageLoadingListener() {
+                    @Override
+                    public void onLoadingStarted(String imageUri, View view) {
+
+                    }
+
+                    @Override
+                    public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                        tvAddCarImage.setText("Failed to load car image");
+
+                    }
+
+                    @Override
+                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                        tvAddCarImage.setVisibility(View.GONE);
+                        ivDeleteImage.setVisibility(View.VISIBLE);
+                        ivAddCarImage.setImageBitmap(loadedImage);
+                    }
+
+                    @Override
+                    public void onLoadingCancelled(String imageUri, View view) {
+
+                    }
+                });
+            }
+            ivDeleteImage.setVisibility(View.GONE);
+            tvAddCarImage.setText("Fetching car image, Please wait...");
+            hasImage = true;
+        }
+
         final Dialog mDialog = new Dialog(getActivity());
         mDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         mDialog.setContentView(view);
@@ -87,6 +133,7 @@ public class AddCarDialogFragment extends DialogFragment {
         if (requestCode == SELECT_IMAGE) {
             if (resultCode == getActivity().RESULT_OK) {
                 bitmap = BitmapFactory.decodeFile(getPath(getActivity(), data.getData()));
+                hasImage = true;
                 ivAddCarImage.setImageBitmap(bitmap);
                 ivDeleteImage.setVisibility(View.VISIBLE);
                 tvAddCarImage.setVisibility(View.GONE);
@@ -108,9 +155,11 @@ public class AddCarDialogFragment extends DialogFragment {
     @OnClick(R.id.ivDeleteImage)
     public void deleteImage() {
         bitmap = null;
+        hasImage = false;
         ivAddCarImage.setImageDrawable(null);
         ivDeleteImage.setVisibility(View.GONE);
         tvAddCarImage.setVisibility(View.VISIBLE);
+        tvAddCarImage.setText("Add car the car image");
     }
 
     @OnClick({R.id.rlAddImage, R.id.tvAddCarImage})
@@ -132,10 +181,10 @@ public class AddCarDialogFragment extends DialogFragment {
             final String ratePer10Hours = etRatePer10Hours.getText().toString();
             final String excessRate = etExcess.getText().toString();
 
-            if (carModel.isEmpty()) {
-                activity.setError(etCarModel, AppConstants.WARN_FIELD_REQUIRED);
-            } else if (bitmap == null) {
+            if (!hasImage) {
                 activity.showToast(AppConstants.WARN_SELECT_CAR_IMAGE);
+            } else if (carModel.isEmpty()) {
+                activity.setError(etCarModel, AppConstants.WARN_FIELD_REQUIRED);
             } else if (ratePer3Hours.isEmpty()) {
                 activity.setError(etRatePer3Hours, AppConstants.WARN_FIELD_REQUIRED);
             } else if (ratePer10Hours.isEmpty()) {
@@ -173,13 +222,17 @@ public class AddCarDialogFragment extends DialogFragment {
 
         @Override
         protected byte[] doInBackground(Void... params) {
-            return new byte[0];
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            return stream.toByteArray();
         }
 
         @Override
         protected void onPostExecute(byte[] bytes) {
             super.onPostExecute(bytes);
-            ParseObject car = new ParseObject("Car");
+            if (car == null) {
+               car = new ParseObject("Car");
+            }
             ParseFile pf = new ParseFile("img.png", bytes);
             car.put("carImage", pf);
             car.put("carModel", carModel);

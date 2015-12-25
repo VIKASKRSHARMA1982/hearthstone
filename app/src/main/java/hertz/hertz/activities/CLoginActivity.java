@@ -30,6 +30,34 @@ public class CLoginActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_2);
         ButterKnife.bind(this);
+        if (ParseUser.getCurrentUser() != null) {
+            String userRole = ParseUser.getCurrentUser().getString("userRole");
+            if (ParseUser.getCurrentUser().getString("userRole").equals("superadmin")) {
+                AppConstants.FULL_NAME = "Super Admin";
+            } else {
+                AppConstants.FULL_NAME = ParseUser.getCurrentUser().getString("firstName") + " " +
+                        ParseUser.getCurrentUser().getString("lastName");
+            }
+            new SweetAlertDialog(CLoginActivity.this,SweetAlertDialog.SUCCESS_TYPE)
+                    .setTitleText("Hertz")
+                    .setContentText("Welcome " + AppConstants.FULL_NAME)
+                    .setConfirmText("Close")
+                    .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                        @Override
+                        public void onClick(SweetAlertDialog sweetAlertDialog) {
+                            sweetAlertDialog.dismiss();
+                            if (ParseUser.getCurrentUser().getString("userRole").equals("driver")) {
+                                startActivity(new Intent(CLoginActivity.this, DriverDashBoardActivity.class));
+                            } else if (ParseUser.getCurrentUser().getString("userRole").equals("superadmin")) {
+                                startActivity(new Intent(CLoginActivity.this, SuperAdminActivity.class));
+                            } else {
+                                startActivity(new Intent(CLoginActivity.this, HomeActivity.class));
+                            }
+                            animateToLeft(CLoginActivity.this);
+                            finish();
+                        }
+                    }).show();
+        }
     }
 
     @OnClick(R.id.btnLogin)
@@ -55,8 +83,13 @@ public class CLoginActivity extends BaseActivity {
                     dismissCustomProgress();
                     if (e == null) {
                         if (user.getBoolean("emailVerified")) {
-                            AppConstants.FULL_NAME = user.getString("firstName") + " " +
-                                    user.getString("lastName");
+                            if (user.getString("userRole").equals("superadmin")) {
+                                AppConstants.FULL_NAME = "Super Admin";
+                            } else {
+                                AppConstants.FULL_NAME = user.getString("firstName") + " " +
+                                        user.getString("lastName");
+                            }
+
                             new SweetAlertDialog(CLoginActivity.this,SweetAlertDialog.SUCCESS_TYPE)
                                     .setTitleText("Hertz")
                                     .setContentText("Welcome " + AppConstants.FULL_NAME)
@@ -67,6 +100,8 @@ public class CLoginActivity extends BaseActivity {
                                             sweetAlertDialog.dismiss();
                                             if (user.getString("userRole").equals("driver")) {
                                                 startActivity(new Intent(CLoginActivity.this, DriverDashBoardActivity.class));
+                                            } else if (user.getString("userRole").equals("superadmin")) {
+                                                startActivity(new Intent(CLoginActivity.this, SuperAdminActivity.class));
                                             } else {
                                                 startActivity(new Intent(CLoginActivity.this, HomeActivity.class));
                                             }

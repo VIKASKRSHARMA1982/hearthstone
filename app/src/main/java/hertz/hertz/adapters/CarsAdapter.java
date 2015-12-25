@@ -2,6 +2,7 @@ package hertz.hertz.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.drawable.GradientDrawable;
 import android.location.Address;
 import android.location.Geocoder;
@@ -14,9 +15,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
@@ -31,6 +35,7 @@ import cn.pedant.SweetAlert.SweetAlertDialog;
 import de.hdodenhof.circleimageview.CircleImageView;
 import hertz.hertz.R;
 import hertz.hertz.activities.CarManagementActivity;
+import hertz.hertz.fragments.AddCarDialogFragment;
 import hertz.hertz.helpers.AppConstants;
 
 /**
@@ -41,13 +46,11 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.ViewHolder> {
     private ArrayList<ParseObject> records;
     private Context context;
     private CarManagementActivity activity;
-    private ImageLoader imageLoader;
 
     public CarsAdapter(Context context, ArrayList<ParseObject> records) {
         this.context = context;
         this.records = records;
         this.activity = (CarManagementActivity)context;
-        this.imageLoader = ImageLoader.getInstance();
     }
 
     @Override
@@ -70,6 +73,7 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.ViewHolder> {
         TextView tvExcessRate;
         ImageView ivEdit;
         ImageView ivDelete;
+        ProgressBar pbLoadImage;
 
         ViewHolder (View view) {
             super(view);
@@ -80,11 +84,12 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.ViewHolder> {
             tvExcessRate = (TextView)view.findViewById(R.id.tvExcessRate);
             ivEdit = (ImageView)view.findViewById(R.id.ivEdit);
             ivDelete = (ImageView)view.findViewById(R.id.ivDelete);
+            pbLoadImage = (ProgressBar)view.findViewById(R.id.pbLoadImage);
         }
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int i) {
+    public void onBindViewHolder(final ViewHolder holder, final int i) {
         final ParseObject car = records.get(i);
         holder.tvCarModel.setText(car.getString("carModel"));
         holder.tvRatePer3Hours.setText("Php " + activity.getDecimalFormatter()
@@ -93,7 +98,56 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.ViewHolder> {
                 .format(car.getNumber("ratePer10Hours").doubleValue()));
         holder.tvExcessRate.setText("Php " + activity.getDecimalFormatter()
                 .format(car.getNumber("excessRate").doubleValue()));
-        imageLoader.displayImage(car.getParseFile("carImage").getUrl(), holder.ivCarImage);
+        if (car.getParseFile("carImage") != null) {
+            ImageLoader.getInstance().loadImage(car.getParseFile("carImage").getUrl(), new ImageLoadingListener() {
+                @Override
+                public void onLoadingStarted(String imageUri, View view) {
+                }
+
+                @Override
+                public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                    holder.pbLoadImage.setVisibility(View.GONE);
+                }
+
+                @Override
+                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                    holder.pbLoadImage.setVisibility(View.GONE);
+                    holder.ivCarImage.setImageBitmap(loadedImage);
+                }
+
+                @Override
+                public void onLoadingCancelled(String imageUri, View view) {
+
+                }
+            });
+        } else {
+            holder.pbLoadImage.setVisibility(View.GONE);
+        }
+
+        /** edit car */
+        holder.ivEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final AddCarDialogFragment fragment = AddCarDialogFragment.newInstance(car);
+                fragment.setOnAddCarListener(new AddCarDialogFragment.OnAddCarListener() {
+                    @Override
+                    public void onSuccessful() {
+                        fragment.dismiss();
+                        activity.showToast(AppConstants.OK_CAR_UPDATED);
+                        activity.getCars();
+                    }
+
+                    @Override
+                    public void onFailed(ParseException e) {
+                        fragment.dismiss();
+                        activity.showSweetDialog(e.getMessage(), "error");
+                    }
+                });
+                fragment.show(activity.getFragmentManager(),"edit car");
+            }
+        });
+
+        /** delete car */
         holder.ivDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

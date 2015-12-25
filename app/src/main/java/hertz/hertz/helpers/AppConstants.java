@@ -57,6 +57,7 @@ public class AppConstants {
     public static final String OK_BOOKING_CREATED = "Congratulations, Your booking was successfully created";
     public static final String OK_NEW_CAR_ADDED = "Congratulations, New car record was successfully created";
     public static final String OK_CAR_DELETED = "Car record was successfully deleted!";
+    public static final String OK_CAR_UPDATED = "Car record was successfully updated!";
 
 
     /** default values */

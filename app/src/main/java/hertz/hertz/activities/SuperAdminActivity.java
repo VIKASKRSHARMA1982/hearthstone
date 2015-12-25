@@ -19,7 +19,7 @@ public class SuperAdminActivity extends BaseActivity {
         ButterKnife.bind(this);
     }
 
-    @OnClick(R.id.btnAddCar)
+    @OnClick(R.id.btnCar)
     public void addCar() {
         startActivity(new Intent(this,CarManagementActivity.class));
         animateToLeft(this);
