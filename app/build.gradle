@@ -63,4 +63,6 @@ dependencies {
         exclude group: 'org.apache.httpcomponents' //by group
         exclude group: 'org.apache.httpcomponents', module: 'httpclient' //by both name and group
     }
+    compile 'uk.co.chrisjenx:calligraphy:2.1.0'
+    compile 'com.cocosw:bottomsheet:1.2.0@aar'
 }

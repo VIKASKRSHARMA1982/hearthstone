@@ -11,7 +11,9 @@ import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.parse.Parse;
 import com.parse.ParseUser;
 
+import hertz.hertz.R;
 import hertz.hertz.helpers.AppConstants;
+import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 
 
 /**
@@ -36,5 +38,10 @@ public class BaseApplication extends Application {
         config.tasksProcessingOrder(QueueProcessingType.LIFO);
         config.writeDebugLogs(); // Remove for release app
         ImageLoader.getInstance().init(config.build());
+
+        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
+                .setDefaultFontPath("fonts/gotham-rounded-book.otf")
+                .setFontAttrId(R.attr.fontPath)
+                .build());
     }
 }
