@@ -146,11 +146,13 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
                     flipped = false;
                     drawerArrowDrawable.setFlip(flipped);
                 }
-
                 drawerArrowDrawable.setParameter(offset);
             }
         });
-        //tvFullName = (TextView)navDrawer.findViewById(R.id.tvFullName);
+
+        View view = navDrawer.inflateHeaderView(R.layout.drawer_header);
+        TextView tvFullName = (TextView)view.findViewById(R.id.tvFullName);
+        tvFullName.setText(AppConstants.FULL_NAME);
         navDrawer.setNavigationItemSelectedListener(this);
     }
 
@@ -212,6 +214,10 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
 
     private void navigate(int menu) {
         switch (menu) {
+            case R.id.navigation_item_1:
+                startActivity(new Intent(this,ReservationsActivity.class));
+                animateToLeft(this);
+                break;
             case R.id.navigation_item_5:
                 new SweetAlertDialog(this,SweetAlertDialog.WARNING_TYPE)
                         .setTitleText("Hertz")

@@ -108,4 +108,10 @@
     <string name="excess_rate">Excess Rate </string>
     <string name="add_car_image">Upload the car image</string>
 
+    <string name="your_reservations">Your Reservations</string>
+    <string name="booking_id">Booking Id : </string>
+    <string name="from">From : </string>
+    <string name="to">To : </string>
+    <string name="status">Status : </string>
+
 </resources>

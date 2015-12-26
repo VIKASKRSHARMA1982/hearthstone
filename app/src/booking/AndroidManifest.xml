@@ -128,6 +128,8 @@
             android:windowSoftInputMode="adjustPan"
             android:screenOrientation="portrait" >
         </activity>
+        <activity android:name=".activities.ReservationsActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".loginregister.MainActivity"
             android:label="@string/app_name"
