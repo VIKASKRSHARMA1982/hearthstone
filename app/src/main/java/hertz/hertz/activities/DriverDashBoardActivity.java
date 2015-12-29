@@ -28,6 +28,7 @@ import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -40,6 +41,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.List;
 
 import hertz.hertz.R;
 import hertz.hertz.fragments.BookingInfoDialogFragment;
@@ -71,7 +73,6 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
         setContentView(R.layout.activity_driver_dashboard);
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        Log.d("parse", "on create");
         ParsePush.subscribeInBackground("Drivers", new SaveCallback() {
             @Override
             public void done(ParseException e) {
@@ -82,46 +83,46 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
                 }
             }
         });
-        ParsePush.subscribeInBackground("D"+ParseUser.getCurrentUser().getObjectId(), new SaveCallback() {
+        ParsePush.subscribeInBackground("D" + ParseUser.getCurrentUser().getObjectId(), new SaveCallback() {
             @Override
             public void done(ParseException e) {
                 if (e == null) {
-                    Log.d("parse", "successfully subscribed to the broadcast channel [" + "D"+ParseUser.getCurrentUser().getObjectId() +"]");
+                    Log.d("parse", "successfully subscribed to the broadcast channel [" + "D" + ParseUser.getCurrentUser().getObjectId() + "]");
                 } else {
                     Log.e("parse", "failed to subscribe for push", e);
                 }
             }
         });
-        Log.d("parse", "is GPS Enabled --> " + isGPSEnabled());
+
         if (!isGPSEnabled()) {
             enableGPS();
+        } else {
+            if (AppConstants.GPS_TRACKER != null) {
+                AppConstants.GPS_TRACKER.startGPSTracker();
+                Log.d("gps", "start getting status");
+            }
         }
 
-        /** mark driver as available */
-/*        AvailableDriver driver = new AvailableDriver("Driver0002","Maud","Flanders","DEF 456",
-                "09321622825",true);
-        AppConstants.GEOFIRE.getFirebase().child("AvailableDriver").child("Driver002").setValue(driver);*/
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                String data = intent.getStringExtra("com.parse.Data");
-                Log.d("push", "on broadcast received! --> " + data);
-                JSONObject json = null;
+                final String data = intent.getStringExtra("com.parse.Data");
                 try {
-                    json = new JSONObject(data);
+                    final JSONObject json = new JSONObject(data);
                     if (json.has("room")) {
-                        Log.d("push","SHOW CHAT WINDOW");
                         showChatWindow(data);
                     } else {
-                        if (json.getJSONObject("json").getString("bookingStatus").equals("pending")) {
-                            Log.d("push", "SHOW BOOKING MARKER");
-                            showBookingMarker(json.getJSONObject("json").getString("bookingId"),
-                                    json.getJSONObject("json").getDouble("latitude"),
-                                    json.getJSONObject("json").getDouble("longitude"));
+                        final String status = json.getJSONObject("json").getString("bookingStatus");
+                        final String bookingId = json.getJSONObject("json").getString("bookingId");
+                        final double latitude = json.getJSONObject("json").getDouble("latitude");
+                        final double longitude = json.getJSONObject("json").getDouble("longitude");
+
+                        if (status.equals("Pending")) {
+                            showBookingMarker(bookingId, latitude, longitude);
                         } else {
-                            Log.d("push", "REMOVE BOOKING MARKER --> " + json.getJSONObject("json").getString("bookingId"));
-                            markers.get(json.getJSONObject("json").getString("bookingId")).remove();
-                            markers.remove(json.getJSONObject("json").getString("bookingId"));
+                            if (markers.containsKey(bookingId)) {
+                                markers.get(bookingId).remove();
+                            }
                         }
                     }
                 } catch (JSONException e) {
@@ -130,9 +131,31 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
                 }
             }
         };
-        LocalBroadcastManager mgr = LocalBroadcastManager.getInstance(this);
+        final LocalBroadcastManager mgr = LocalBroadcastManager.getInstance(this);
         mgr.registerReceiver(broadcastReceiver, new IntentFilter("broadcast_action"));
-        Log.d("push","broadcast receiver initialized!");
+        fetchAvailableBooking();
+    }
+
+    private void fetchAvailableBooking() {
+        showCustomProgress(AppConstants.LOAD_FETCH_NEARBY_BOOKING);
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("Booking");
+        query.whereEqualTo("status","Pending");
+        query.orderByAscending("createdAt");
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                dismissCustomProgress();
+                if (e == null) {
+                    for (ParseObject o : objects) {
+                        showBookingMarker(o.getObjectId(),o.getParseGeoPoint("origin").getLatitude(),
+                                o.getParseGeoPoint("origin").getLongitude());
+                    }
+                } else {
+                    Log.d("err","failed to fetch nearby booking --> " + e.getMessage());
+                    showToast(e.getMessage());
+                }
+            }
+        });
     }
 
     private void showChatWindow(final String data) {
@@ -162,20 +185,16 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
     }
 
     private void showBookingMarker(String bookingId, double latitude, double longitude) {
-        Location bookingLocation = new Location("");
+        final Location bookingLocation = new Location("");
         bookingLocation.setLatitude(latitude);
         bookingLocation.setLongitude(longitude);
 
-        Location currentLocation = new Location("");
+        final Location currentLocation = new Location("");
         currentLocation.setLatitude(latLng.latitude);
         currentLocation.setLongitude(latLng.longitude);
 
-        float distanceInMeters = currentLocation.distanceTo(bookingLocation);
-        float distanceInKiloMeter = distanceInMeters / 1000;
-
-        Log.d("push", "DISTANCE IN METERS --> " + distanceInMeters);
-        Log.d("push", "DISTANCE IN KILOMETERS --> " + distanceInKiloMeter);
-        Log.d("push"," BOOK THIS MARKER --> " + bookingId);
+        final float distanceInMeters = currentLocation.distanceTo(bookingLocation);
+        final float distanceInKiloMeter = distanceInMeters / 1000;
 
         if (distanceInKiloMeter > 0) {
             markers.put(bookingId, addMapMarker(googleMap, latitude, longitude, "Booking Id : " + bookingId, "", 1, false));
@@ -320,23 +339,26 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
         if (!isNetworkAvailable()) {
             showToast(AppConstants.ERR_CONNECTION);
         } else {
-            ParseQuery<ParseObject> query = ParseQuery.getQuery("Booking");
-            query.include("user");
-            showProgressDialog(AppConstants.LOAD_BOOKING_INFO);
-            String bookingId = marker.getTitle().replace("Booking Id : ","");
-            query.getInBackground(bookingId, new GetCallback<ParseObject>() {
-                @Override
-                public void done(ParseObject object, ParseException e) {
-                    dismissProgressDialog();
-                    if (e == null) {
-                        BookingInfoDialogFragment fragment = BookingInfoDialogFragment.newInstance(object);
-                        fragment.show(getFragmentManager(),"booking");
-                    } else {
-                        showToast(AppConstants.ERR_GET_BOOKING_INFO);
+            if (marker.getTitle().contains("Booking Id")) {
+                ParseQuery<ParseObject> query = ParseQuery.getQuery("Booking");
+                query.include("user");
+                showProgressDialog(AppConstants.LOAD_BOOKING_INFO);
+                String bookingId = marker.getTitle().replace("Booking Id : ","");
+                query.getInBackground(bookingId, new GetCallback<ParseObject>() {
+                    @Override
+                    public void done(ParseObject object, ParseException e) {
+                        dismissProgressDialog();
+                        if (e == null) {
+                            BookingInfoDialogFragment fragment = BookingInfoDialogFragment.newInstance(object);
+                            fragment.show(getFragmentManager(),"booking");
+                        } else {
+                            Log.d("err","failed to get booking info --> " + e.getMessage());
+                            showToast(AppConstants.ERR_GET_BOOKING_INFO);
+                        }
                     }
-                }
-            });
-            Log.d("gps", "marker --> " + marker.getTitle());
+                });
+                Log.d("gps", "marker --> " + marker.getTitle());
+            }
         }
         return true;
     }

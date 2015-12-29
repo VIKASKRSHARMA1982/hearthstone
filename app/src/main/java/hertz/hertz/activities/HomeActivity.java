@@ -337,12 +337,13 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
             origin.setLongitude(placeOrigin.getLatLng().longitude);
             booking.put("origin", origin);
             booking.put("user", ParseUser.getCurrentUser());
-            booking.put("from",placeDesti.getName().toString());
-            booking.put("to",placeOrigin.getName().toString());
+            booking.put("to",placeDesti.getName().toString());
+            booking.put("from",placeOrigin.getName().toString());
             booking.put("destiLatitude", placeDesti.getLatLng().latitude);
             booking.put("destiLongitude", placeDesti.getLatLng().longitude);
-            booking.put("bookedBy",AppConstants.FULL_NAME);
-            booking.put("status","pending");
+            booking.put("bookedBy",ParseUser.getCurrentUser().getString("firstName") + " " +
+                                    ParseUser.getCurrentUser().getString("lastName"));
+            booking.put("status","Pending");
             showCustomProgress(AppConstants.LOAD_CREATING_BOOKING);
             booking.saveInBackground(new SaveCallback() {
                 @Override

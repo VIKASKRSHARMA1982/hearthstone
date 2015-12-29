@@ -43,6 +43,7 @@ public class AppConstants {
     public static final String LOAD_FETCH_CAR = "Fetching car records, Please wait...";
     public static final String LOAD_DELETE_CAR = "Deleting car record, Please wait...";
     public static final String LOAD_FETCH_BOOKING = "Fetching your booking transactions, Please wait...";
+    public static final String LOAD_FETCH_NEARBY_BOOKING = "Checking nearby bookings, Please wait...";
 
     /** error messages */
     public static final String ERR_CONNECTION = "Connection error, Please check your network connection and try again!";
