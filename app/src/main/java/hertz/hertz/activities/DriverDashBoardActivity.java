@@ -11,25 +11,22 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.widget.BaseAdapter;
 
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.FirebaseError;
-import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
-import com.firebase.geofire.GeoQueryEventListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.FindCallback;
+import com.parse.FunctionCallback;
 import com.parse.GetCallback;
+import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParsePush;
@@ -47,8 +44,6 @@ import hertz.hertz.R;
 import hertz.hertz.fragments.BookingInfoDialogFragment;
 import hertz.hertz.fragments.ChatDialogFragment;
 import hertz.hertz.helpers.AppConstants;
-import hertz.hertz.model.AvailableDriver;
-import hertz.hertz.model.Chat;
 import hertz.hertz.services.GPSTrackerService;
 
 /**
@@ -340,16 +335,51 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
             showToast(AppConstants.ERR_CONNECTION);
         } else {
             if (marker.getTitle().contains("Booking Id")) {
-                ParseQuery<ParseObject> query = ParseQuery.getQuery("Booking");
+                final ParseQuery<ParseObject> query = ParseQuery.getQuery("Booking");
                 query.include("user");
                 showProgressDialog(AppConstants.LOAD_BOOKING_INFO);
-                String bookingId = marker.getTitle().replace("Booking Id : ","");
+                final String bookingId = marker.getTitle().replace("Booking Id : ","");
                 query.getInBackground(bookingId, new GetCallback<ParseObject>() {
                     @Override
                     public void done(ParseObject object, ParseException e) {
                         dismissProgressDialog();
                         if (e == null) {
-                            BookingInfoDialogFragment fragment = BookingInfoDialogFragment.newInstance(object);
+                            final BookingInfoDialogFragment fragment = BookingInfoDialogFragment.newInstance(object);
+                            fragment.setOnAttendBookingListener(new BookingInfoDialogFragment.OnAttendBookingListener() {
+                                @Override
+                                public void onAttend(String bookingId) {
+                                    showCustomProgress(AppConstants.LOAD_CHECKING_BOOKING_STATUS);
+                                    HashMap<String,String> params = new HashMap<>();
+                                    params.put("id", bookingId);
+                                    ParseCloud.callFunctionInBackground("checkBookingStatus", params,
+                                            new FunctionCallback<ParseObject>() {
+                                                @Override
+                                                public void done(ParseObject object, ParseException e) {
+                                                    updateCustomProgress(AppConstants.LOAD_ATTEND_BOOKING);
+                                                    if (e == null) {
+                                                        object.put("driver", ParseUser.getCurrentUser());
+                                                        object.put("status","Attended");
+                                                        object.put("driverName", ParseUser.getCurrentUser().getString("firstName")
+                                                                + " " + ParseUser.getCurrentUser().getString("lastName"));
+                                                        object.saveInBackground(new SaveCallback() {
+                                                            @Override
+                                                            public void done(ParseException e) {
+                                                                dismissCustomProgress();
+                                                                if (e == null) {
+                                                                    showToast("SUCCESS");
+                                                                } else {
+                                                                    showSweetDialog(e.getMessage(), "error");
+                                                                }
+                                                            }
+                                                        });
+                                                    } else {
+                                                        dismissCustomProgress();
+                                                        showSweetDialog(e.getMessage(), "error");
+                                                    }
+                                                }
+                                            });
+                                }
+                            });
                             fragment.show(getFragmentManager(),"booking");
                         } else {
                             Log.d("err","failed to get booking info --> " + e.getMessage());

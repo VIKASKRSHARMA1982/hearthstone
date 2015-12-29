@@ -275,6 +275,12 @@ public class BaseActivity extends AppCompatActivity {
         }
     }
 
+    public void updateCustomProgress(String message) {
+        if (customProgress == null) {
+            customProgress.updateMessage(message);
+        }
+    }
+
     public void dismissCustomProgress() {
         if (customProgress != null) {
             customProgress.dismiss();

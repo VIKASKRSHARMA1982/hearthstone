@@ -35,9 +35,10 @@ public class BookingInfoDialogFragment extends DialogFragment {
     private View view;
     private ParseObject booking;
     private BaseActivity activity;
+    private OnAttendBookingListener onAttendBookingListener;
 
     public static BookingInfoDialogFragment newInstance(ParseObject booking) {
-        BookingInfoDialogFragment frag = new BookingInfoDialogFragment();
+        final BookingInfoDialogFragment frag = new BookingInfoDialogFragment();
         frag.booking = booking;
         return frag;
     }
@@ -65,4 +66,22 @@ public class BookingInfoDialogFragment extends DialogFragment {
         mDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         return mDialog;
     }
+
+    @OnClick(R.id.btnAttend)
+    public void attendClient() {
+        if (activity.isNetworkAvailable()) {
+            onAttendBookingListener.onAttend(booking.getObjectId());
+        } else {
+            activity.showToast(AppConstants.ERR_CONNECTION);
+        }
+    }
+
+    public interface OnAttendBookingListener {
+        void onAttend(String bookingId);
+    }
+
+    public void setOnAttendBookingListener(OnAttendBookingListener onAttendBookingListener) {
+        this.onAttendBookingListener = onAttendBookingListener;
+    }
+
 }

@@ -44,6 +44,8 @@ public class AppConstants {
     public static final String LOAD_DELETE_CAR = "Deleting car record, Please wait...";
     public static final String LOAD_FETCH_BOOKING = "Fetching your booking transactions, Please wait...";
     public static final String LOAD_FETCH_NEARBY_BOOKING = "Checking nearby bookings, Please wait...";
+    public static final String LOAD_CHECKING_BOOKING_STATUS = "Checking booking status, Please wait...";
+    public static final String LOAD_ATTEND_BOOKING = "Attending client's booking, Please wait...";
 
     /** error messages */
     public static final String ERR_CONNECTION = "Connection error, Please check your network connection and try again!";

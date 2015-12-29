@@ -52,4 +52,8 @@ public class CustomProgress extends DialogFragment {
         return mDialog;
     }
 
+    public void updateMessage(String message) {
+        tvMessage.setText(message);
+    }
+
 }

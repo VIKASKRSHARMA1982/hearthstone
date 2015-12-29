@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/dp_ten"
         android:layout_marginRight="@dimen/dp_ten"
-        android:layout_marginTop="@dimen/dp_forty"
+        android:layout_marginTop="@dimen/dp_twenty"
         android:layout_marginBottom="@dimen/dp_fifteen"
         android:orientation="vertical">
 
@@ -105,6 +105,22 @@
 
         </android.support.design.widget.TextInputLayout>
 
+
+        <com.rey.material.widget.Button
+            android:id="@+id/btnAttend"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/attend"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/dp_fifty"
+            android:layout_marginLeft="@dimen/dp_ten"
+            android:layout_marginRight="@dimen/dp_ten"
+            android:textSize="@dimen/sp_twenty"
+            android:background="@color/metro_yellow"
+            android:textColor="@android:color/white"
+            app:rd_rippleType="touch"
+            app:rd_maxRippleRadius="match_view"
+            app:rd_enable="true"/>
 
     </LinearLayout>
 

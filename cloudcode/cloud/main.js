@@ -2,6 +2,22 @@
 //Import moment.js in Parse.Module
 var moment = require('cloud/moment/moment.js');
 
+Parse.Cloud.define("checkBookingStatus", function(request, response) {
+  	query = new Parse.Query("Booking");
+  	query.equalTo("objectId",request.params.id);
+	query.first({
+	  		success: function(booking) {
+	  			if (booking.get('status') === 'Attended') {
+					response.error("Booking already attended by other driver");
+	  			} else {
+					response.success(booking);
+	  			}
+		  	}, error: function(error) {
+		  		response.error(error.message);
+	  		}
+	});
+});
+
 Parse.Cloud.afterSave("Booking", function(request) {
 	console.log("latitude --> " + request.object.get('origin').latitude);
 
@@ -11,6 +27,24 @@ Parse.Cloud.afterSave("Booking", function(request) {
 	    	channels: ["Drivers"],
 		    data: {	    	
 		      alert: "New booking request from " + request.object.get('bookedBy'),
+		      json : {latitude : request.object.get('origin').latitude,
+		  				longitude : request.object.get('origin').longitude,
+		  				from : request.object.get('from'),
+		  				to : request.object.get('to'),
+		  				bookingId : request.object.id,
+		  				bookingStatus : request.object.get('status') }
+		      }
+		    }, { success: function() { 
+		    	console.log("SUCCESSSSS!");
+		    }, error: function(error) { 
+		      console.log(error)
+		    }
+		});
+	} else if (request.object.get('status') === 'Attended') {
+		Parse.Push.send({
+	    	channels: ["Drivers"],
+		    data: {	    	
+		      alert: "Booking with id of " + request.object.id + " already attended by" + request.object.get('driverName'),
 		      json : {latitude : request.object.get('origin').latitude,
 		  				longitude : request.object.get('origin').longitude,
 		  				from : request.object.get('from'),
