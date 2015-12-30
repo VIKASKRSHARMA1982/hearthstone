@@ -28,6 +28,8 @@ public class BaseApplication extends Application {
         Firebase.getDefaultConfig().setPersistenceEnabled(true);
         AppConstants.FIREBASE = new Firebase(AppConstants.BASE_URL);
         AppConstants.GEOFIRE = new GeoFire(AppConstants.FIREBASE);
+
+        Parse.enableLocalDatastore(this);
         Parse.initialize(this, AppConstants.PARSE_APP_ID, AppConstants.PARSE_CLIENT_KEY);
         ParseUser.enableRevocableSessionInBackground();
 

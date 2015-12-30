@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -37,9 +38,11 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
+import com.rey.material.widget.Spinner;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 import butterknife.Bind;
@@ -60,6 +63,7 @@ public class AddDriverDialogFragment extends DialogFragment {
     @Bind(R.id.etFirstName) EditText etFirstName;
     @Bind(R.id.etMobileNo) EditText etMobileNo;
     @Bind(R.id.tvHeader) TextView tvHeader;
+    @Bind(R.id.spnrAvailableCar) Spinner spnrAvailableCar;
     private static final int CAPTURE_IMAGE = 2;
     private View view;
     private DriverManagementActivity activity;
@@ -71,6 +75,8 @@ public class AddDriverDialogFragment extends DialogFragment {
     private String prevFirstName;
     private String prevLastName;
     private String prevMobile;
+    private String prevCarId;
+    private int prevCarIndex;
 
     public static AddDriverDialogFragment newInstance(ParseUser driver) {
         AddDriverDialogFragment frag = new AddDriverDialogFragment();
@@ -90,12 +96,14 @@ public class AddDriverDialogFragment extends DialogFragment {
         view = getActivity().getLayoutInflater().inflate(R.layout.dialog_fragment_add_driver, null);
         ButterKnife.bind(this, view);
         activity = (DriverManagementActivity)getActivity();
-
+        initSpinner();
         if (driver != null) {
             tvHeader.setText("Update Driver Profile");
             prevFirstName = driver.getParseObject("driver").getString("firstName");
             prevLastName = driver.getParseObject("driver").getString("lastName");
             prevMobile = driver.getParseObject("driver").getString("mobileNo");
+            prevCarId = driver.getParseObject("driver").getParseObject("car").getObjectId();
+            prevCarIndex = getIndexOfAssignedCar();
 
             etEmail.setText(driver.getString("email"));
             etEmail.setFocusable(false);
@@ -206,8 +214,9 @@ public class AddDriverDialogFragment extends DialogFragment {
                 new ConvertImage(email,firstName,lastName,mobileNo).execute();
             }
         } else {
-            if (firstName.equals(prevFirstName) &&
-                    lastName.equals(prevLastName) && mobileNo.equals(prevMobile)) {
+            ParseObject selectedCar = activity.getAvailableCars().get(spnrAvailableCar.getSelectedItemPosition());
+            if (firstName.equals(prevFirstName) && lastName.equals(prevLastName)
+                    && mobileNo.equals(prevMobile) && prevCarId.equals(selectedCar.getObjectId())) {
                 activity.showSweetDialog(AppConstants.WARN_NO_CHANGES_DETECTED,"warning");
             } else {
                 new ConvertImage(email,firstName,lastName,mobileNo).execute();
@@ -251,6 +260,8 @@ public class AddDriverDialogFragment extends DialogFragment {
                 @Override
                 public void done(ParseException e) {
                     if (e == null) {
+                        final int selectedSpinnerIndex = spnrAvailableCar.getSelectedItemPosition();
+                        final ParseObject selectedCar = activity.getAvailableCars().get(selectedSpinnerIndex);
                         if (driver == null) {
                             /** create new driver record */
                             final ParseUser newDriver = new ParseUser();
@@ -258,17 +269,19 @@ public class AddDriverDialogFragment extends DialogFragment {
                             newDriver.setUsername(email);
                             newDriver.setPassword("123");
                             newDriver.put("isPasswordDefault", true);
-                            newDriver.put("userRole","driver");
-                            newDriver.put("status","active");
+                            newDriver.put("userRole", "driver");
+                            newDriver.put("status", "active");
                             newDriver.signUpInBackground(new SignUpCallback() {
                                 @Override
                                 public void done(ParseException e) {
                                     if (e == null) {
                                         final ParseObject object = new ParseObject("Driver");
-                                        object.put("firstName",firstName);
-                                        object.put("lastName",lastName);
-                                        object.put("profilePic",pf);
+                                        object.put("firstName", firstName);
+                                        object.put("lastName", lastName);
+                                        object.put("profilePic", pf);
                                         object.put("mobileNo", mobileNo);
+                                        object.put("car", selectedCar);
+                                        object.put("status","active");
                                         object.saveInBackground(new SaveCallback() {
                                             @Override
                                             public void done(ParseException e) {
@@ -277,14 +290,25 @@ public class AddDriverDialogFragment extends DialogFragment {
                                                     newDriver.saveInBackground(new SaveCallback() {
                                                         @Override
                                                         public void done(ParseException e) {
-                                                            try {
-                                                                ParseUser.getCurrentUser().logOut();
-                                                                ParseUser.become(session);
-                                                                onAddDriverListener.onNewDriverAdded(newDriver);
-                                                            } catch (ParseException e1) {
-                                                                e1.printStackTrace();
-                                                                onAddDriverListener.onAddDriverFailed(e1);
-                                                            }
+                                                            selectedCar.put("status", "assigned");
+                                                            selectedCar.saveInBackground(new SaveCallback() {
+                                                                @Override
+                                                                public void done(ParseException e) {
+                                                                    if (e == null) {
+                                                                        try {
+                                                                            activity.getAvailableCars().set(selectedSpinnerIndex, selectedCar);
+                                                                            ParseUser.getCurrentUser().logOut();
+                                                                            ParseUser.become(session);
+                                                                            onAddDriverListener.onNewDriverAdded(newDriver);
+                                                                        } catch (ParseException e1) {
+                                                                            e1.printStackTrace();
+                                                                            onAddDriverListener.onAddDriverFailed(e1);
+                                                                        }
+                                                                    } else {
+                                                                        onAddDriverListener.onAddDriverFailed(e);
+                                                                    }
+                                                                }
+                                                            });
                                                         }
                                                     });
                                                 } else {
@@ -298,6 +322,7 @@ public class AddDriverDialogFragment extends DialogFragment {
                                 }
                             });
                         } else {
+                            final ParseObject prevCar = activity.getAvailableCars().get(prevCarIndex);
                             ParseQuery<ParseObject> query = ParseQuery.getQuery("Driver");
                             query.getInBackground(driver.getParseObject("driver").getObjectId(),
                                     new GetCallback<ParseObject>() {
@@ -308,11 +333,34 @@ public class AddDriverDialogFragment extends DialogFragment {
                                             object.put("lastName", lastName);
                                             object.put("profilePic", pf);
                                             object.put("mobileNo", mobileNo);
+                                            object.put("car",selectedCar);
                                             object.saveInBackground(new SaveCallback() {
                                                 @Override
                                                 public void done(ParseException e) {
                                                     if (e == null) {
-                                                        onAddDriverListener.onDriverRecordUpdated();
+                                                        prevCar.put("status","available");
+                                                        prevCar.saveInBackground(new SaveCallback() {
+                                                            @Override
+                                                            public void done(ParseException e) {
+                                                                if (e == null) {
+                                                                    activity.getAvailableCars().set(prevCarIndex,prevCar);
+                                                                    selectedCar.put("status", "assigned");
+                                                                    selectedCar.saveInBackground(new SaveCallback() {
+                                                                        @Override
+                                                                        public void done(ParseException e) {
+                                                                            if (e == null) {
+                                                                                activity.getAvailableCars().set(selectedSpinnerIndex, selectedCar);
+                                                                                onAddDriverListener.onDriverRecordUpdated();
+                                                                            } else {
+                                                                                onAddDriverListener.onAddDriverFailed(e);
+                                                                            }
+                                                                        }
+                                                                    });
+                                                                } else {
+                                                                    onAddDriverListener.onAddDriverFailed(e);
+                                                                }
+                                                            }
+                                                        });
                                                     } else {
                                                         onAddDriverListener.onAddDriverFailed(e);
                                                     }
@@ -340,5 +388,36 @@ public class AddDriverDialogFragment extends DialogFragment {
         this.onAddDriverListener = onAddDriverListener;
     }
 
+    private void initSpinner() {
+        ArrayList<String> items = new ArrayList<>();
+        if (driver == null) {
+            for (ParseObject o : activity.getAvailableCars()) {
+                if (o.getString("status").equals("available")) {
+                    items.add(o.getString("carModel"));
+                }
+            }
+        } else {
+            for (ParseObject o : activity.getAvailableCars()) {
+                items.add(o.getString("carModel"));
+            }
+        }
 
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), R.layout.row_spinner, items);
+        adapter.setDropDownViewResource(R.layout.row_spinner_dropdown);
+        spnrAvailableCar.setAdapter(adapter);
+
+        if (driver != null) {
+            spnrAvailableCar.setSelection(getIndexOfAssignedCar());
+        }
+    }
+
+    private int getIndexOfAssignedCar() {
+        for (int i = 0 ; i < activity.getAvailableCars().size() ; i++) {
+            if (activity.getAvailableCars().get(i).getString("carModel")
+                    .equals(driver.getParseObject("driver").getParseObject("car").getString("carModel"))) {
+                return i;
+            }
+        }
+        return 0;
+    }
 }

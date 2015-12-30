@@ -33,10 +33,12 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.parse.ParseObject;
 import com.rey.material.app.Dialog;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 
 import cn.pedant.SweetAlert.SweetAlertDialog;
 import hertz.hertz.R;
@@ -51,6 +53,7 @@ public class BaseActivity extends AppCompatActivity {
     private SweetAlertDialog sweetAlertDialog;
     private ProgressDialog pDialog;
     private CustomProgress customProgress;
+    private static ArrayList<ParseObject> availableCars = new ArrayList<>();
 
     public void showProgressDialog(String message) {
         pDialog = new ProgressDialog(this);
@@ -320,5 +323,13 @@ public class BaseActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    public ArrayList<ParseObject> getAvailableCars() {
+        return availableCars;
+    }
+
+    public void setAvailableCars(ArrayList<ParseObject> availableCars) {
+        this.availableCars = availableCars;
     }
 }

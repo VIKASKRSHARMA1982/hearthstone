@@ -38,6 +38,13 @@ public class CarManagementActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_car_management);
         ButterKnife.bind(this);
+
+        if (getAvailableCars().size() > 0) {
+            cars.addAll(getAvailableCars());
+        } else {
+            getCars();
+        }
+
         CarsAdapter adapter = new CarsAdapter(this,cars);
         AlphaInAnimationAdapter alphaAdapter = new AlphaInAnimationAdapter(adapter);
         ScaleInAnimationAdapter scaleAdapter = new ScaleInAnimationAdapter(alphaAdapter);
@@ -49,7 +56,6 @@ public class CarManagementActivity extends BaseActivity {
                 getCars();
             }
         });
-        getCars();
     }
 
     public void getCars() {
@@ -68,6 +74,8 @@ public class CarManagementActivity extends BaseActivity {
                 if (e == null) {
                     cars.clear();
                     cars.addAll(objects);
+                    getAvailableCars().clear();
+                    getAvailableCars().addAll(cars);
                     rvCars.getAdapter().notifyDataSetChanged();
                     if (swipeRefresh.isRefreshing()) {
                         swipeRefresh.setRefreshing(false);

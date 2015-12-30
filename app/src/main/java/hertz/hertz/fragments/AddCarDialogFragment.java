@@ -249,6 +249,7 @@ public class AddCarDialogFragment extends DialogFragment {
             car.put("ratePer10Hours",Double.parseDouble(ratePer10Hours));
             car.put("excessRate", Double.parseDouble(excessRate));
             car.put("markedAsDeleted",false);
+            car.put("status","available");
             car.saveInBackground(new SaveCallback() {
                 @Override
                 public void done(ParseException e) {

@@ -122,5 +122,6 @@
     <string name="driver_name">Driver Name</string>
     <string name="driver_contact">Contact No</string>
     <string name="plate_no">Plate No</string>
+    <string name="assign_to_car">Assign to Car</string>
 
 </resources>

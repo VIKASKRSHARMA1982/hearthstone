@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
@@ -53,10 +54,14 @@ public class DriverManagementActivity extends BaseActivity {
 
     public void getDrivers() {
         showCustomProgress(AppConstants.LOAD_FETCH_ALL_DRIVERS);
+        final ParseQuery<ParseObject> status = ParseQuery.getQuery("Driver");
+        status.whereEqualTo("status","active");
+
         final ParseQuery<ParseUser> query = ParseUser.getQuery();
-        query.whereEqualTo("status", "active");
+        query.whereMatchesQuery("driver", status);
         query.whereEqualTo("userRole", "driver");
         query.include("driver");
+        query.include("car");
         query.findInBackground(new FindCallback<ParseUser>() {
             @Override
             public void done(List<ParseUser> objects, ParseException e) {
@@ -86,7 +91,7 @@ public class DriverManagementActivity extends BaseActivity {
             public void onNewDriverAdded(ParseUser newDriver) {
                 dismissCustomProgress();
                 fragment.dismiss();
-                drivers.add(0,newDriver);
+                drivers.add(0, newDriver);
                 rvDrivers.getAdapter().notifyDataSetChanged();
                 showToast(AppConstants.OK_NEW_DRIVER_ADDED);
             }

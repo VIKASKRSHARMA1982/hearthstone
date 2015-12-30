@@ -52,6 +52,7 @@ public class AppConstants {
     public static final String LOAD_FETCH_ALL_DRIVERS = "Getting list of drivers, Please wait...";
     public static final String LOAD_CREATE_DRIVER = "Creating new driver record, Please wait...";
     public static final String LOAD_UPDATE_DRIVE = "Updating driver record, Please wait...";
+    public static final String LOAD_DELETING_DRIVER = "Deleting driver record, Please wait...";
 
     /** error messages */
     public static final String ERR_CONNECTION = "Connection error, Please check your network connection and try again!";

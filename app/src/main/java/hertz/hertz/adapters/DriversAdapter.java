@@ -13,8 +13,10 @@ import android.widget.TextView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
@@ -133,7 +135,26 @@ public class DriversAdapter extends RecyclerView.Adapter<DriversAdapter.ViewHold
                                 @Override
                                 public void onClick(SweetAlertDialog sweetAlertDialog) {
                                     sweetAlertDialog.dismiss();
-
+                                    activity.showCustomProgress(AppConstants.LOAD_DELETING_DRIVER);
+                                    ParseQuery<ParseObject> query = ParseQuery.getQuery("Driver");
+                                    query.getInBackground(driver.getParseObject("driver").getObjectId(),
+                                            new GetCallback<ParseObject>() {
+                                                @Override
+                                                public void done(ParseObject object, ParseException e) {
+                                                    object.put("status","inactive");
+                                                    object.saveInBackground(new SaveCallback() {
+                                                        @Override
+                                                        public void done(ParseException e) {
+                                                            activity.dismissCustomProgress();
+                                                            if (e == null) {
+                                                                activity.getDrivers();
+                                                            } else {
+                                                                activity.showSweetDialog(e.getMessage(),"error");
+                                                            }
+                                                        }
+                                                    });
+                                                }
+                                            });
                                 }
                             })
                             .setCancelText("No")
