@@ -20,8 +20,14 @@ public class SuperAdminActivity extends BaseActivity {
     }
 
     @OnClick(R.id.btnCar)
-    public void addCar() {
-        startActivity(new Intent(this,CarManagementActivity.class));
+    public void manageCards() {
+        startActivity(new Intent(this, CarManagementActivity.class));
+        animateToLeft(this);
+    }
+
+    @OnClick(R.id.btnDriver)
+    public void manageDrivers() {
+        startActivity(new Intent(this,DriverManagementActivity.class));
         animateToLeft(this);
     }
 }

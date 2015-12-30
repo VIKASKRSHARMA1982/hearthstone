@@ -47,6 +47,7 @@ public class AppConstants {
     public static final String LOAD_CHECKING_BOOKING_STATUS = "Checking booking status, Please wait...";
     public static final String LOAD_ATTEND_BOOKING = "Attending client's booking, Please wait...";
     public static final String LOAD_FETCH_DRIVER_INFO = "Fetching attending driver info, Please wait...";
+    public static final String LOAD_FETCH_ALL_DRIVERS = "Getting list of drivers, Please wait...";
 
     /** error messages */
     public static final String ERR_CONNECTION = "Connection error, Please check your network connection and try again!";

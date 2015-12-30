@@ -123,6 +123,11 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
+            android:name=".activities.DriverManagementActivity"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
             android:name=".activities.CRegistrationActivity"
             android:label="@string/app_name"
             android:windowSoftInputMode="adjustPan"
