@@ -48,6 +48,8 @@ public class COpeningScreenActivity extends BaseActivity {
                 if (ParseUser.getCurrentUser() != null) {
                     if (ParseUser.getCurrentUser().getString("userRole").equals("driver")) {
                         startActivity(new Intent(this, DriverDashBoardActivity.class));
+                    } else if (ParseUser.getCurrentUser().getString("userRole").equals("superadmin")) {
+                        startActivity(new Intent(this, SuperAdminActivity.class));
                     } else {
                         /** skip login screen and proceed to home screen */
                         startActivity(new Intent(this, HomeActivity.class));

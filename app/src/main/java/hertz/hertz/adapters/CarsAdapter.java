@@ -68,6 +68,7 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.ViewHolder> {
     public static class ViewHolder extends RecyclerView.ViewHolder {
         CircleImageView ivCarImage;
         TextView tvCarModel;
+        TextView tvPlateNo;
         TextView tvRatePer3Hours;
         TextView tvRatePer10Hours;
         TextView tvExcessRate;
@@ -79,6 +80,7 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.ViewHolder> {
             super(view);
             ivCarImage = (CircleImageView)view.findViewById(R.id.ivCarImage);
             tvCarModel = (TextView)view.findViewById(R.id.tvCarModel);
+            tvPlateNo = (TextView)view.findViewById(R.id.tvPlateNo);
             tvRatePer3Hours = (TextView)view.findViewById(R.id.tvRatePer3Hours);
             tvRatePer10Hours = (TextView)view.findViewById(R.id.tvRatePer10Hours);
             tvExcessRate = (TextView)view.findViewById(R.id.tvExcessRate);
@@ -91,13 +93,17 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int i) {
         final ParseObject car = records.get(i);
-        holder.tvCarModel.setText(car.getString("carModel"));
-        holder.tvRatePer3Hours.setText("Php " + activity.getDecimalFormatter()
-                .format(car.getNumber("ratePer3Hours").doubleValue()));
-        holder.tvRatePer10Hours.setText("Php " + activity.getDecimalFormatter()
-                .format(car.getNumber("ratePer10Hours").doubleValue()));
-        holder.tvExcessRate.setText("Php " + activity.getDecimalFormatter()
-                .format(car.getNumber("excessRate").doubleValue()));
+        final String carModel = car.getString("carModel");
+        final String plateNo = car.getString("plateNo");
+        final double ratePer3Hours = car.getNumber("ratePer3Hours").doubleValue();
+        final double ratePer10Hours = car.getNumber("ratePer10Hours").doubleValue();
+        final double excessRate = car.getNumber("excessRate").doubleValue();
+
+        holder.tvCarModel.setText(carModel);
+        holder.tvPlateNo.setText(plateNo == null ? "Not Set" : plateNo);
+        holder.tvRatePer3Hours.setText("Php " + activity.getDecimalFormatter().format(ratePer3Hours));
+        holder.tvRatePer10Hours.setText("Php " + activity.getDecimalFormatter().format(ratePer10Hours));
+        holder.tvExcessRate.setText("Php " + activity.getDecimalFormatter().format(excessRate));
         if (car.getParseFile("carImage") != null) {
             ImageLoader.getInstance().loadImage(car.getParseFile("carImage").getUrl(), new ImageLoadingListener() {
                 @Override

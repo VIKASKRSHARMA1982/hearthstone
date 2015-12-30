@@ -105,6 +105,11 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
         ButterKnife.bind(this);
         initDrawerArrowDrawable();
         initGoogleClient();
+        if (AppConstants.FULL_NAME.isEmpty()) {
+            AppConstants.FULL_NAME = ParseUser.getCurrentUser().getString("firstName") + " " +
+                    ParseUser.getCurrentUser().getString("lastName");
+        }
+        Log.d("user","on create --> " + AppConstants.FULL_NAME);
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         ParsePush.subscribeInBackground("Client", new SaveCallback() {
@@ -217,6 +222,10 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
 
         View view = navDrawer.inflateHeaderView(R.layout.drawer_header);
         TextView tvFullName = (TextView)view.findViewById(R.id.tvFullName);
+        if (AppConstants.FULL_NAME.isEmpty()) {
+            AppConstants.FULL_NAME = ParseUser.getCurrentUser().getString("firstName") + " " +
+                    ParseUser.getCurrentUser().getString("lastName");
+        }
         tvFullName.setText(AppConstants.FULL_NAME);
         navDrawer.setNavigationItemSelectedListener(this);
     }

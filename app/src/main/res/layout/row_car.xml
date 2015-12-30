@@ -109,6 +109,29 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:text="@string/plate_no"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="@dimen/sp_fourteen" />
+
+                    <TextView
+                        android:id="@+id/tvPlateNo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/plate_no"
+                        android:textColor="@android:color/black"
+                        android:textSize="@dimen/sp_seventeen"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/dp_five"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
                         android:text="@string/rate_per_3_hours"
                         android:textColor="@android:color/darker_gray"
                         android:textSize="@dimen/sp_fourteen" />

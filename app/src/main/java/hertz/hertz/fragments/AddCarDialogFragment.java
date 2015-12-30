@@ -50,6 +50,7 @@ public class AddCarDialogFragment extends DialogFragment {
     @Bind(R.id.rlAddImage) RelativeLayout rlAddImage;
     @Bind(R.id.ivDeleteImage) ImageView ivDeleteImage;
     @Bind(R.id.etCarModel) EditText etCarModel;
+    @Bind(R.id.etPlateNo) EditText etPlateNo;
     @Bind(R.id.etDescripton) EditText etDescripton;
     @Bind(R.id.etRatePer3Hours) EditText etRatePer3Hours;
     @Bind(R.id.etRatePer10Hours) EditText etRatePer10Hours;
@@ -85,6 +86,7 @@ public class AddCarDialogFragment extends DialogFragment {
             tvHeader.setText("Update car");
             etCarModel.setText(car.getString("carModel"));
             etDescripton.setText(car.getString("description"));
+            etPlateNo.setText(car.getString("plateNo") == null ? "Not Set" : car.getString("plateNo"));
             etRatePer3Hours.setText(car.getNumber("ratePer3Hours").toString());
             etRatePer10Hours.setText(car.getNumber("ratePer10Hours").toString());
             etExcess.setText(car.getNumber("excessRate").toString());
@@ -176,6 +178,7 @@ public class AddCarDialogFragment extends DialogFragment {
             activity.showToast(AppConstants.ERR_CONNECTION);
         } else {
             final String carModel = etCarModel.getText().toString();
+            final String plateNo = etPlateNo.getText().toString();
             final String desc = etDescripton.getText().toString();
             final String ratePer3Hours = etRatePer3Hours.getText().toString();
             final String ratePer10Hours = etRatePer10Hours.getText().toString();
@@ -185,6 +188,8 @@ public class AddCarDialogFragment extends DialogFragment {
                 activity.showToast(AppConstants.WARN_SELECT_CAR_IMAGE);
             } else if (carModel.isEmpty()) {
                 activity.setError(etCarModel, AppConstants.WARN_FIELD_REQUIRED);
+            } else if (plateNo.isEmpty()) {
+                activity.setError(etPlateNo, AppConstants.WARN_FIELD_REQUIRED);
             } else if (ratePer3Hours.isEmpty()) {
                 activity.setError(etRatePer3Hours, AppConstants.WARN_FIELD_REQUIRED);
             } else if (ratePer10Hours.isEmpty()) {
@@ -192,7 +197,7 @@ public class AddCarDialogFragment extends DialogFragment {
             } else if (excessRate.isEmpty()) {
                 activity.setError(etExcess, AppConstants.WARN_FIELD_REQUIRED);
             } else {
-                new ConvertImage(carModel,desc,ratePer3Hours,ratePer10Hours,excessRate).execute();
+                new ConvertImage(carModel,plateNo,desc,ratePer3Hours,ratePer10Hours,excessRate).execute();
             }
         }
     }
@@ -200,14 +205,16 @@ public class AddCarDialogFragment extends DialogFragment {
     private class ConvertImage extends AsyncTask<Void,Void,byte[]> {
 
         private String carModel;
+        private String plateNo;
         private String desc;
         private String ratePer3Hours;
         private String ratePer10Hours;
         private String excessRate;
 
-        public ConvertImage(String carModel, String desc, String ratePer3Hours,
+        public ConvertImage(String carModel, String plateNo, String desc, String ratePer3Hours,
                             String ratePer10Hours, String excessRate) {
             this.carModel = carModel;
+            this.plateNo = plateNo;
             this.desc = desc;
             this.ratePer3Hours = ratePer3Hours;
             this.ratePer10Hours = ratePer10Hours;
@@ -236,6 +243,7 @@ public class AddCarDialogFragment extends DialogFragment {
             ParseFile pf = new ParseFile("img.png", bytes);
             car.put("carImage", pf);
             car.put("carModel", carModel);
+            car.put("plateNo",plateNo);
             car.put("description", desc.isEmpty() ? "No descriptions provided" : desc);
             car.put("ratePer3Hours",Double.parseDouble(ratePer3Hours));
             car.put("ratePer10Hours",Double.parseDouble(ratePer10Hours));
