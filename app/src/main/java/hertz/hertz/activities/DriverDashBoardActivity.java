@@ -347,7 +347,7 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
                             final BookingInfoDialogFragment fragment = BookingInfoDialogFragment.newInstance(object);
                             fragment.setOnAttendBookingListener(new BookingInfoDialogFragment.OnAttendBookingListener() {
                                 @Override
-                                public void onAttend(String bookingId) {
+                                public void onAttend(final String bookingId) {
                                     showCustomProgress(AppConstants.LOAD_CHECKING_BOOKING_STATUS);
                                     HashMap<String,String> params = new HashMap<>();
                                     params.put("id", bookingId);
@@ -366,15 +366,18 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
                                                             public void done(ParseException e) {
                                                                 dismissCustomProgress();
                                                                 if (e == null) {
-                                                                    showToast("SUCCESS");
+                                                                    showToast(AppConstants.OK_BOOKING_ATTENDED);
+
                                                                 } else {
                                                                     showSweetDialog(e.getMessage(), "error");
                                                                 }
+                                                                fragment.dismiss();
                                                             }
                                                         });
                                                     } else {
                                                         dismissCustomProgress();
                                                         showSweetDialog(e.getMessage(), "error");
+                                                        markers.get(bookingId).remove();
                                                     }
                                                 }
                                             });

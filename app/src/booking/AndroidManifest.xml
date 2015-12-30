@@ -27,8 +27,8 @@
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
     <permission android:protectionLevel="signature"
-        android:name="hertz.hertz.permission.C2D_MESSAGE" />
-    <uses-permission android:name="hertz.hertz.permission.C2D_MESSAGE" />
+        android:name="hertz.hertz.booking.permission.C2D_MESSAGE" />
+    <uses-permission android:name="hertz.hertz.booking.permission.C2D_MESSAGE" />
 
     <application
         tools:replace="android:icon,android:theme"
@@ -55,7 +55,7 @@
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
 
-                <category android:name="hertz.hertz" />
+                <category android:name="hertz.hertz.booking" />
             </intent-filter>
         </receiver>
 

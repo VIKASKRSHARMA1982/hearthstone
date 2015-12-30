@@ -114,4 +114,12 @@
     <string name="to">To : </string>
     <string name="status">Status : </string>
     <string name="attend">Attend</string>
+
+    <string name="driver_information">Driver Information</string>
+    <string name="driver_assigned">Driver Assigned</string>
+    
+    <string name="driver_name">Driver Name</string>
+    <string name="driver_contact">Contact No</string>
+    <string name="plate_no">Plate No</string>
+
 </resources>

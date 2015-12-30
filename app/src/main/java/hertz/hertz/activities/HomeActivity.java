@@ -1,10 +1,14 @@
 package hertz.hertz.activities;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
@@ -33,11 +37,17 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
+import com.parse.ParsePush;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,6 +61,7 @@ import cn.pedant.SweetAlert.SweetAlertDialog;
 import hertz.hertz.R;
 import hertz.hertz.adapters.PlaceAutocompleteAdapter;
 import hertz.hertz.customviews.DrawerArrowDrawable;
+import hertz.hertz.fragments.DriverInfoDialogFragment;
 import hertz.hertz.helpers.AppConstants;
 import hertz.hertz.helpers.MapHelper;
 import hertz.hertz.interfaces.OnCalculateDirectionListener;
@@ -85,6 +96,7 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
     private String selectedPlace;
     private boolean plotExisting = false;
     private TextView tvFullName;
+    private BroadcastReceiver broadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +107,59 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
         initGoogleClient();
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        ParsePush.subscribeInBackground("Client", new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    Log.d("push", "successfully subscribed to the broadcast channel [Clients]");
+                } else {
+                    Log.e("push", "failed to subscribe for push", e);
+                }
+            }
+        });
+        ParsePush.subscribeInBackground("C" + ParseUser.getCurrentUser().getObjectId(), new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    Log.d("push", "successfully subscribed to the broadcast channel [" + "C" + ParseUser.getCurrentUser().getObjectId() + "]");
+                } else {
+                    Log.e("push", "failed to subscribe for push", e);
+                }
+            }
+        });
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                final String data = intent.getStringExtra("com.parse.Data");
+                try {
+                    final JSONObject json = new JSONObject(data);
+                    final String status = json.getJSONObject("json").getString("bookingStatus");
+                    if (status.equals("Attended")) {
+                        showCustomProgress(AppConstants.LOAD_FETCH_DRIVER_INFO);
+                        final String driverId = json.getJSONObject("json").getString("driverId");
+                        ParseQuery<ParseUser> driver = ParseUser.getQuery();
+                        driver.include("car");
+                        driver.getInBackground(driverId, new GetCallback<ParseUser>() {
+                            @Override
+                            public void done(ParseUser object, ParseException e) {
+                                dismissCustomProgress();
+                                if (e == null) {
+                                    final DriverInfoDialogFragment fragment = DriverInfoDialogFragment.newInstance(object);
+                                    fragment.show(getSupportFragmentManager(),"driver");
+                                } else {
+                                    showSweetDialog(e.getMessage(),"error");
+                                }
+                            }
+                        });
+                    }
+                } catch (JSONException e) {
+                    Log.d("push","ERROR IN PARSING JSON --> " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        };
+        final LocalBroadcastManager mgr = LocalBroadcastManager.getInstance(this);
+        mgr.registerReceiver(broadcastReceiver, new IntentFilter("broadcast_action"));
     }
 
     private void initGoogleClient() {

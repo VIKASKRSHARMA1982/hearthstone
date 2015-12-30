@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -12,13 +13,15 @@ import com.parse.ParsePushBroadcastReceiver;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import hertz.hertz.BuildConfig;
+
 /**
  * Created by rsbulanon on 11/25/15.
  */
 public class MyPushNotificationReceiver extends ParsePushBroadcastReceiver {
 
-    NotificationManager mNotificationManager;
-    int notification_id = 0;
+    private NotificationManager mNotificationManager;
+    private int notification_id = 0;
 
     @Override
     protected Notification getNotification(Context context, Intent intent) {
@@ -30,11 +33,16 @@ public class MyPushNotificationReceiver extends ParsePushBroadcastReceiver {
             final JSONObject json = new JSONObject(data);
             final String status = json.getJSONObject("json").getString("bookingStatus");
             if (status.equals("Attended")) {
-                Log.d("push", "must cancel notification");
-                mNotificationManager.cancel(notification_id);
+                if (!BuildConfig.FLAVOR.equals("booking")) {
+                    mNotificationManager.cancel(notification_id);
+                    Log.d("push", "must cancel notification");
+                } else {
+                    mNotificationManager.notify(notification_id, n);
+                    Log.d("push", "booking app must show notification");
+                }
             } else {
                 mNotificationManager.notify(notification_id, n);
-                Log.d("push","notification must show");
+                Log.d("push", "notification must show");
             }
             intent.setAction("broadcast_action");
             LocalBroadcastManager mgr = LocalBroadcastManager.getInstance(context);

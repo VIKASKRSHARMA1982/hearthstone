@@ -46,6 +46,7 @@ public class ReservationsActivity extends BaseActivity {
         showCustomProgress(AppConstants.LOAD_FETCH_BOOKING);
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Booking");
         query.whereEqualTo("user", ParseUser.getCurrentUser());
+        query.whereEqualTo("status","Pending");
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> objects, ParseException e) {

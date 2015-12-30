@@ -41,10 +41,11 @@ Parse.Cloud.afterSave("Booking", function(request) {
 		    }
 		});
 	} else if (request.object.get('status') === 'Attended') {
+		/* send push notification to driver */
 		Parse.Push.send({
 	    	channels: ["Drivers"],
 		    data: {	    	
-		      alert: "Booking with id of " + request.object.id + " already attended by" + request.object.get('driverName'),
+		      alert: "",
 		      json : {latitude : request.object.get('origin').latitude,
 		  				longitude : request.object.get('origin').longitude,
 		  				from : request.object.get('from'),
@@ -58,6 +59,23 @@ Parse.Cloud.afterSave("Booking", function(request) {
 		      console.log(error)
 		    }
 		});
+		console.log("BOOKED BY --> " + request.object.get('user').id);
+		Parse.Push.send({
+	    	channels: ["C"+request.object.get('user').id],
+		    data: {	    	
+		      alert: "Your booking with id of " + request.object.id + " will be attended by " +
+		      			request.object.get('driverName'),
+		      json : {	driverId : request.object.get('driver').id,
+		      			bookingId : request.object.id,
+		  				bookingStatus : request.object.get('status') }
+		      }
+		    }, { success: function() { 
+		    	console.log("SUCCESSSSS!");
+		    }, error: function(error) { 
+		      console.log(error)
+		    }
+		});
+
 	}
 });
 
