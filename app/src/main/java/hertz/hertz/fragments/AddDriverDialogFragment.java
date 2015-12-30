@@ -102,8 +102,11 @@ public class AddDriverDialogFragment extends DialogFragment {
             prevFirstName = driver.getParseObject("driver").getString("firstName");
             prevLastName = driver.getParseObject("driver").getString("lastName");
             prevMobile = driver.getParseObject("driver").getString("mobileNo");
-            prevCarId = driver.getParseObject("driver").getParseObject("car").getObjectId();
-            prevCarIndex = getIndexOfAssignedCar();
+
+            if (driver.getParseObject("driver").getParseObject("car") != null) {
+                prevCarId = driver.getParseObject("driver").getParseObject("car").getObjectId();
+                prevCarIndex = getIndexOfAssignedCar();
+            }
 
             etEmail.setText(driver.getString("email"));
             etEmail.setFocusable(false);
@@ -397,8 +400,16 @@ public class AddDriverDialogFragment extends DialogFragment {
                 }
             }
         } else {
-            for (ParseObject o : activity.getAvailableCars()) {
-                items.add(o.getString("carModel"));
+            if (driver.getParseObject("driver").getParseObject("car") != null) {
+                for (ParseObject o : activity.getAvailableCars()) {
+                    items.add(o.getString("carModel"));
+                }
+            } else {
+                for (ParseObject o : activity.getAvailableCars()) {
+                    if (o.getString("status").equals("available")) {
+                        items.add(o.getString("carModel"));
+                    }
+                }
             }
         }
 
@@ -412,10 +423,12 @@ public class AddDriverDialogFragment extends DialogFragment {
     }
 
     private int getIndexOfAssignedCar() {
-        for (int i = 0 ; i < activity.getAvailableCars().size() ; i++) {
-            if (activity.getAvailableCars().get(i).getString("carModel")
-                    .equals(driver.getParseObject("driver").getParseObject("car").getString("carModel"))) {
-                return i;
+        if (driver.getParseObject("driver").getParseObject("car") != null) {
+            for (int i = 0 ; i < activity.getAvailableCars().size() ; i++) {
+                if (activity.getAvailableCars().get(i).getString("carModel")
+                        .equals(driver.getParseObject("driver").getParseObject("car").getString("carModel"))) {
+                    return i;
+                }
             }
         }
         return 0;

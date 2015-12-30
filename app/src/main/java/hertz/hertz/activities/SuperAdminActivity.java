@@ -4,9 +4,11 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.parse.FindCallback;
+import com.parse.LogOutCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import java.util.List;
 
@@ -63,5 +65,19 @@ public class SuperAdminActivity extends BaseActivity {
             startActivity(new Intent(this,DriverManagementActivity.class));
             animateToLeft(this);
         }
+    }
+
+    @OnClick(R.id.btnLogout)
+    public void logout() {
+        ParseUser.logOutInBackground(new LogOutCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    startActivity(new Intent(SuperAdminActivity.this,CLoginActivity.class));
+                    finish();
+                    animateToRight(SuperAdminActivity.this);
+                }
+            }
+        });
     }
 }

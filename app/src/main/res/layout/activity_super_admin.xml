@@ -68,6 +68,22 @@
                 app:rd_maxRippleRadius="match_view"
                 app:rd_enable="true"/>
 
+
+            <com.rey.material.widget.Button
+                android:id="@+id/btnLogout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/menu_logout"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/dp_fifteen"
+                android:layout_marginLeft="@dimen/dp_ten"
+                android:layout_marginRight="@dimen/dp_ten"
+                android:background="@color/metro_yellow"
+                android:textColor="@android:color/black"
+                app:rd_rippleType="touch"
+                app:rd_maxRippleRadius="match_view"
+                app:rd_enable="true"/>
+
         </LinearLayout>
 
         <android.support.design.widget.NavigationView
