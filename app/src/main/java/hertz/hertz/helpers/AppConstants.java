@@ -33,6 +33,8 @@ public class AppConstants {
     public static final String WARN_INVALID_EMAIL_FORMAT = "Invalid email format!";
     public static final String WARN_PLEASE_ENTER_YOUR_MESSAGE = "Please enter your message";
     public static final String WARN_SELECT_CAR_IMAGE = "Please select the car model's image";
+    public static final String WARN_SELECT_DRIVER_IMAGE = "Please set the driver's profile picture";
+    public static final String WARN_NO_CHANGES_DETECTED = "No changes detected!";
 
     /** loading messages */
     public static final String LOAD_CREATE_ACCOUNT = "Creating your account, Please wait";
@@ -48,6 +50,8 @@ public class AppConstants {
     public static final String LOAD_ATTEND_BOOKING = "Attending client's booking, Please wait...";
     public static final String LOAD_FETCH_DRIVER_INFO = "Fetching attending driver info, Please wait...";
     public static final String LOAD_FETCH_ALL_DRIVERS = "Getting list of drivers, Please wait...";
+    public static final String LOAD_CREATE_DRIVER = "Creating new driver record, Please wait...";
+    public static final String LOAD_UPDATE_DRIVE = "Updating driver record, Please wait...";
 
     /** error messages */
     public static final String ERR_CONNECTION = "Connection error, Please check your network connection and try again!";
@@ -56,6 +60,7 @@ public class AppConstants {
     public static final String ERR_EMAIL_NOT_VERIFIED = "Please validate your email address first to proceed!";
     public static final String ERR_CREATE_BOOKING = "Failed to create your booking ,Please try again!";
     public static final String ERR_GET_BOOKING_INFO = "Failed to get booking info,Please try again!";
+    public static final String ERR_EMAIL_TAKEN = "Email already taken!";
 
     /** success messages */
     public static final String OK_ACCOUNT_CREATED = "Congratulations, Your account was successfully created"+
@@ -65,7 +70,7 @@ public class AppConstants {
     public static final String OK_CAR_DELETED = "Car record was successfully deleted!";
     public static final String OK_CAR_UPDATED = "Car record was successfully updated!";
     public static final String OK_BOOKING_ATTENDED = "Booking successfully attended!";
-
+    public static final String OK_NEW_DRIVER_ADDED = "New driver successfully added!";
 
     /** default values */
     public static final String DEFAULT_STATUS = "Awaiting";

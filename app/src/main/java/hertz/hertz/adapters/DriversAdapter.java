@@ -26,6 +26,7 @@ import hertz.hertz.R;
 import hertz.hertz.activities.CarManagementActivity;
 import hertz.hertz.activities.DriverManagementActivity;
 import hertz.hertz.fragments.AddCarDialogFragment;
+import hertz.hertz.fragments.AddDriverDialogFragment;
 import hertz.hertz.helpers.AppConstants;
 
 /**
@@ -56,61 +57,66 @@ public class DriversAdapter extends RecyclerView.Adapter<DriversAdapter.ViewHold
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        CircleImageView ivCarImage;
         TextView tvDriverName;
         TextView tvMobileNo;
         ImageView ivEdit;
         ImageView ivDelete;
-        ProgressBar pbLoadImage;
 
         ViewHolder (View view) {
             super(view);
-            ivCarImage = (CircleImageView)view.findViewById(R.id.ivCarImage);
             tvDriverName = (TextView)view.findViewById(R.id.tvDriverName);
             tvMobileNo = (TextView)view.findViewById(R.id.tvMobileNo);
             ivEdit = (ImageView)view.findViewById(R.id.ivEdit);
             ivDelete = (ImageView)view.findViewById(R.id.ivDelete);
-            pbLoadImage = (ProgressBar)view.findViewById(R.id.pbLoadImage);
         }
     }
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int i) {
         final ParseUser driver = drivers.get(i);
+        final String firstName = driver.getParseObject("driver").getString("firstName");
+        final String lastName = driver.getParseObject("driver").getString("lastName");
+        final String mobileNo = driver.getParseObject("driver").getString("mobileNo");
 
-        holder.tvDriverName.setText(driver.getString("firstName") + " " + driver.getString("lastName"));
-        holder.tvMobileNo.setText(driver.getString("mobileNo"));
-        if (driver.getParseFile("profilePic") != null) {
-            ImageLoader.getInstance().loadImage(driver.getParseFile("profilePic").getUrl(), new ImageLoadingListener() {
-                @Override
-                public void onLoadingStarted(String imageUri, View view) {
-                }
+        holder.tvDriverName.setText(firstName + " " + lastName);
+        holder.tvMobileNo.setText(mobileNo);
 
-                @Override
-                public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-                    holder.pbLoadImage.setVisibility(View.GONE);
-                }
-
-                @Override
-                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                    holder.pbLoadImage.setVisibility(View.GONE);
-                    holder.ivCarImage.setImageBitmap(loadedImage);
-                }
-
-                @Override
-                public void onLoadingCancelled(String imageUri, View view) {
-
-                }
-            });
-        } else {
-            holder.pbLoadImage.setVisibility(View.GONE);
-        }
-
-        /** edit car */
+        /** edit driver profile */
         holder.ivEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                final AddDriverDialogFragment fragment = AddDriverDialogFragment.newInstance(driver);
+                fragment.setOnAddDriverListener(new AddDriverDialogFragment.OnAddDriverListener() {
 
+                    @Override
+                    public void onAddUpdateStart() {
+                        activity.showCustomProgress(AppConstants.LOAD_UPDATE_DRIVE);
+                    }
+
+                    @Override
+                    public void onNewDriverAdded(ParseUser newDriver) {
+
+                    }
+
+                    @Override
+                    public void onDriverRecordUpdated() {
+                        activity.dismissCustomProgress();
+                        fragment.dismiss();
+                        activity.getDrivers();
+                    }
+
+                    @Override
+                    public void onAddDriverFailed(ParseException e) {
+                        activity.dismissCustomProgress();
+                        fragment.dismiss();
+                        if (e.getCode() == ParseException.EMAIL_TAKEN) {
+                            activity.showSweetDialog(AppConstants.ERR_EMAIL_TAKEN, "error");
+                        } else {
+                            activity.showSweetDialog(e.getMessage(), "error");
+                        }
+                    }
+                });
+                fragment.show(activity.getSupportFragmentManager(),"driver");
             }
         });
 

@@ -30,6 +30,7 @@ public class BaseApplication extends Application {
         AppConstants.GEOFIRE = new GeoFire(AppConstants.FIREBASE);
         Parse.initialize(this, AppConstants.PARSE_APP_ID, AppConstants.PARSE_CLIENT_KEY);
         ParseUser.enableRevocableSessionInBackground();
+
         ImageLoaderConfiguration.Builder config = new ImageLoaderConfiguration.Builder(this);
         config.threadPriority(Thread.NORM_PRIORITY - 2);
         config.denyCacheImageMultipleSizesInMemory();

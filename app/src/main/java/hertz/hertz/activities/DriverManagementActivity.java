@@ -15,8 +15,10 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import hertz.hertz.R;
 import hertz.hertz.adapters.DriversAdapter;
+import hertz.hertz.fragments.AddDriverDialogFragment;
 import hertz.hertz.helpers.AppConstants;
 import jp.wasabeef.recyclerview.animators.adapters.AlphaInAnimationAdapter;
 import jp.wasabeef.recyclerview.animators.adapters.ScaleInAnimationAdapter;
@@ -52,9 +54,9 @@ public class DriverManagementActivity extends BaseActivity {
     public void getDrivers() {
         showCustomProgress(AppConstants.LOAD_FETCH_ALL_DRIVERS);
         final ParseQuery<ParseUser> query = ParseUser.getQuery();
-        query.whereEqualTo("status","active");
-        query.whereEqualTo("userRole","driver");
-        query.orderByAscending("lastName");
+        query.whereEqualTo("status", "active");
+        query.whereEqualTo("userRole", "driver");
+        query.include("driver");
         query.findInBackground(new FindCallback<ParseUser>() {
             @Override
             public void done(List<ParseUser> objects, ParseException e) {
@@ -64,9 +66,48 @@ public class DriverManagementActivity extends BaseActivity {
                     drivers.addAll(objects);
                     rvDrivers.getAdapter().notifyDataSetChanged();
                 } else {
-                    showSweetDialog(e.getMessage(),"error");
+                    showSweetDialog(e.getMessage(), "error");
                 }
             }
         });
+    }
+
+    @OnClick(R.id.btnAddDriver)
+    public void addDriver() {
+        final AddDriverDialogFragment fragment = AddDriverDialogFragment.newInstance(null);
+        fragment.setOnAddDriverListener(new AddDriverDialogFragment.OnAddDriverListener() {
+
+            @Override
+            public void onAddUpdateStart() {
+                showCustomProgress(AppConstants.LOAD_CREATE_DRIVER);
+            }
+
+            @Override
+            public void onNewDriverAdded(ParseUser newDriver) {
+                dismissCustomProgress();
+                fragment.dismiss();
+                drivers.add(0,newDriver);
+                rvDrivers.getAdapter().notifyDataSetChanged();
+                showToast(AppConstants.OK_NEW_DRIVER_ADDED);
+            }
+
+            @Override
+            public void onDriverRecordUpdated() {
+                dismissCustomProgress();
+                fragment.dismiss();
+            }
+
+            @Override
+            public void onAddDriverFailed(ParseException e) {
+                dismissCustomProgress();
+                fragment.dismiss();
+                if (e.getCode() == ParseException.EMAIL_TAKEN) {
+                    showSweetDialog(AppConstants.ERR_EMAIL_TAKEN, "error");
+                } else {
+                    showSweetDialog(e.getMessage(), "error");
+                }
+            }
+        });
+        fragment.show(getSupportFragmentManager(),"driver");
     }
 }

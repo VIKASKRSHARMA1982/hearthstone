@@ -18,8 +18,11 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
@@ -46,11 +49,13 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.ViewHolder> {
     private ArrayList<ParseObject> records;
     private Context context;
     private CarManagementActivity activity;
+    private ImageLoader imageLoader;
 
     public CarsAdapter(Context context, ArrayList<ParseObject> records) {
         this.context = context;
         this.records = records;
         this.activity = (CarManagementActivity)context;
+        this.imageLoader = ImageLoader.getInstance();
     }
 
     @Override
@@ -66,7 +71,6 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.ViewHolder> {
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        CircleImageView ivCarImage;
         TextView tvCarModel;
         TextView tvPlateNo;
         TextView tvRatePer3Hours;
@@ -74,11 +78,9 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.ViewHolder> {
         TextView tvExcessRate;
         ImageView ivEdit;
         ImageView ivDelete;
-        ProgressBar pbLoadImage;
 
         ViewHolder (View view) {
             super(view);
-            ivCarImage = (CircleImageView)view.findViewById(R.id.ivCarImage);
             tvCarModel = (TextView)view.findViewById(R.id.tvCarModel);
             tvPlateNo = (TextView)view.findViewById(R.id.tvPlateNo);
             tvRatePer3Hours = (TextView)view.findViewById(R.id.tvRatePer3Hours);
@@ -86,7 +88,6 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.ViewHolder> {
             tvExcessRate = (TextView)view.findViewById(R.id.tvExcessRate);
             ivEdit = (ImageView)view.findViewById(R.id.ivEdit);
             ivDelete = (ImageView)view.findViewById(R.id.ivDelete);
-            pbLoadImage = (ProgressBar)view.findViewById(R.id.pbLoadImage);
         }
     }
 
@@ -104,31 +105,6 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.ViewHolder> {
         holder.tvRatePer3Hours.setText("Php " + activity.getDecimalFormatter().format(ratePer3Hours));
         holder.tvRatePer10Hours.setText("Php " + activity.getDecimalFormatter().format(ratePer10Hours));
         holder.tvExcessRate.setText("Php " + activity.getDecimalFormatter().format(excessRate));
-        if (car.getParseFile("carImage") != null) {
-            ImageLoader.getInstance().loadImage(car.getParseFile("carImage").getUrl(), new ImageLoadingListener() {
-                @Override
-                public void onLoadingStarted(String imageUri, View view) {
-                }
-
-                @Override
-                public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-                    holder.pbLoadImage.setVisibility(View.GONE);
-                }
-
-                @Override
-                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                    holder.pbLoadImage.setVisibility(View.GONE);
-                    holder.ivCarImage.setImageBitmap(loadedImage);
-                }
-
-                @Override
-                public void onLoadingCancelled(String imageUri, View view) {
-
-                }
-            });
-        } else {
-            holder.pbLoadImage.setVisibility(View.GONE);
-        }
 
         /** edit car */
         holder.ivEdit.setOnClickListener(new View.OnClickListener() {

@@ -107,6 +107,7 @@
     <string name="rate_per_10_hours">Rate per 10 Hours </string>
     <string name="excess_rate">Excess Rate </string>
     <string name="add_car_image">Upload the car image</string>
+    <string name="add_driver_pic">Tap to change pic</string>
 
     <string name="your_reservations">Your Reservations</string>
     <string name="booking_id">Booking Id : </string>
