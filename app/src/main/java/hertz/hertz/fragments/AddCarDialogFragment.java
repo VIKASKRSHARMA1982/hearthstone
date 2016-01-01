@@ -63,6 +63,12 @@ public class AddCarDialogFragment extends DialogFragment {
     private OnAddCarListener onAddCarListener;
     private ParseObject car;
     private boolean hasImage;
+    private String prevCarModel;
+    private String prevCarDescription;
+    private String prevPlateNo;
+    private String prevRatePer3Hours;
+    private String prevRatePer10Hours;
+    private String prevExcessRate;
 
     public static AddCarDialogFragment newInstance(ParseObject car) {
         AddCarDialogFragment frag = new AddCarDialogFragment();
@@ -83,13 +89,21 @@ public class AddCarDialogFragment extends DialogFragment {
         activity = (CarManagementActivity)getActivity();
 
         if (car != null) {
+            prevCarModel = car.getString("carModel");
+            prevPlateNo = car.getString("plateNo") == null ? "Not Set" : car.getString("plateNo");
+            prevCarDescription = car.getString("description");
+            prevRatePer3Hours = car.getNumber("ratePer3Hours").toString();
+            prevRatePer10Hours = car.getNumber("ratePer10Hours").toString();
+            prevExcessRate = car.getNumber("excessRate").toString();
+
             tvHeader.setText("Update car");
-            etCarModel.setText(car.getString("carModel"));
-            etDescripton.setText(car.getString("description"));
-            etPlateNo.setText(car.getString("plateNo") == null ? "Not Set" : car.getString("plateNo"));
-            etRatePer3Hours.setText(car.getNumber("ratePer3Hours").toString());
-            etRatePer10Hours.setText(car.getNumber("ratePer10Hours").toString());
-            etExcess.setText(car.getNumber("excessRate").toString());
+            etCarModel.setText(prevCarModel);
+            etDescripton.setText(prevCarDescription);
+            etPlateNo.setText(prevPlateNo);
+            etRatePer3Hours.setText(prevRatePer3Hours);
+            etRatePer10Hours.setText(prevRatePer10Hours);
+            etExcess.setText(prevExcessRate);
+
             if (car.getParseFile("carImage") != null) {
                 ImageLoader.getInstance().loadImage(car.getParseFile("carImage").getUrl(), new ImageLoadingListener() {
                     @Override
@@ -105,6 +119,8 @@ public class AddCarDialogFragment extends DialogFragment {
 
                     @Override
                     public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                        bitmap = loadedImage;
+                        hasImage = true;
                         tvAddCarImage.setVisibility(View.GONE);
                         ivDeleteImage.setVisibility(View.VISIBLE);
                         ivAddCarImage.setImageBitmap(loadedImage);
@@ -118,7 +134,6 @@ public class AddCarDialogFragment extends DialogFragment {
             }
             ivDeleteImage.setVisibility(View.GONE);
             tvAddCarImage.setText("Fetching car image, Please wait...");
-            hasImage = true;
         }
 
         final Dialog mDialog = new Dialog(getActivity());
@@ -197,7 +212,17 @@ public class AddCarDialogFragment extends DialogFragment {
             } else if (excessRate.isEmpty()) {
                 activity.setError(etExcess, AppConstants.WARN_FIELD_REQUIRED);
             } else {
-                new ConvertImage(carModel,plateNo,desc,ratePer3Hours,ratePer10Hours,excessRate).execute();
+                if (car != null) {
+                    if (prevCarModel.equals(carModel) && prevPlateNo.equals(plateNo)
+                        && prevCarDescription.equals(desc) && prevRatePer3Hours.equals(ratePer3Hours)
+                        && prevRatePer10Hours.equals(prevRatePer10Hours) && prevExcessRate.equals(excessRate)) {
+                        activity.showSweetDialog(AppConstants.WARN_NO_CHANGES_DETECTED,"warning");
+                    } else {
+                        new ConvertImage(carModel,plateNo,desc,ratePer3Hours,ratePer10Hours,excessRate).execute();
+                    }
+                } else {
+                    new ConvertImage(carModel,plateNo,desc,ratePer3Hours,ratePer10Hours,excessRate).execute();
+                }
             }
         }
     }
@@ -224,7 +249,11 @@ public class AddCarDialogFragment extends DialogFragment {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            activity.showCustomProgress(AppConstants.LOAD_CREATE_CAR);
+            if (car == null) {
+                activity.showCustomProgress(AppConstants.LOAD_CREATE_CAR);
+            } else {
+                activity.showCustomProgress(AppConstants.LOAD_UPDATE_CAR_RECORD);
+            }
         }
 
         @Override
@@ -239,6 +268,7 @@ public class AddCarDialogFragment extends DialogFragment {
             super.onPostExecute(bytes);
             if (car == null) {
                car = new ParseObject("Car");
+                car.put("status","available");
             }
             ParseFile pf = new ParseFile("img.png", bytes);
             car.put("carImage", pf);
@@ -249,7 +279,6 @@ public class AddCarDialogFragment extends DialogFragment {
             car.put("ratePer10Hours",Double.parseDouble(ratePer10Hours));
             car.put("excessRate", Double.parseDouble(excessRate));
             car.put("markedAsDeleted",false);
-            car.put("status","available");
             car.saveInBackground(new SaveCallback() {
                 @Override
                 public void done(ParseException e) {

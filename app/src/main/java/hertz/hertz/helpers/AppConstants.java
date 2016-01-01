@@ -35,6 +35,10 @@ public class AppConstants {
     public static final String WARN_SELECT_CAR_IMAGE = "Please select the car model's image";
     public static final String WARN_SELECT_DRIVER_IMAGE = "Please set the driver's profile picture";
     public static final String WARN_NO_CHANGES_DETECTED = "No changes detected!";
+    public static final String WARN_CAR_ALREADY_ASSIGNED = "Car already assigned to other driver, Please choose another car";
+    public static final String WARN_PROFILE_PIC_LOADING = "Driver's profile pic still loading, Please wait...";
+    public static final String WARN_CAR_CANNOT_BE_DELETED = "Can't delete car record because it is currently" +
+            " assigned to an active Driver";
 
     /** loading messages */
     public static final String LOAD_CREATE_ACCOUNT = "Creating your account, Please wait";
@@ -53,6 +57,9 @@ public class AppConstants {
     public static final String LOAD_CREATE_DRIVER = "Creating new driver record, Please wait...";
     public static final String LOAD_UPDATE_DRIVE = "Updating driver record, Please wait...";
     public static final String LOAD_DELETING_DRIVER = "Deleting driver record, Please wait...";
+    public static final String LOAD_VACATING_CAR = "Vacating car, Please wait...";
+    public static final String LOAD_UPDATE_CAR_RECORD = "Updating cart record, Please wait...";
+    public static final String LOAD_LOGOUT = "Logging out, Please wait...";
 
     /** error messages */
     public static final String ERR_CONNECTION = "Connection error, Please check your network connection and try again!";

@@ -24,26 +24,23 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
-import com.parse.GetCallback;
+import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
-import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
 import com.rey.material.widget.Spinner;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.util.ArrayList;
-import java.util.regex.Pattern;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -63,22 +60,22 @@ public class AddDriverDialogFragment extends DialogFragment {
     @Bind(R.id.etFirstName) EditText etFirstName;
     @Bind(R.id.etMobileNo) EditText etMobileNo;
     @Bind(R.id.tvHeader) TextView tvHeader;
+    @Bind(R.id.pbLoadImage) ProgressBar pbLoadImage;
     @Bind(R.id.spnrAvailableCar) Spinner spnrAvailableCar;
     private static final int CAPTURE_IMAGE = 2;
     private View view;
     private DriverManagementActivity activity;
-    private ParseUser driver;
+    private ParseObject driver;
     private boolean hasImage;
-    private File profilePic;
     private OnAddDriverListener onAddDriverListener;
     private Bitmap bitmap;
     private String prevFirstName;
     private String prevLastName;
     private String prevMobile;
     private String prevCarId;
-    private int prevCarIndex;
+    private boolean isProfilePicLoading;
 
-    public static AddDriverDialogFragment newInstance(ParseUser driver) {
+    public static AddDriverDialogFragment newInstance(ParseObject driver) {
         AddDriverDialogFragment frag = new AddDriverDialogFragment();
         frag.driver = driver;
         return frag;
@@ -99,44 +96,51 @@ public class AddDriverDialogFragment extends DialogFragment {
         initSpinner();
         if (driver != null) {
             tvHeader.setText("Update Driver Profile");
-            prevFirstName = driver.getParseObject("driver").getString("firstName");
-            prevLastName = driver.getParseObject("driver").getString("lastName");
-            prevMobile = driver.getParseObject("driver").getString("mobileNo");
+            prevFirstName = driver.getString("firstName");
+            prevLastName = driver.getString("lastName");
+            prevMobile = driver.getString("mobileNo");
 
-            if (driver.getParseObject("driver").getParseObject("car") != null) {
-                prevCarId = driver.getParseObject("driver").getParseObject("car").getObjectId();
-                prevCarIndex = getIndexOfAssignedCar();
+            if (driver.getParseObject("car") != null) {
+                prevCarId = driver.getParseObject("car").getObjectId();
             }
 
-            etEmail.setText(driver.getString("email"));
-            etEmail.setFocusable(false);
+            etEmail.setVisibility(View.GONE);
             etFirstName.setText(prevFirstName);
             etFirstName.setSelection(prevFirstName.length());
             etLastName.setText(prevLastName);
             etMobileNo.setText(prevMobile);
 
-            ImageLoader.getInstance().loadImage(driver.getParseObject("driver").getParseFile("profilePic").getUrl(),
-                    new ImageLoadingListener() {
-                        @Override
-                        public void onLoadingStarted(String imageUri, View view) {
+            if (driver.getParseFile("profilePic") != null) {
+                ImageLoader.getInstance().loadImage(driver.getParseFile("profilePic").getUrl(),
+                        new ImageLoadingListener() {
+                            @Override
+                            public void onLoadingStarted(String imageUri, View view) {
+                                pbLoadImage.setVisibility(View.VISIBLE);
+                                isProfilePicLoading = true;
+                            }
 
-                        }
+                            @Override
+                            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
 
-                        @Override
-                        public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-                        }
+                            }
 
-                        @Override
-                        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                            bitmap = loadedImage;
-                            ivProfilePic.setImageBitmap(loadedImage);
-                        }
+                            @Override
+                            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                                bitmap = loadedImage;
+                                pbLoadImage.setVisibility(View.GONE);
+                                isProfilePicLoading = false;
+                                ivProfilePic.setImageBitmap(loadedImage);
+                            }
 
-                        @Override
-                        public void onLoadingCancelled(String imageUri, View view) {
+                            @Override
+                            public void onLoadingCancelled(String imageUri, View view) {
 
-                        }
-                    });
+                            }
+                        });
+            } else {
+                pbLoadImage.setVisibility(View.GONE);
+                isProfilePicLoading = false;
+            }
         }
         final Dialog mDialog = new Dialog(getActivity());
         mDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -211,18 +215,52 @@ public class AddDriverDialogFragment extends DialogFragment {
                 activity.setError(etLastName, AppConstants.WARN_FIELD_REQUIRED);
             } else if (mobileNo.isEmpty()) {
                 activity.setError(etMobileNo, AppConstants.WARN_FIELD_REQUIRED);
-            } else if (!hasImage) {
-                activity.showToast(AppConstants.WARN_SELECT_DRIVER_IMAGE);
             } else {
-                new ConvertImage(email,firstName,lastName,mobileNo).execute();
+                if (spnrAvailableCar.getSelectedItem().toString().contains("Assigned")) {
+                    activity.showSweetDialog(AppConstants.WARN_CAR_ALREADY_ASSIGNED,"warning");
+                } else {
+                    if (bitmap == null) {
+                        final int selectedSpinnerIndex = spnrAvailableCar.getSelectedItemPosition();
+                        final ParseObject selectedCar = activity.getAvailableCars().get(selectedSpinnerIndex);
+                        onAddDriverListener.onAddUpdateStart();
+                        createNewDriver(ParseUser.getCurrentUser().getSessionToken(), email, firstName,
+                                lastName, null, mobileNo, selectedCar);
+                    } else {
+                        new ConvertImage(email,firstName,lastName,mobileNo).execute();
+                    }
+                }
             }
         } else {
-            ParseObject selectedCar = activity.getAvailableCars().get(spnrAvailableCar.getSelectedItemPosition());
-            if (firstName.equals(prevFirstName) && lastName.equals(prevLastName)
-                    && mobileNo.equals(prevMobile) && prevCarId.equals(selectedCar.getObjectId())) {
-                activity.showSweetDialog(AppConstants.WARN_NO_CHANGES_DETECTED,"warning");
+            if (isProfilePicLoading) {
+                activity.showToast(AppConstants.WARN_PROFILE_PIC_LOADING);
             } else {
-                new ConvertImage(email,firstName,lastName,mobileNo).execute();
+                final ParseObject selectedCar = activity.getAvailableCars().get(spnrAvailableCar.getSelectedItemPosition());
+
+                if (prevCarId != null && !prevCarId.equals(selectedCar.getObjectId())
+                        && selectedCar.getString("status").equals("Assigned")) {
+                    activity.showSweetDialog(AppConstants.WARN_CAR_ALREADY_ASSIGNED,"warning");
+                } else {
+                    if (spnrAvailableCar.getSelectedItem().toString().contains("Assigned to this Driver")) {
+                        if (firstName.equals(prevFirstName) && lastName.equals(prevLastName) && !hasImage
+                                && mobileNo.equals(prevMobile) &&
+                                (prevCarId != null && prevCarId.equals(selectedCar.getObjectId()))) {
+                            activity.showSweetDialog(AppConstants.WARN_NO_CHANGES_DETECTED,"warning");
+                        } else {
+                            if (bitmap == null) {
+                                onAddDriverListener.onAddUpdateStart();
+                                updateCarDriver(firstName,lastName,null,mobileNo,selectedCar);
+                            } else {
+                                new ConvertImage(email,firstName,lastName,mobileNo).execute();
+                            }
+                        }
+                    } else {
+                        if (spnrAvailableCar.getSelectedItem().toString().contains("Assigned")) {
+                            activity.showSweetDialog(AppConstants.WARN_CAR_ALREADY_ASSIGNED,"warning");
+                        } else {
+                            new ConvertImage(email,firstName,lastName,mobileNo).execute();
+                        }
+                    }
+                }
             }
         }
     }
@@ -265,112 +303,11 @@ public class AddDriverDialogFragment extends DialogFragment {
                     if (e == null) {
                         final int selectedSpinnerIndex = spnrAvailableCar.getSelectedItemPosition();
                         final ParseObject selectedCar = activity.getAvailableCars().get(selectedSpinnerIndex);
+
                         if (driver == null) {
-                            /** create new driver record */
-                            final ParseUser newDriver = new ParseUser();
-                            newDriver.setEmail(email);
-                            newDriver.setUsername(email);
-                            newDriver.setPassword("123");
-                            newDriver.put("isPasswordDefault", true);
-                            newDriver.put("userRole", "driver");
-                            newDriver.put("status", "active");
-                            newDriver.signUpInBackground(new SignUpCallback() {
-                                @Override
-                                public void done(ParseException e) {
-                                    if (e == null) {
-                                        final ParseObject object = new ParseObject("Driver");
-                                        object.put("firstName", firstName);
-                                        object.put("lastName", lastName);
-                                        object.put("profilePic", pf);
-                                        object.put("mobileNo", mobileNo);
-                                        object.put("car", selectedCar);
-                                        object.put("status","active");
-                                        object.saveInBackground(new SaveCallback() {
-                                            @Override
-                                            public void done(ParseException e) {
-                                                if (e == null) {
-                                                    newDriver.put("driver", object);
-                                                    newDriver.saveInBackground(new SaveCallback() {
-                                                        @Override
-                                                        public void done(ParseException e) {
-                                                            selectedCar.put("status", "assigned");
-                                                            selectedCar.saveInBackground(new SaveCallback() {
-                                                                @Override
-                                                                public void done(ParseException e) {
-                                                                    if (e == null) {
-                                                                        try {
-                                                                            activity.getAvailableCars().set(selectedSpinnerIndex, selectedCar);
-                                                                            ParseUser.getCurrentUser().logOut();
-                                                                            ParseUser.become(session);
-                                                                            onAddDriverListener.onNewDriverAdded(newDriver);
-                                                                        } catch (ParseException e1) {
-                                                                            e1.printStackTrace();
-                                                                            onAddDriverListener.onAddDriverFailed(e1);
-                                                                        }
-                                                                    } else {
-                                                                        onAddDriverListener.onAddDriverFailed(e);
-                                                                    }
-                                                                }
-                                                            });
-                                                        }
-                                                    });
-                                                } else {
-                                                    onAddDriverListener.onAddDriverFailed(e);
-                                                }
-                                            }
-                                        });
-                                    } else {
-                                        onAddDriverListener.onAddDriverFailed(e);
-                                    }
-                                }
-                            });
+                            createNewDriver(session,email,firstName,lastName,pf,mobileNo,selectedCar);
                         } else {
-                            final ParseObject prevCar = activity.getAvailableCars().get(prevCarIndex);
-                            ParseQuery<ParseObject> query = ParseQuery.getQuery("Driver");
-                            query.getInBackground(driver.getParseObject("driver").getObjectId(),
-                                    new GetCallback<ParseObject>() {
-                                        @Override
-                                        public void done(ParseObject object, ParseException e) {
-                                            /** update driver record */
-                                            object.put("firstName", firstName);
-                                            object.put("lastName", lastName);
-                                            object.put("profilePic", pf);
-                                            object.put("mobileNo", mobileNo);
-                                            object.put("car",selectedCar);
-                                            object.saveInBackground(new SaveCallback() {
-                                                @Override
-                                                public void done(ParseException e) {
-                                                    if (e == null) {
-                                                        prevCar.put("status","available");
-                                                        prevCar.saveInBackground(new SaveCallback() {
-                                                            @Override
-                                                            public void done(ParseException e) {
-                                                                if (e == null) {
-                                                                    activity.getAvailableCars().set(prevCarIndex,prevCar);
-                                                                    selectedCar.put("status", "assigned");
-                                                                    selectedCar.saveInBackground(new SaveCallback() {
-                                                                        @Override
-                                                                        public void done(ParseException e) {
-                                                                            if (e == null) {
-                                                                                activity.getAvailableCars().set(selectedSpinnerIndex, selectedCar);
-                                                                                onAddDriverListener.onDriverRecordUpdated();
-                                                                            } else {
-                                                                                onAddDriverListener.onAddDriverFailed(e);
-                                                                            }
-                                                                        }
-                                                                    });
-                                                                } else {
-                                                                    onAddDriverListener.onAddDriverFailed(e);
-                                                                }
-                                                            }
-                                                        });
-                                                    } else {
-                                                        onAddDriverListener.onAddDriverFailed(e);
-                                                    }
-                                                }
-                                            });
-                                        }
-                                    });
+                            updateCarDriver(firstName,lastName,pf,mobileNo,selectedCar);
                         }
                     } else {
                         onAddDriverListener.onAddDriverFailed(e);
@@ -393,22 +330,15 @@ public class AddDriverDialogFragment extends DialogFragment {
 
     private void initSpinner() {
         ArrayList<String> items = new ArrayList<>();
-        if (driver == null) {
-            for (ParseObject o : activity.getAvailableCars()) {
-                if (o.getString("status").equals("available")) {
-                    items.add(o.getString("carModel"));
-                }
-            }
-        } else {
-            if (driver.getParseObject("driver").getParseObject("car") != null) {
-                for (ParseObject o : activity.getAvailableCars()) {
-                    items.add(o.getString("carModel"));
-                }
+
+        for (ParseObject o : activity.getAvailableCars()) {
+            if (o.getString("status").equals("available")) {
+                items.add(o.getString("carModel"));
             } else {
-                for (ParseObject o : activity.getAvailableCars()) {
-                    if (o.getString("status").equals("available")) {
-                        items.add(o.getString("carModel"));
-                    }
+                if (driver != null && driver.getObjectId().equals(o.getString("assignedTo"))) {
+                    items.add(o.getString("carModel") + " (Assigned to this Driver)");
+                } else {
+                    items.add(o.getString("carModel") + " (Assigned to Driver "+ o.getString("assignedTo")+")");
                 }
             }
         }
@@ -423,14 +353,141 @@ public class AddDriverDialogFragment extends DialogFragment {
     }
 
     private int getIndexOfAssignedCar() {
-        if (driver.getParseObject("driver").getParseObject("car") != null) {
+        if (driver.getParseObject("car") != null) {
             for (int i = 0 ; i < activity.getAvailableCars().size() ; i++) {
                 if (activity.getAvailableCars().get(i).getString("carModel")
-                        .equals(driver.getParseObject("driver").getParseObject("car").getString("carModel"))) {
+                        .equals(driver.getParseObject("car").getString("carModel"))) {
                     return i;
                 }
             }
         }
         return 0;
+    }
+
+    private void createNewDriver(final String session, final String email, final String firstName,
+                                 final String lastName, final ParseFile pf, final String mobileNo,
+                                 final ParseObject selectedCar) {
+        /** create new driver record */
+        final ParseUser newDriver = new ParseUser();
+        newDriver.setEmail(email);
+        newDriver.setUsername(email);
+        newDriver.setPassword("123");
+        newDriver.put("isPasswordDefault", true);
+        newDriver.put("userRole", "driver");
+        newDriver.put("status", "active");
+        newDriver.signUpInBackground(new SignUpCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    final ParseObject object = new ParseObject("Driver");
+                    object.put("firstName", firstName);
+                    object.put("lastName", lastName);
+                    if (pf != null) {
+                        object.put("profilePic", pf);
+                    }
+                    object.put("mobileNo", mobileNo);
+                    object.put("car", selectedCar);
+                    object.put("status","active");
+                    object.saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if (e == null) {
+                                newDriver.put("driver", object);
+                                newDriver.saveInBackground(new SaveCallback() {
+                                    @Override
+                                    public void done(ParseException e) {
+                                        selectedCar.put("status", "assigned");
+                                        selectedCar.put("assignedTo",object.getObjectId());
+                                        selectedCar.saveInBackground(new SaveCallback() {
+                                            @Override
+                                            public void done(ParseException e) {
+                                                if (e == null) {
+                                                    try {
+                                                        ParseUser.getCurrentUser().logOut();
+                                                        ParseUser.become(session);
+                                                        onAddDriverListener.onNewDriverAdded(newDriver);
+                                                    } catch (ParseException e1) {
+                                                        e1.printStackTrace();
+                                                        onAddDriverListener.onAddDriverFailed(e1);
+                                                    }
+                                                } else {
+                                                    onAddDriverListener.onAddDriverFailed(e);
+                                                }
+                                            }
+                                        });
+                                    }
+                                });
+                            } else {
+                                onAddDriverListener.onAddDriverFailed(e);
+                            }
+                        }
+                    });
+                } else {
+                    onAddDriverListener.onAddDriverFailed(e);
+                }
+            }
+        });
+    }
+
+    private void updateCarDriver(final String firstName,
+                                 final String lastName, final ParseFile pf, final String mobileNo,
+                                 final ParseObject selectedCar) {
+        //final ParseObject prevCar = filteredCars.get(prevCarIndex);
+        final ParseObject prevCar = driver.getParseObject("car");
+        /** update driver record */
+        driver.put("firstName", firstName);
+        driver.put("lastName", lastName);
+        if (pf != null) {
+            driver.put("profilePic", pf);
+        }
+        driver.put("mobileNo", mobileNo);
+        driver.put("car",selectedCar);
+        driver.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if (e == null) {
+                    if (prevCar != null) {
+                        prevCar.put("status", "available");
+                        prevCar.put("assignedTo", "");
+                        prevCar.saveInBackground(new SaveCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                if (e == null) {
+                                    selectedCar.put("status", "assigned");
+                                    selectedCar.put("assignedTo", driver.getObjectId());
+                                    selectedCar.saveInBackground(new SaveCallback() {
+                                        @Override
+                                        public void done(ParseException e) {
+                                            if (e == null) {
+                                                onAddDriverListener.onDriverRecordUpdated();
+                                            } else {
+                                                onAddDriverListener.onAddDriverFailed(e);
+                                            }
+                                        }
+                                    });
+                                } else {
+                                    onAddDriverListener.onAddDriverFailed(e);
+                                }
+                            }
+                        });
+                    } else {
+                        selectedCar.put("status", "assigned");
+                        selectedCar.put("assignedTo", driver.getObjectId());
+                        selectedCar.saveInBackground(new SaveCallback() {
+                            @Override
+                            public void done(ParseException e) {
+                                if (e == null) {
+                                    onAddDriverListener.onDriverRecordUpdated();
+                                } else {
+                                    onAddDriverListener.onAddDriverFailed(e);
+                                }
+                            }
+                        });
+                    }
+                } else {
+                    onAddDriverListener.onAddDriverFailed(e);
+                }
+            }
+        });
     }
 }

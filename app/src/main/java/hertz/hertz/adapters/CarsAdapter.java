@@ -134,38 +134,42 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.ViewHolder> {
             @Override
             public void onClick(View v) {
                 if (activity.isNetworkAvailable()) {
-                    new SweetAlertDialog(context,SweetAlertDialog.WARNING_TYPE)
-                            .setTitleText("Hertz")
-                            .setContentText("Are you sure you want to delete this car record?")
-                            .setConfirmText("Yes")
-                            .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
-                                @Override
-                                public void onClick(SweetAlertDialog sweetAlertDialog) {
-                                    sweetAlertDialog.dismiss();
-                                    activity.showCustomProgress(AppConstants.LOAD_DELETE_CAR);
-                                    car.put("markedAsDeleted", true);
-                                    car.saveInBackground(new SaveCallback() {
-                                        @Override
-                                        public void done(ParseException e) {
-                                            activity.dismissCustomProgress();
-                                            if (e == null) {
-                                                activity.removeCarFromList(i);
-                                                activity.showSweetDialog(AppConstants.OK_CAR_DELETED,"success");
-                                            } else {
-                                                activity.showSweetDialog(e.getMessage(),"error");
+                    if (car.getString("status").equals("available")) {
+                        new SweetAlertDialog(context,SweetAlertDialog.WARNING_TYPE)
+                                .setTitleText("Hertz")
+                                .setContentText("Are you sure you want to delete this car record?")
+                                .setConfirmText("Yes")
+                                .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                                    @Override
+                                    public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                        sweetAlertDialog.dismiss();
+                                        activity.showCustomProgress(AppConstants.LOAD_DELETE_CAR);
+                                        car.put("markedAsDeleted", true);
+                                        car.saveInBackground(new SaveCallback() {
+                                            @Override
+                                            public void done(ParseException e) {
+                                                activity.dismissCustomProgress();
+                                                if (e == null) {
+                                                    activity.removeCarFromList(i);
+                                                    activity.showSweetDialog(AppConstants.OK_CAR_DELETED,"success");
+                                                } else {
+                                                    activity.showSweetDialog(e.getMessage(),"error");
+                                                }
                                             }
-                                        }
-                                    });
-                                }
-                            })
-                            .setCancelText("No")
-                            .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
-                                @Override
-                                public void onClick(SweetAlertDialog sweetAlertDialog) {
-                                    sweetAlertDialog.dismiss();
-                                }
-                            })
-                            .show();
+                                        });
+                                    }
+                                })
+                                .setCancelText("No")
+                                .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                                    @Override
+                                    public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                        sweetAlertDialog.dismiss();
+                                    }
+                                })
+                                .show();
+                    } else {
+                        activity.showSweetDialog(AppConstants.WARN_CAR_CANNOT_BE_DELETED, "warning");
+                    }
                 } else {
                     activity.showSweetDialog(AppConstants.ERR_CONNECTION, "error");
                 }

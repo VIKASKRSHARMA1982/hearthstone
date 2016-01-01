@@ -31,7 +31,7 @@ public class DriverManagementActivity extends BaseActivity {
 
     @Bind(R.id.rvDrivers) RecyclerView rvDrivers;
     @Bind(R.id.swipeRefresh) SwipeRefreshLayout swipeRefresh;
-    private ArrayList<ParseUser> drivers = new ArrayList<>();
+    private ArrayList<ParseObject> drivers = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +55,7 @@ public class DriverManagementActivity extends BaseActivity {
     public void getDrivers() {
         showCustomProgress(AppConstants.LOAD_FETCH_ALL_DRIVERS);
         final ParseQuery<ParseObject> status = ParseQuery.getQuery("Driver");
-        status.whereEqualTo("status","active");
+        status.whereEqualTo("status", "active");
 
         final ParseQuery<ParseUser> query = ParseUser.getQuery();
         query.whereMatchesQuery("driver", status);
@@ -64,12 +64,24 @@ public class DriverManagementActivity extends BaseActivity {
         query.include("car");
         query.findInBackground(new FindCallback<ParseUser>() {
             @Override
-            public void done(List<ParseUser> objects, ParseException e) {
-                dismissCustomProgress();
+            public void done(final List<ParseUser> dri, ParseException e) {
                 if (e == null) {
-                    drivers.clear();
-                    drivers.addAll(objects);
-                    rvDrivers.getAdapter().notifyDataSetChanged();
+                    ParseQuery<ParseObject> car = ParseQuery.getQuery("Car");
+                    car.orderByAscending("carModel");
+                    car.whereEqualTo("markedAsDeleted", false);
+                    car.findInBackground(new FindCallback<ParseObject>() {
+                        @Override
+                        public void done(List<ParseObject> objects, ParseException e) {
+                            if (e == null) {
+                                dismissCustomProgress();
+                                getAvailableCars().clear();
+                                getAvailableCars().addAll(objects);
+                                drivers.clear();
+                                drivers.addAll(dri);
+                                rvDrivers.getAdapter().notifyDataSetChanged();
+                            }
+                        }
+                    });
                 } else {
                     showSweetDialog(e.getMessage(), "error");
                 }
@@ -88,18 +100,42 @@ public class DriverManagementActivity extends BaseActivity {
             }
 
             @Override
-            public void onNewDriverAdded(ParseUser newDriver) {
-                dismissCustomProgress();
-                fragment.dismiss();
-                drivers.add(0, newDriver);
-                rvDrivers.getAdapter().notifyDataSetChanged();
-                showToast(AppConstants.OK_NEW_DRIVER_ADDED);
+            public void onNewDriverAdded(final ParseUser newDriver) {
+                ParseQuery<ParseObject> car = ParseQuery.getQuery("Car");
+                car.orderByAscending("carModel");
+                car.whereEqualTo("markedAsDeleted", false);
+                car.findInBackground(new FindCallback<ParseObject>() {
+                    @Override
+                    public void done(List<ParseObject> objects, ParseException e) {
+                        if (e == null) {
+                            getAvailableCars().clear();
+                            getAvailableCars().addAll(objects);
+                            dismissCustomProgress();
+                            fragment.dismiss();
+                            drivers.add(0, newDriver);
+                            rvDrivers.getAdapter().notifyDataSetChanged();
+                            showToast(AppConstants.OK_NEW_DRIVER_ADDED);
+                        }
+                    }
+                });
             }
 
             @Override
             public void onDriverRecordUpdated() {
-                dismissCustomProgress();
-                fragment.dismiss();
+                ParseQuery<ParseObject> car = ParseQuery.getQuery("Car");
+                car.orderByAscending("carModel");
+                car.whereEqualTo("markedAsDeleted", false);
+                car.findInBackground(new FindCallback<ParseObject>() {
+                    @Override
+                    public void done(List<ParseObject> objects, ParseException e) {
+                        if (e == null) {
+                            getAvailableCars().clear();
+                            getAvailableCars().addAll(objects);
+                            dismissCustomProgress();
+                            fragment.dismiss();
+                        }
+                    }
+                });
             }
 
             @Override

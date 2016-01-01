@@ -36,11 +36,11 @@ import hertz.hertz.helpers.AppConstants;
  */
 public class DriversAdapter extends RecyclerView.Adapter<DriversAdapter.ViewHolder> {
 
-    private ArrayList<ParseUser> drivers;
+    private ArrayList<ParseObject> drivers;
     private Context context;
     private DriverManagementActivity activity;
 
-    public DriversAdapter(Context context, ArrayList<ParseUser> drivers) {
+    public DriversAdapter(Context context, ArrayList<ParseObject> drivers) {
         this.context = context;
         this.drivers = drivers;
         this.activity = (DriverManagementActivity)context;
@@ -75,10 +75,10 @@ public class DriversAdapter extends RecyclerView.Adapter<DriversAdapter.ViewHold
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int i) {
-        final ParseUser driver = drivers.get(i);
-        final String firstName = driver.getParseObject("driver").getString("firstName");
-        final String lastName = driver.getParseObject("driver").getString("lastName");
-        final String mobileNo = driver.getParseObject("driver").getString("mobileNo");
+        final ParseObject driver = drivers.get(i).getParseObject("driver");
+        final String firstName = driver.getString("firstName");
+        final String lastName = driver.getString("lastName");
+        final String mobileNo = driver.getString("mobileNo");
 
         holder.tvDriverName.setText(firstName + " " + lastName);
         holder.tvMobileNo.setText(mobileNo);
@@ -129,32 +129,32 @@ public class DriversAdapter extends RecyclerView.Adapter<DriversAdapter.ViewHold
                 if (activity.isNetworkAvailable()) {
                     new SweetAlertDialog(context,SweetAlertDialog.WARNING_TYPE)
                             .setTitleText("Hertz")
-                            .setContentText("Are you sure you want to delete this driver record?")
+                            .setContentText("Deleting this record will also vacate the car assigned to this" +
+                                    " driver. Are you sure you want to proceed?")
                             .setConfirmText("Yes")
                             .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
                                 @Override
                                 public void onClick(SweetAlertDialog sweetAlertDialog) {
                                     sweetAlertDialog.dismiss();
                                     activity.showCustomProgress(AppConstants.LOAD_DELETING_DRIVER);
-                                    ParseQuery<ParseObject> query = ParseQuery.getQuery("Driver");
-                                    query.getInBackground(driver.getParseObject("driver").getObjectId(),
-                                            new GetCallback<ParseObject>() {
-                                                @Override
-                                                public void done(ParseObject object, ParseException e) {
-                                                    object.put("status","inactive");
-                                                    object.saveInBackground(new SaveCallback() {
-                                                        @Override
-                                                        public void done(ParseException e) {
-                                                            activity.dismissCustomProgress();
-                                                            if (e == null) {
-                                                                activity.getDrivers();
-                                                            } else {
-                                                                activity.showSweetDialog(e.getMessage(),"error");
-                                                            }
-                                                        }
-                                                    });
+                                    if (driver.getParseObject("car") != null) {
+                                        activity.updateCustomProgress(AppConstants.LOAD_VACATING_CAR);
+                                        ParseObject car = driver.getParseObject("car");
+                                        car.put("assignedTo", "");
+                                        car.put("status", "available");
+                                        car.saveInBackground(new SaveCallback() {
+                                            @Override
+                                            public void done(ParseException e) {
+                                                if (e == null) {
+                                                    deleteDriver(driver);
+                                                } else {
+                                                    activity.showSweetDialog(e.getMessage(), "error");
                                                 }
-                                            });
+                                            }
+                                        });
+                                    } else {
+                                        deleteDriver(driver);
+                                    }
                                 }
                             })
                             .setCancelText("No")
@@ -175,5 +175,21 @@ public class DriversAdapter extends RecyclerView.Adapter<DriversAdapter.ViewHold
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
+    }
+
+    private void deleteDriver(ParseObject driver) {
+        driver.put("status", "inactive");
+        driver.remove("car");
+        driver.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                activity.dismissCustomProgress();
+                if (e == null) {
+                    activity.getDrivers();
+                } else {
+                    activity.showSweetDialog(e.getMessage(), "error");
+                }
+            }
+        });
     }
 }

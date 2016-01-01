@@ -69,6 +69,7 @@ public class SuperAdminActivity extends BaseActivity {
 
     @OnClick(R.id.btnLogout)
     public void logout() {
+        showCustomProgress(AppConstants.LOAD_LOGOUT);
         ParseUser.logOutInBackground(new LogOutCallback() {
             @Override
             public void done(ParseException e) {
