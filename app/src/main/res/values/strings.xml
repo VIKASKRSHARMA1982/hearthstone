@@ -124,4 +124,7 @@
     <string name="plate_no">Plate No</string>
     <string name="assign_to_car">Assign to Car</string>
 
+    <string name="accept">Accept</string>
+    <string name="decline">Decline</string>
+
 </resources>

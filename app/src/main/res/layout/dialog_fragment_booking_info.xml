@@ -2,128 +2,159 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="420dp"
+    android:background="@drawable/bg_body"
     android:orientation="vertical">
 
     <TextView
         android:id="@+id/tvHeader"
         android:layout_width="match_parent"
-        android:background="@drawable/bg_header"
         android:layout_height="@dimen/dp_fifty"
-        android:textColor="@android:color/white"
-        android:textSize="@dimen/sp_thirty"
-        android:paddingLeft="@dimen/dp_ten"
+        android:background="@drawable/bg_header"
         android:gravity="center_vertical"
-        android:text="@string/booking_info"/>
+        android:paddingLeft="@dimen/dp_ten"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/sp_thirty" />
+
+    <TextView
+        android:id="@+id/tvJobType"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@color/metro_yellow_alpha"
+        android:gravity="center"
+        android:text="CAR HIRE JOBS"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/sp_twenty_five" />
+
+    <TextView
+        android:id="@+id/tvTimer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/metro_green"
+        android:paddingBottom="2dp"
+        android:paddingLeft="@dimen/dp_five"
+        android:paddingTop="2dp"
+        android:text="Job closes in 30 seconds"
+        android:textColor="@android:color/white" />
+
+    <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="@dimen/dp_five"
+        android:layout_marginTop="@dimen/dp_five"
+        android:background="@android:color/white"
+        android:elevation="@dimen/dp_ten"
+        card_view:cardCornerRadius="@dimen/dp_five">
+
+        <TextView
+            android:id="@+id/tvDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/dp_five"
+            android:text="@string/app_name"
+            android:textColor="@android:color/black" />
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="@dimen/dp_five"
+        android:layout_marginTop="@dimen/dp_five"
+        android:background="@android:color/white"
+        android:elevation="@dimen/dp_ten"
+        card_view:cardCornerRadius="@dimen/dp_five">
+
+        <TextView
+            android:id="@+id/tvDestination"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/car_hire"
+            android:drawablePadding="@dimen/dp_twenty"
+            android:padding="@dimen/dp_five"
+            android:text="@string/app_name"
+            android:textSize="@dimen/sp_twenty"
+            android:textColor="@android:color/black" />
+
+    </android.support.v7.widget.CardView>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/dp_ten"
-        android:layout_marginRight="@dimen/dp_ten"
-        android:layout_marginTop="@dimen/dp_twenty"
-        android:layout_marginBottom="@dimen/dp_fifteen"
+        android:background="@color/metro_yellow_alpha"
+        android:paddingLeft="@dimen/dp_five"
+        android:paddingTop="@dimen/dp_ten"
+        android:paddingBottom="@dimen/dp_ten"
         android:orientation="vertical">
 
-        <!-- client -->
-        <android.support.design.widget.TextInputLayout
+        <TextView
+            android:id="@+id/tvCustomerName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dp_ten"
-            app:hintTextAppearance="@style/FloatingLabelStyle"
-            android:theme="@style/FieldsStyle">
-
-            <EditText
-                android:id="@+id/etClient"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/client_name"
-                android:textColor="@android:color/black"
-                android:focusable="false"
-                android:singleLine="true"
-                app:customEditTextFont="Roboto-Thin.ttf" />
-
-        </android.support.design.widget.TextInputLayout>
-
-        <!-- from -->
-        <android.support.design.widget.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dp_ten"
-            app:hintTextAppearance="@style/FloatingLabelStyle"
-            android:theme="@style/FieldsStyle">
-
-            <EditText
-                android:id="@+id/etFrom"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@android:color/black"
-                android:focusable="false"
-                android:singleLine="true"
-                android:hint="@string/from_desti"
-                app:customEditTextFont="Roboto-Thin.ttf" />
-
-        </android.support.design.widget.TextInputLayout>
-
-        <!-- to -->
-        <android.support.design.widget.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dp_ten"
-            app:hintTextAppearance="@style/FloatingLabelStyle"
-            android:theme="@style/FieldsStyle">
-
-            <EditText
-                android:id="@+id/etTo"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@android:color/black"
-                android:focusable="false"
-                android:hint="@string/to_desti"
-                android:singleLine="true"
-                app:customEditTextFont="Roboto-Thin.ttf" />
-
-        </android.support.design.widget.TextInputLayout>
-
-        <!-- contact no -->
-        <android.support.design.widget.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dp_ten"
-            app:hintTextAppearance="@style/FloatingLabelStyle"
-            android:theme="@style/FieldsStyle">
-
-            <EditText
-                android:id="@+id/etContactNo"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@android:color/black"
-                android:focusable="false"
-                android:hint="@string/contact_no"
-                android:singleLine="true"
-                app:customEditTextFont="Roboto-Thin.ttf" />
-
-        </android.support.design.widget.TextInputLayout>
-
-
-        <com.rey.material.widget.Button
-            android:id="@+id/btnAttend"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/attend"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="@dimen/dp_fifty"
-            android:layout_marginLeft="@dimen/dp_ten"
-            android:layout_marginRight="@dimen/dp_ten"
-            android:textSize="@dimen/sp_twenty"
-            android:background="@color/metro_yellow"
+            android:text="Customer Name : Ned Flanders"
             android:textColor="@android:color/white"
-            app:rd_rippleType="touch"
-            app:rd_maxRippleRadius="match_view"
-            app:rd_enable="true"/>
+            android:textSize="@dimen/sp_twenty" />
+
+        <TextView
+            android:id="@+id/tvHoursToRent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Hours To Rent : 3 hours"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/sp_twenty" />
 
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dp_fifteen"
+        android:layout_marginLeft="@dimen/dp_ten"
+        android:layout_marginRight="@dimen/dp_ten"
+        android:layout_marginTop="@dimen/dp_twenty"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.rey.material.widget.Button
+                android:id="@+id/btnAttend"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="@dimen/dp_ten"
+                android:layout_marginRight="@dimen/dp_ten"
+                android:layout_weight="50"
+                android:background="@color/metro_green"
+                android:text="@string/accept"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/sp_twenty"
+                app:rd_enable="true"
+                app:rd_maxRippleRadius="match_view"
+                app:rd_rippleType="touch" />
+
+            <com.rey.material.widget.Button
+                android:id="@+id/btnDecline"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="@dimen/dp_ten"
+                android:layout_marginRight="@dimen/dp_ten"
+                android:layout_weight="50"
+                android:background="@color/metro_red"
+                android:text="@string/decline"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/sp_twenty"
+                app:rd_enable="true"
+                app:rd_maxRippleRadius="match_view"
+                app:rd_rippleType="touch" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 
 </LinearLayout>

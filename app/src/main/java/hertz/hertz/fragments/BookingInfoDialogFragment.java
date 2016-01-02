@@ -28,10 +28,10 @@ import hertz.hertz.helpers.AppConstants;
  */
 public class BookingInfoDialogFragment extends DialogFragment {
 
-    @Bind(R.id.etClient) EditText etClient;
-    @Bind(R.id.etFrom) EditText etFrom;
-    @Bind(R.id.etTo) EditText etTo;
-    @Bind(R.id.etContactNo) EditText etContactNo;
+    @Bind(R.id.tvDate) TextView tvDate;
+    @Bind(R.id.tvCustomerName) TextView tvCustomerName;
+    @Bind(R.id.tvHoursToRent) TextView tvHoursToRent;
+    @Bind(R.id.tvDestination) TextView tvDestination;
     private View view;
     private ParseObject booking;
     private BaseActivity activity;
@@ -54,16 +54,17 @@ public class BookingInfoDialogFragment extends DialogFragment {
         view = getActivity().getLayoutInflater().inflate(R.layout.dialog_fragment_booking_info, null);
         ButterKnife.bind(this, view);
         activity = (BaseActivity)getActivity();
-        etClient.setText(booking.getParseObject("user").getString("firstName") + " "
+        tvCustomerName.setText("Customer Name : " + booking.getParseObject("user").getString("firstName") + " "
         +booking.getParseObject("user").getString("lastName"));
-        etFrom.setText(booking.getString("from"));
-        etTo.setText(booking.getString("to"));
-        etContactNo.setText(booking.getParseObject("user").getString("mobileNo"));
+        tvHoursToRent.setText("Hours to Rent : " + booking.getNumber("hoursToRent").toString()
+        + (booking.getNumber("hoursToRent").intValue() == 1 ? " Hour" : " Hours"));
+        tvDestination.setText(booking.getString("to"));
+        tvDate.setText(activity.getSDFWithTime().format(booking.getCreatedAt()));
         final Dialog mDialog = new Dialog(getActivity());
         mDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         mDialog.setContentView(view);
         mDialog.setCanceledOnTouchOutside(true);
-        mDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        mDialog.getWindow().setLayout(LinearLayout.LayoutParams.WRAP_CONTENT, 650);
         return mDialog;
     }
 

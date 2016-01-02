@@ -41,9 +41,16 @@
     <color name="black_alpha">#96000000</color>
 
     <color name="metro_yellow">#fbe31d</color>
+    <color name="metro_yellow_alpha">#96fbe31d</color>
     <color name="metro_teal">#00aba9</color>
 
     <color name="metro_blue">#2d89ef</color>
+
     <color name="metro_green">#43a047</color>
+    <color name="metro_green_alpha">#9643a047</color>
+
+    <color name="metro_red">#A80C16</color>
+    <color name="metro_red_alpha">#96A80C16</color>
+
 
 </resources>
