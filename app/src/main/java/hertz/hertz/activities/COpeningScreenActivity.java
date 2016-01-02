@@ -25,7 +25,7 @@ public class COpeningScreenActivity extends BaseActivity {
         setContentView(R.layout.activity_copening_screen);
         ButterKnife.bind(this);
         if (getResources().getString(R.string.app_name).equals("Hertz Driver App")) {
-            llSignUp.setVisibility(View.GONE);
+            llSignUp.setVisibility(View.INVISIBLE);
         }
         if (!isNetworkAvailable()) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);

@@ -6,24 +6,27 @@
     android:orientation="vertical">
 
     <ImageView
-        android:layout_width="120pt"
-        android:layout_height="160px"
-        android:layout_marginLeft="60dp"
-        android:layout_marginTop="80dp"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_marginLeft="@dimen/dp_fifty"
+        android:layout_marginRight="@dimen/dp_fifty"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="@dimen/dp_twenty"
+        android:layout_alignParentTop="true"
         android:background="@drawable/logo" />
+
+    <ImageView
+        android:layout_width="180dp"
+        android:layout_height="200dp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/hertz" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/dp_twenty"
         android:orientation="vertical">
-
-        <ImageView
-            android:layout_width="180dp"
-            android:layout_height="200dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="20dp"
-            android:layout_marginTop="180dp"
-            android:background="@drawable/hertz" />
 
         <Button
             android:id="@+id/bLogin"
@@ -33,7 +36,6 @@
             android:layout_alignBottom="@+id/tvRegisterLink"
             android:layout_centerHorizontal="true"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="10dp"
             android:background="@drawable/newrent"
             android:onClick="onClick" />
 
@@ -63,7 +65,7 @@
                 android:layout_alignBottom="@+id/tvRegisterLink"
                 android:layout_centerHorizontal="true"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="@dimen/dp_twenty"
                 android:background="@drawable/btn_signin"
                 android:onClick="onClick" />
         </LinearLayout>
