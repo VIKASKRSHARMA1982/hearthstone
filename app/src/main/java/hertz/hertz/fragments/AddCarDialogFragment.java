@@ -20,6 +20,7 @@ import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -56,6 +57,7 @@ public class AddCarDialogFragment extends DialogFragment {
     @Bind(R.id.etRatePer10Hours) EditText etRatePer10Hours;
     @Bind(R.id.etExcess) EditText etExcess;
     @Bind(R.id.tvHeader) TextView tvHeader;
+    @Bind(R.id.pbLoadImage) ProgressBar pbLoadImage;
     private static final int SELECT_IMAGE = 1;
     private View view;
     private CarManagementActivity activity;
@@ -108,7 +110,8 @@ public class AddCarDialogFragment extends DialogFragment {
                 ImageLoader.getInstance().loadImage(car.getParseFile("carImage").getUrl(), new ImageLoadingListener() {
                     @Override
                     public void onLoadingStarted(String imageUri, View view) {
-
+                        pbLoadImage.setVisibility(View.VISIBLE);
+                        tvAddCarImage.setText("Fetching car image, Please wait...");
                     }
 
                     @Override
@@ -121,6 +124,7 @@ public class AddCarDialogFragment extends DialogFragment {
                     public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
                         bitmap = loadedImage;
                         hasImage = true;
+                        pbLoadImage.setVisibility(View.GONE);
                         tvAddCarImage.setVisibility(View.GONE);
                         ivDeleteImage.setVisibility(View.VISIBLE);
                         ivAddCarImage.setImageBitmap(loadedImage);
@@ -131,9 +135,11 @@ public class AddCarDialogFragment extends DialogFragment {
 
                     }
                 });
+            } else {
+                pbLoadImage.setVisibility(View.GONE);
+                tvAddCarImage.setText("Upload the car image");
+                ivDeleteImage.setVisibility(View.GONE);
             }
-            ivDeleteImage.setVisibility(View.GONE);
-            tvAddCarImage.setText("Fetching car image, Please wait...");
         }
 
         final Dialog mDialog = new Dialog(getActivity());
@@ -199,9 +205,7 @@ public class AddCarDialogFragment extends DialogFragment {
             final String ratePer10Hours = etRatePer10Hours.getText().toString();
             final String excessRate = etExcess.getText().toString();
 
-            if (!hasImage) {
-                activity.showToast(AppConstants.WARN_SELECT_CAR_IMAGE);
-            } else if (carModel.isEmpty()) {
+             if (carModel.isEmpty()) {
                 activity.setError(etCarModel, AppConstants.WARN_FIELD_REQUIRED);
             } else if (plateNo.isEmpty()) {
                 activity.setError(etPlateNo, AppConstants.WARN_FIELD_REQUIRED);
@@ -259,8 +263,12 @@ public class AddCarDialogFragment extends DialogFragment {
         @Override
         protected byte[] doInBackground(Void... params) {
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-            return stream.toByteArray();
+            if (hasImage) {
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                return stream.toByteArray();
+            } else {
+                return null;
+            }
         }
 
         @Override
@@ -270,8 +278,10 @@ public class AddCarDialogFragment extends DialogFragment {
                car = new ParseObject("Car");
                 car.put("status","available");
             }
-            ParseFile pf = new ParseFile("img.png", bytes);
-            car.put("carImage", pf);
+            if (bytes != null) {
+                ParseFile pf = new ParseFile("img.png", bytes);
+                car.put("carImage", pf);
+            }
             car.put("carModel", carModel);
             car.put("plateNo",plateNo);
             car.put("description", desc.isEmpty() ? "No descriptions provided" : desc);

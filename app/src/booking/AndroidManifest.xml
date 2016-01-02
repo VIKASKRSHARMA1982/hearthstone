@@ -150,7 +150,7 @@
         <!-- Need to change this when you run on a diff comp. -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBqLJW-KpOrSDSw9T_PZ-tt7HoCdLixF-Y" />
+            android:value="AIzaSyAfbQ44wB-8zkQo2VnslC7um9nZOyKoKg0" />
 
         <activity
             android:name=".activities.CVehicleActivity"

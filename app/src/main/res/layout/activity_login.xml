@@ -1,17 +1,16 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
-    android:layout_height="match_parent"
     android:layout_width="match_parent"
-    android:background="@drawable/bg"
-    >
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_body"
+    android:orientation="vertical">
 
-   <ImageView
-       android:layout_width="120pt"
-       android:layout_height="160px"
-       android:background="@drawable/logo"
-       android:layout_marginLeft="60dp"
-       android:layout_marginTop="80dp"/>
+    <ImageView
+        android:layout_width="120pt"
+        android:layout_height="160px"
+        android:layout_marginLeft="60dp"
+        android:layout_marginTop="80dp"
+        android:background="@drawable/logo" />
 
 
     <LinearLayout
@@ -22,52 +21,52 @@
         <ImageView
             android:layout_width="160dp"
             android:layout_height="120dp"
-            android:background="@drawable/car"
             android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="20dp"
             android:layout_marginTop="180dp"
-            android:layout_marginBottom="20dp" />
+            android:background="@drawable/car" />
 
         <EditText
-        android:id="@+id/etUsername"
-        android:layout_width="120pt"
-        android:layout_marginBottom="10dp"
-        android:layout_height="wrap_content"
-            android:textColor="#fffcfa"
-        android:hint="EMAIL-ADDRESS"
-            android:layout_gravity="center_horizontal" />
+            android:id="@+id/etUsername"
+            android:layout_width="120pt"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="10dp"
+            android:hint="EMAIL-ADDRESS"
+            android:textColor="#fffcfa" />
 
         <EditText
-        android:id="@+id/etPassword"
-        android:layout_width="120pt"
-        android:inputType="textPassword"
-        android:layout_height="wrap_content"
-            android:textColor="#fcfcfc"
-        android:hint="PASSWORD"
-            android:layout_gravity="center_horizontal" />
+            android:id="@+id/etPassword"
+            android:layout_width="120pt"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:hint="PASSWORD"
+            android:inputType="textPassword"
+            android:textColor="#fcfcfc" />
 
-    
-    <Button
-        android:id="@+id/bLogin"
-        android:layout_width="200dp"
-        android:layout_height="30dp"
-        android:background="@drawable/newrent"
-        android:layout_alignBaseline="@+id/tvRegisterLink"
-        android:layout_alignBottom="@+id/tvRegisterLink"
-        android:layout_centerHorizontal="true"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="10dp" />
 
-    <TextView
-        android:id="@+id/tvRegisterLink"
-        android:layout_width="wrap_content"
-        android:text="Forgot password? Click here"
-        android:textStyle="bold"
-        android:textColor="#fffdf1"
-        android:layout_gravity="center_horizontal"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="62dp" />
+        <Button
+            android:id="@+id/bLogin"
+            android:layout_width="200dp"
+            android:layout_height="30dp"
+            android:layout_alignBaseline="@+id/tvRegisterLink"
+            android:layout_alignBottom="@+id/tvRegisterLink"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/newrent" />
+
+        <TextView
+            android:id="@+id/tvRegisterLink"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="62dp"
+            android:text="Forgot password? Click here"
+            android:textColor="#fffdf1"
+            android:textStyle="bold" />
     </LinearLayout>
 
 

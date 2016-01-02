@@ -4,7 +4,7 @@
     package="hertz.hertz" >
 
     <permission
-        android:name="hertz.hertz.permission.MAPS_RECEIVE"
+        android:name="hertz.hertz.driverapp.permission.MAPS_RECEIVE"
         android:protectionLevel="signature" />
 
     <uses-feature
@@ -79,49 +79,11 @@
             android:screenOrientation="portrait" >
         </activity>
         <activity
-            android:name=".activities.CChooseRideActivity"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait" >
-        </activity>
-        <activity
-            android:name=".activities.CChooseDriverActivity"
-            android:screenOrientation="portrait" >
-        </activity>
-        <activity
-            android:name=".activities.CDriverLocationActivity"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait" >
-        </activity>
-        <activity
-            android:name=".activities.CInformationActivity"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait" >
-        </activity>
-        <activity
-            android:name=".activities.CInformationContactActivtity"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait" >
-        </activity>
-        <activity
-            android:name=".activities.CInformationMyAccountActivity"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait" >
-        </activity>
-        <activity
             android:name=".activities.COpeningScreenActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait" >
         </activity>
-        <activity
-            android:name=".activities.CMapsActivity"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait" >
-        </activity>
-        <activity
-            android:name=".activities.CMapsAssignedDriverActivity"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait" >
-        </activity>
+
         <activity
             android:name=".activities.DriverDashBoardActivity"
             android:label="@string/app_name"
@@ -133,32 +95,14 @@
             android:windowSoftInputMode="adjustPan"
             android:screenOrientation="portrait" >
         </activity>
-        <activity
-            android:name=".loginregister.MainActivity"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait" >
-        </activity>
 
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
-        <!-- Need to change this when you run on a diff comp. -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBqLJW-KpOrSDSw9T_PZ-tt7HoCdLixF-Y" />
+            android:value="AIzaSyAfbQ44wB-8zkQo2VnslC7um9nZOyKoKg0" />
 
-        <activity
-            android:name=".activities.CVehicleActivity"
-            android:label="@string/title_activity_cvehicle"
-            android:parentActivityName=".activities.CMapsActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.CMapsActivity" />
-        </activity>
-        <activity
-            android:name=".views.CAssignedDriver"
-            android:label="@string/title_activity_cassigned_driver" >
-        </activity>
         <activity android:name=".activities.HomeActivity" />
         <service android:name=".services.GPSTrackerService" />
 

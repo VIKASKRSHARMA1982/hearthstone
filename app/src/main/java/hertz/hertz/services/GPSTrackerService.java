@@ -1,13 +1,16 @@
 package hertz.hertz.services;
 
+import android.Manifest;
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 /**
@@ -56,10 +59,8 @@ public class GPSTrackerService extends Service implements LocationListener {
             } else {
                 /** First get location from Network Provider */
                 if (isNetworkEnabled) {
-                    locationManager.requestLocationUpdates(
-                            LocationManager.NETWORK_PROVIDER,
-                            MIN_TIME_BW_UPDATES,
-                            MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+                    locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,
+                            MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
                     Log.d("gps", "Network");
                     if (locationManager != null) {
                         location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
@@ -74,15 +75,21 @@ public class GPSTrackerService extends Service implements LocationListener {
                                 onTrackGPSListener.onGetLocationFailed("network");
                             }
                         }
+                    } else {
+                        Log.d("gps","location manager is null");
                     }
                 }
                 // if GPS Enabled get lat/long using GPS Services
                 if (isGPSEnabled) {
                     if (location == null) {
-                        locationManager.requestLocationUpdates(
-                                LocationManager.GPS_PROVIDER,
-                                MIN_TIME_BW_UPDATES,
-                                MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+                        if (locationManager != null) {
+                            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                                    || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                                locationManager.requestLocationUpdates(
+                                        LocationManager.GPS_PROVIDER,MIN_TIME_BW_UPDATES,
+                                        MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+                            }
+                        }
                         Log.d("gps", "GPS Enabled");
                         if (locationManager != null) {
                             location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -113,7 +120,10 @@ public class GPSTrackerService extends Service implements LocationListener {
     /** Stop using GPS listener */
     public void stopUsingGPS() {
         if(locationManager != null) {
-            locationManager.removeUpdates(GPSTrackerService.this);
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                locationManager.removeUpdates(GPSTrackerService.this);
+            }
         }
     }
     @Override
@@ -162,5 +172,4 @@ public class GPSTrackerService extends Service implements LocationListener {
         Log.d("gps", "Start getting of GPS");
         getLocation();
     }
-
 }

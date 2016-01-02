@@ -8,7 +8,7 @@
     <TextView
         android:id="@+id/tvHeader"
         android:layout_width="match_parent"
-        android:background="@color/metro_yellow"
+        android:background="@drawable/bg_header"
         android:layout_height="@dimen/dp_fifty"
         android:textColor="@android:color/white"
         android:textSize="@dimen/sp_thirty"

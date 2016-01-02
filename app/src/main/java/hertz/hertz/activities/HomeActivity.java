@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,6 +18,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.firebase.geofire.GeoLocation;
@@ -37,6 +39,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
@@ -58,6 +63,7 @@ import butterknife.BindColor;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.pedant.SweetAlert.SweetAlertDialog;
+import de.hdodenhof.circleimageview.CircleImageView;
 import hertz.hertz.R;
 import hertz.hertz.adapters.PlaceAutocompleteAdapter;
 import hertz.hertz.customviews.DrawerArrowDrawable;
@@ -96,6 +102,7 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
     private String selectedPlace;
     private boolean plotExisting = false;
     private TextView tvFullName;
+    private boolean profilePicLoaded;
     private BroadcastReceiver broadcastReceiver;
 
     @Override
@@ -226,6 +233,41 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
             AppConstants.FULL_NAME = ParseUser.getCurrentUser().getString("firstName") + " " +
                     ParseUser.getCurrentUser().getString("lastName");
         }
+        if (ParseUser.getCurrentUser().getParseFile("profilePic") != null && !profilePicLoaded) {
+            Log.d("profilePic","must load profile pic");
+            final CircleImageView ivProfilePic = (CircleImageView)view.findViewById(R.id.ivProfilePic);
+            final ProgressBar pbLoadImage = (ProgressBar)view.findViewById(R.id.pbLoadImage);
+            ImageLoader.getInstance().loadImage(ParseUser.getCurrentUser().getParseFile("profilePic").getUrl(),
+                    new ImageLoadingListener() {
+                        @Override
+                        public void onLoadingStarted(String imageUri, View view) {
+                            pbLoadImage.setVisibility(View.VISIBLE);
+                            Log.d("profilePic", "start loading");
+                        }
+
+                        @Override
+                        public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+
+                        }
+
+                        @Override
+                        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                            profilePicLoaded = true;
+                            pbLoadImage.setVisibility(View.GONE);
+                            ivProfilePic.setImageBitmap(loadedImage);
+                            Log.d("profilePic", "loading completed");
+                        }
+
+                        @Override
+                        public void onLoadingCancelled(String imageUri, View view) {
+
+                        }
+                    });
+
+        } else {
+            Log.d("profilePic","not loading anything");
+        }
+
         tvFullName.setText(AppConstants.FULL_NAME);
         navDrawer.setNavigationItemSelectedListener(this);
     }

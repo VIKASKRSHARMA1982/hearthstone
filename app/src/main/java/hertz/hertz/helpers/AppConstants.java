@@ -18,22 +18,10 @@ public class AppConstants {
     public static final String PARSE_APP_ID = "owxkS2NUrby5SC31HJPwXC8WrnJh4FniMVcuS0Of";
     public static final String PARSE_CLIENT_KEY = "ysZnHImfR08TMzgzFpUUNOnwBVL3Bzvi1yLfWYbZ";
 
-    /** end points */
-    public static final String BOOKINGS = "Bookings";
-
-    /** device's current location */
-    public static double LATITUDE;
-    public static double LONGITUDE;
-
     /** warning messages */
     public static final String WARN_FIELD_REQUIRED = "This field is required!";
-    public static final String WARN_INVALID_PASSENGER_COUNT = "Passenger count must be greater than zero";
-    public static final String WARN_TOO_MANY_PASSENGER_COUNT = "Too many passenger count, seating capacity only limited to 20";
-    public static final String WARN_FETCHING = "Currently fetching data, Please try again after a few seconds!";
     public static final String WARN_INVALID_EMAIL_FORMAT = "Invalid email format!";
     public static final String WARN_PLEASE_ENTER_YOUR_MESSAGE = "Please enter your message";
-    public static final String WARN_SELECT_CAR_IMAGE = "Please select the car model's image";
-    public static final String WARN_SELECT_DRIVER_IMAGE = "Please set the driver's profile picture";
     public static final String WARN_NO_CHANGES_DETECTED = "No changes detected!";
     public static final String WARN_CAR_ALREADY_ASSIGNED = "Car already assigned to other driver, Please choose another car";
     public static final String WARN_PROFILE_PIC_LOADING = "Driver's profile pic still loading, Please wait...";
@@ -58,7 +46,7 @@ public class AppConstants {
     public static final String LOAD_UPDATE_DRIVE = "Updating driver record, Please wait...";
     public static final String LOAD_DELETING_DRIVER = "Deleting driver record, Please wait...";
     public static final String LOAD_VACATING_CAR = "Vacating car, Please wait...";
-    public static final String LOAD_UPDATE_CAR_RECORD = "Updating cart record, Please wait...";
+    public static final String LOAD_UPDATE_CAR_RECORD = "Updating car record, Please wait...";
     public static final String LOAD_LOGOUT = "Logging out, Please wait...";
 
     /** error messages */
@@ -79,11 +67,6 @@ public class AppConstants {
     public static final String OK_CAR_UPDATED = "Car record was successfully updated!";
     public static final String OK_BOOKING_ATTENDED = "Booking successfully attended!";
     public static final String OK_NEW_DRIVER_ADDED = "New driver successfully added!";
-
-    /** default values */
-    public static final String DEFAULT_STATUS = "Awaiting";
-    public static Double SRC_LATITUDE = 14.5195461;
-    public static Double SRC_LONGITUDE = 121.0137973;
 
     /** map circle */
     public static final double RADIUS_IN_METERS = 1500.0; //equivalent to 1.5 kilometers

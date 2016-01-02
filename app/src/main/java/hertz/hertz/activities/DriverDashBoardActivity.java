@@ -89,15 +89,6 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
             }
         });
 
-        if (!isGPSEnabled()) {
-            enableGPS();
-        } else {
-            if (AppConstants.GPS_TRACKER != null) {
-                AppConstants.GPS_TRACKER.startGPSTracker();
-                Log.d("gps", "start getting status");
-            }
-        }
-
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -128,10 +119,14 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
         };
         final LocalBroadcastManager mgr = LocalBroadcastManager.getInstance(this);
         mgr.registerReceiver(broadcastReceiver, new IntentFilter("broadcast_action"));
-        fetchAvailableBooking();
+
+        if (!isGPSEnabled()) {
+            enableGPS();
+        }
     }
 
     private void fetchAvailableBooking() {
+        Log.d("gps","FETCH BOOKINGS");
         showCustomProgress(AppConstants.LOAD_FETCH_NEARBY_BOOKING);
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Booking");
         query.whereEqualTo("status","Pending");
@@ -141,12 +136,13 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
             public void done(List<ParseObject> objects, ParseException e) {
                 dismissCustomProgress();
                 if (e == null) {
+                    Log.d("gps", "BOOKING SIZE --> " + objects.size());
                     for (ParseObject o : objects) {
                         showBookingMarker(o.getObjectId(),o.getParseGeoPoint("origin").getLatitude(),
                                 o.getParseGeoPoint("origin").getLongitude());
                     }
                 } else {
-                    Log.d("err","failed to fetch nearby booking --> " + e.getMessage());
+                    Log.d("gps","failed to fetch nearby booking --> " + e.getMessage());
                     showToast(e.getMessage());
                 }
             }
@@ -256,12 +252,15 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
             if (AppConstants.GPS_TRACKER == null) {
                 AppConstants.GPS_TRACKER = binder.getService();
                 if (AppConstants.GPS_TRACKER.onTrackGPSListener == null) {
+                    Log.d("gps","on service connected");
+                    fetchAvailableBooking();
                     AppConstants.GPS_TRACKER.onTrackGPSListener = new GPSTrackerService.OnTrackGPSListener() {
                         @Override
                         public void onLocationChanged(double latitude, double longitude) {
                             Log.d("gps", "lat --> " + latitude + "  long --> " + longitude);
                             latLng = new LatLng(latitude,longitude);
                             if (googleMap != null) {
+                                Log.d("gps","move camera");
                                 moveCamera(googleMap,latLng);
                             }
                         }
@@ -294,6 +293,7 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         googleMap.animateCamera(CameraUpdateFactory.zoomTo(11));
         googleMap.setOnMarkerClickListener(this);
+        Log.d("gps", "map ready!");
     }
 
     private void moveCamera(GoogleMap googleMap, LatLng latLng) {
@@ -320,6 +320,7 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
                 } else {
                     if (AppConstants.GPS_TRACKER != null) {
                         AppConstants.GPS_TRACKER.startGPSTracker();
+                        fetchAvailableBooking();
                         Log.d("gps", "RESULT OK ENABLED");
                     }
                 }
@@ -354,26 +355,32 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
                                     ParseCloud.callFunctionInBackground("checkBookingStatus", params,
                                             new FunctionCallback<ParseObject>() {
                                                 @Override
-                                                public void done(ParseObject object, ParseException e) {
+                                                public void done(final ParseObject booking, ParseException e) {
                                                     updateCustomProgress(AppConstants.LOAD_ATTEND_BOOKING);
                                                     if (e == null) {
-                                                        object.put("driver", ParseUser.getCurrentUser());
-                                                        object.put("status","Attended");
-                                                        object.put("driverName", ParseUser.getCurrentUser().getString("firstName")
-                                                                + " " + ParseUser.getCurrentUser().getString("lastName"));
-                                                        object.saveInBackground(new SaveCallback() {
-                                                            @Override
-                                                            public void done(ParseException e) {
-                                                                dismissCustomProgress();
-                                                                if (e == null) {
-                                                                    showToast(AppConstants.OK_BOOKING_ATTENDED);
-
-                                                                } else {
-                                                                    showSweetDialog(e.getMessage(), "error");
-                                                                }
-                                                                fragment.dismiss();
-                                                            }
-                                                        });
+                                                        ParseUser.getCurrentUser().getParseObject("driver")
+                                                                .fetchIfNeededInBackground(new GetCallback<ParseObject>() {
+                                                                    @Override
+                                                                    public void done(ParseObject driver, ParseException e) {
+                                                                        booking.put("driver", ParseUser.getCurrentUser());
+                                                                        booking.put("status", "Attended");
+                                                                        booking.put("driverName", driver.getString("firstName")
+                                                                                + " " + driver.getString("lastName"));
+                                                                        booking.saveInBackground(new SaveCallback() {
+                                                                            @Override
+                                                                            public void done(ParseException e) {
+                                                                                dismissCustomProgress();
+                                                                                if (e == null) {
+                                                                                    showToast(AppConstants.OK_BOOKING_ATTENDED);
+                                                                                    showAttendedBookingWindow(booking);
+                                                                                } else {
+                                                                                    showSweetDialog(e.getMessage(), "error");
+                                                                                }
+                                                                                fragment.dismiss();
+                                                                            }
+                                                                        });
+                                                                    }
+                                                                });
                                                     } else {
                                                         dismissCustomProgress();
                                                         showSweetDialog(e.getMessage(), "error");
@@ -394,5 +401,9 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
             }
         }
         return true;
+    }
+
+    private void showAttendedBookingWindow(ParseObject booking) {
+
     }
 }

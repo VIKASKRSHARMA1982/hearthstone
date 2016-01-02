@@ -24,7 +24,6 @@ public class CReservationActivity extends BaseActivity {
                         animateToLeft(CReservationActivity.this);
                         break;
                     case R.id.rbCarHire:
-                        startActivity(new Intent(CReservationActivity.this, CChooseRideActivity.class));
                         animateToLeft(CReservationActivity.this);
                         break;
                 }
