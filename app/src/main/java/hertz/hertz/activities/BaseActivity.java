@@ -44,6 +44,7 @@ import cn.pedant.SweetAlert.SweetAlertDialog;
 import hertz.hertz.R;
 import hertz.hertz.customviews.CustomProgress;
 import hertz.hertz.helpers.AppConstants;
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 /**
  * Created by rsbulanon on 11/11/15.
@@ -331,5 +332,10 @@ public class BaseActivity extends AppCompatActivity {
 
     public void setAvailableCars(ArrayList<ParseObject> availableCars) {
         this.availableCars = availableCars;
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
 }

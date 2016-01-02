@@ -2,8 +2,17 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/splash" >
+    android:background="@color/metro_yellow" >
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="hertz"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:textSize="60dp"
+        android:layout_centerInParent="true"
+        fontPath="fonts/harabara.otf"/>
 
     <TextView
         android:layout_width="fill_parent"
