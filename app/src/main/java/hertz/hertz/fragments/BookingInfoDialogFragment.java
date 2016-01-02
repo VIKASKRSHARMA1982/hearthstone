@@ -3,6 +3,7 @@ package hertz.hertz.fragments;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.annotation.Nullable;
 import android.util.Patterns;
 import android.view.LayoutInflater;
@@ -29,6 +30,7 @@ import hertz.hertz.helpers.AppConstants;
 public class BookingInfoDialogFragment extends DialogFragment {
 
     @Bind(R.id.tvDate) TextView tvDate;
+    @Bind(R.id.tvTimer) TextView tvTimer;
     @Bind(R.id.tvCustomerName) TextView tvCustomerName;
     @Bind(R.id.tvHoursToRent) TextView tvHoursToRent;
     @Bind(R.id.tvDestination) TextView tvDestination;
@@ -60,6 +62,7 @@ public class BookingInfoDialogFragment extends DialogFragment {
         + (booking.getNumber("hoursToRent").intValue() == 1 ? " Hour" : " Hours"));
         tvDestination.setText(booking.getString("to"));
         tvDate.setText(activity.getSDFWithTime().format(booking.getCreatedAt()));
+        initCountDownTimer();
         final Dialog mDialog = new Dialog(getActivity());
         mDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         mDialog.setContentView(view);
@@ -83,6 +86,21 @@ public class BookingInfoDialogFragment extends DialogFragment {
 
     public void setOnAttendBookingListener(OnAttendBookingListener onAttendBookingListener) {
         this.onAttendBookingListener = onAttendBookingListener;
+    }
+
+    private void initCountDownTimer() {
+        new CountDownTimer(30000,1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                long remaining = millisUntilFinished / 1000;
+                tvTimer.setText("Job closes in "+ remaining +" second" + (remaining == 1 ? "s" : ""));
+            }
+
+            @Override
+            public void onFinish() {
+                dismiss();
+            }
+        }.start();
     }
 
 }
