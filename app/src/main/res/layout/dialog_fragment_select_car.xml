@@ -107,16 +107,8 @@
             android:src="@drawable/arrowleft"/>
 
         <android.support.v4.view.ViewPager
-            android:id="@+id/forDropOffPager"
+            android:id="@+id/viewPager"
             android:layout_width="0dp"
-            android:layout_margin="@dimen/dp_five"
-            android:layout_height="200dp"
-            android:layout_weight="80" />
-
-        <android.support.v4.view.ViewPager
-            android:id="@+id/forHirePager"
-            android:layout_width="0dp"
-            android:visibility="gone"
             android:layout_margin="@dimen/dp_five"
             android:layout_height="200dp"
             android:layout_weight="80" />

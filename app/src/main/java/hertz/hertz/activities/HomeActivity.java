@@ -68,6 +68,7 @@ import hertz.hertz.R;
 import hertz.hertz.adapters.PlaceAutocompleteAdapter;
 import hertz.hertz.customviews.DrawerArrowDrawable;
 import hertz.hertz.fragments.DriverInfoDialogFragment;
+import hertz.hertz.fragments.SelectCarDialogFragment;
 import hertz.hertz.helpers.AppConstants;
 import hertz.hertz.helpers.MapHelper;
 import hertz.hertz.interfaces.OnCalculateDirectionListener;
@@ -439,14 +440,18 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
 
     @OnClick(R.id.btnBook)
     public void bookNow() {
-        if (!isNetworkAvailable()) {
+
+        startActivity(new Intent(HomeActivity.this, CReservationActivity.class));
+        animateToLeft(HomeActivity.this);
+
+/*        if (!isNetworkAvailable()) {
             showToast(AppConstants.ERR_CONNECTION);
         } else if (placeOrigin == null) {
             showSweetDialog("Please select your origin location","warning",false,null,null);
         } else if (placeDesti == null) {
             showSweetDialog("Please select your destination location","warning",false,null,null);
         } else {
-            /** create booking in parse */
+            *//** create booking in parse *//*
             final ParseObject booking = new ParseObject("Booking");
             ParseGeoPoint origin = new ParseGeoPoint();
             origin.setLatitude(placeOrigin.getLatLng().latitude);
@@ -466,7 +471,7 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
                 public void done(ParseException e) {
                     dismissCustomProgress();
                     if (e == null) {
-                        /** create booking in fire base */
+                        *//** create booking in fire base *//*
                         AppConstants.GEOFIRE.setLocation(booking.getObjectId(),
                                 new GeoLocation(placeOrigin.getLatLng().latitude,
                                         placeOrigin.getLatLng().longitude));
@@ -478,7 +483,6 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
                     }
                 }
             });
-
-        }
+        }*/
     }
 }

@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -31,8 +32,10 @@ import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.SaveCallback;
+import com.rey.material.widget.Spinner;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -58,6 +61,7 @@ public class AddCarDialogFragment extends DialogFragment {
     @Bind(R.id.etExcess) EditText etExcess;
     @Bind(R.id.tvHeader) TextView tvHeader;
     @Bind(R.id.pbLoadImage) ProgressBar pbLoadImage;
+    @Bind(R.id.spnrPurpose) Spinner spnrPurpose;
     private static final int SELECT_IMAGE = 1;
     private View view;
     private CarManagementActivity activity;
@@ -71,6 +75,7 @@ public class AddCarDialogFragment extends DialogFragment {
     private String prevRatePer3Hours;
     private String prevRatePer10Hours;
     private String prevExcessRate;
+    private String prevCarPurpose;
 
     public static AddCarDialogFragment newInstance(ParseObject car) {
         AddCarDialogFragment frag = new AddCarDialogFragment();
@@ -89,10 +94,11 @@ public class AddCarDialogFragment extends DialogFragment {
         view = getActivity().getLayoutInflater().inflate(R.layout.dialog_fragment_add_car, null);
         ButterKnife.bind(this, view);
         activity = (CarManagementActivity)getActivity();
-
+        initSpinner();
         if (car != null) {
             prevCarModel = car.getString("carModel");
             prevPlateNo = car.getString("plateNo") == null ? "Not Set" : car.getString("plateNo");
+            prevCarPurpose = car.getString("purpose") == null ? "Not Set" : car.getString("purpose");
             prevCarDescription = car.getString("description");
             prevRatePer3Hours = car.getNumber("ratePer3Hours").toString();
             prevRatePer10Hours = car.getNumber("ratePer10Hours").toString();
@@ -204,6 +210,7 @@ public class AddCarDialogFragment extends DialogFragment {
             final String ratePer3Hours = etRatePer3Hours.getText().toString();
             final String ratePer10Hours = etRatePer10Hours.getText().toString();
             final String excessRate = etExcess.getText().toString();
+            final String purpose = spnrPurpose.getSelectedItem().toString();
 
              if (carModel.isEmpty()) {
                 activity.setError(etCarModel, AppConstants.WARN_FIELD_REQUIRED);
@@ -219,13 +226,14 @@ public class AddCarDialogFragment extends DialogFragment {
                 if (car != null) {
                     if (prevCarModel.equals(carModel) && prevPlateNo.equals(plateNo)
                         && prevCarDescription.equals(desc) && prevRatePer3Hours.equals(ratePer3Hours)
-                        && prevRatePer10Hours.equals(prevRatePer10Hours) && prevExcessRate.equals(excessRate)) {
+                        && prevRatePer10Hours.equals(prevRatePer10Hours) && prevExcessRate.equals(excessRate)
+                            && prevCarPurpose.equals(purpose)) {
                         activity.showSweetDialog(AppConstants.WARN_NO_CHANGES_DETECTED,"warning");
                     } else {
-                        new ConvertImage(carModel,plateNo,desc,ratePer3Hours,ratePer10Hours,excessRate).execute();
+                        new ConvertImage(carModel,plateNo,desc,ratePer3Hours,ratePer10Hours,excessRate,purpose).execute();
                     }
                 } else {
-                    new ConvertImage(carModel,plateNo,desc,ratePer3Hours,ratePer10Hours,excessRate).execute();
+                    new ConvertImage(carModel,plateNo,desc,ratePer3Hours,ratePer10Hours,excessRate,purpose).execute();
                 }
             }
         }
@@ -239,15 +247,17 @@ public class AddCarDialogFragment extends DialogFragment {
         private String ratePer3Hours;
         private String ratePer10Hours;
         private String excessRate;
+        private String carPurpose;
 
         public ConvertImage(String carModel, String plateNo, String desc, String ratePer3Hours,
-                            String ratePer10Hours, String excessRate) {
+                            String ratePer10Hours, String excessRate, String carPurpose) {
             this.carModel = carModel;
             this.plateNo = plateNo;
             this.desc = desc;
             this.ratePer3Hours = ratePer3Hours;
             this.ratePer10Hours = ratePer10Hours;
             this.excessRate = excessRate;
+            this.carPurpose = carPurpose;
         }
 
         @Override
@@ -289,6 +299,7 @@ public class AddCarDialogFragment extends DialogFragment {
             car.put("ratePer10Hours",Double.parseDouble(ratePer10Hours));
             car.put("excessRate", Double.parseDouble(excessRate));
             car.put("markedAsDeleted",false);
+            car.put("purpose",carPurpose);
             car.saveInBackground(new SaveCallback() {
                 @Override
                 public void done(ParseException e) {
@@ -310,5 +321,30 @@ public class AddCarDialogFragment extends DialogFragment {
 
     public void setOnAddCarListener(OnAddCarListener onAddCarListener) {
         this.onAddCarListener = onAddCarListener;
+    }
+
+    private void initSpinner() {
+        ArrayList<String> items = new ArrayList<>();
+
+        items.add("For Hire");
+        items.add("For Pick and Drop off");
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), R.layout.row_spinner, items);
+        adapter.setDropDownViewResource(R.layout.row_spinner_dropdown);
+        spnrPurpose.setAdapter(adapter);
+
+        if (car != null) {
+            spnrPurpose.setSelection(getIndexOfCarPurpose());
+        }
+    }
+
+    private int getIndexOfCarPurpose() {
+        if (car.getString("purpose") != null) {
+            if (car.getString("purpose").equals("For Hire")) {
+                return 0;
+            } else {
+                return 1;
+            }
+        }
+        return 0;
     }
 }

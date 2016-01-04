@@ -10,6 +10,7 @@ import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
@@ -40,6 +41,9 @@ import com.parse.SignUpCallback;
 import com.rey.material.widget.Spinner;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 
 import butterknife.Bind;
@@ -174,10 +178,9 @@ public class AddDriverDialogFragment extends DialogFragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == getActivity().RESULT_OK) {
             hasImage = true;
-            bitmap = BitmapFactory.decodeFile(getPath(getActivity(), data.getData()));
+            bitmap = (Bitmap) data.getExtras().get("data");
             bitmap = getResizedBitmap(bitmap,300,300);
-            Bitmap photo = (Bitmap) data.getExtras().get("data");
-            ivProfilePic.setImageBitmap(photo);
+            ivProfilePic.setImageBitmap(bitmap);
         }
     }
 

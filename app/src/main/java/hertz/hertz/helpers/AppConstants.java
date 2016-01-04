@@ -48,6 +48,7 @@ public class AppConstants {
     public static final String LOAD_VACATING_CAR = "Vacating car, Please wait...";
     public static final String LOAD_UPDATE_CAR_RECORD = "Updating car record, Please wait...";
     public static final String LOAD_LOGOUT = "Logging out, Please wait...";
+    public static final String LOAD_FETCH_AVAILABLE_CARS = "Getting list of available cars, Please wait...";
 
     /** error messages */
     public static final String ERR_CONNECTION = "Connection error, Please check your network connection and try again!";

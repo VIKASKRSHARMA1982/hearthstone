@@ -9,6 +9,10 @@
         <!--<item name="android:windowContentOverlay">@null</item>-->
         <item name="android:spinnerDropDownItemStyle">@style/mySpinnerItemStyle</item>
         <item name="android:textColorHint">@android:color/white</item>
+        //red is the color of the pressed state and activated state
+        <item name="colorControlActivated">@color/metro_yellow</item>
+        //black is the color of the normal state
+        <item name="colorControlNormal">@color/metro_yellow</item>
     </style>
 
     <style name="TextAppearance.App.TextInputLayout" parent="@android:style/TextAppearance">

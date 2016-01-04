@@ -60,7 +60,7 @@ public class BookingInfoDialogFragment extends DialogFragment {
         +booking.getParseObject("user").getString("lastName"));
         tvHoursToRent.setText("Hours to Rent : " + booking.getNumber("hoursToRent").toString()
         + (booking.getNumber("hoursToRent").intValue() == 1 ? " Hour" : " Hours"));
-        tvDestination.setText(booking.getString("to"));
+        tvDestination.setText(booking.getString("from"));
         tvDate.setText(activity.getSDFWithTime().format(booking.getCreatedAt()));
         initCountDownTimer();
         final Dialog mDialog = new Dialog(getActivity());
@@ -103,4 +103,8 @@ public class BookingInfoDialogFragment extends DialogFragment {
         }.start();
     }
 
+    @OnClick(R.id.btnDecline)
+    public void decline() {
+        dismiss();
+    }
 }
