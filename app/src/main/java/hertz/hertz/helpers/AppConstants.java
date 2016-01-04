@@ -27,6 +27,7 @@ public class AppConstants {
     public static final String WARN_PROFILE_PIC_LOADING = "Driver's profile pic still loading, Please wait...";
     public static final String WARN_CAR_CANNOT_BE_DELETED = "Can't delete car record because it is currently" +
             " assigned to an active Driver";
+    public static final String WARN_INVALID_SEATING_CAPACITY = "Invalid seating capacity!";
 
     /** loading messages */
     public static final String LOAD_CREATE_ACCOUNT = "Creating your account, Please wait";

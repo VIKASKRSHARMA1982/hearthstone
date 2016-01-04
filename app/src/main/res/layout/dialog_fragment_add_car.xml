@@ -136,6 +136,27 @@
 
             </android.support.design.widget.TextInputLayout>
 
+            <!-- capacity -->
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_ten"
+                android:theme="@style/FieldsStyle"
+                app:hintTextAppearance="@style/FloatingLabelStyle">
+
+                <EditText
+                    android:id="@+id/etCapacity"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/capacity"
+                    android:inputType="number"
+                    android:singleLine="true"
+                    android:imeOptions="actionNext"
+                    android:textColor="@android:color/black"
+                    app:customEditTextFont="Roboto-Thin.ttf" />
+
+            </android.support.design.widget.TextInputLayout>
+
             <!-- rate per 3 hours -->
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"

@@ -56,6 +56,7 @@ public class AddCarDialogFragment extends DialogFragment {
     @Bind(R.id.etCarModel) EditText etCarModel;
     @Bind(R.id.etPlateNo) EditText etPlateNo;
     @Bind(R.id.etDescripton) EditText etDescripton;
+    @Bind(R.id.etCapacity) EditText etCapacity;
     @Bind(R.id.etRatePer3Hours) EditText etRatePer3Hours;
     @Bind(R.id.etRatePer10Hours) EditText etRatePer10Hours;
     @Bind(R.id.etExcess) EditText etExcess;
@@ -76,6 +77,7 @@ public class AddCarDialogFragment extends DialogFragment {
     private String prevRatePer10Hours;
     private String prevExcessRate;
     private String prevCarPurpose;
+    private int prevCapacity;
 
     public static AddCarDialogFragment newInstance(ParseObject car) {
         AddCarDialogFragment frag = new AddCarDialogFragment();
@@ -103,10 +105,12 @@ public class AddCarDialogFragment extends DialogFragment {
             prevRatePer3Hours = car.getNumber("ratePer3Hours").toString();
             prevRatePer10Hours = car.getNumber("ratePer10Hours").toString();
             prevExcessRate = car.getNumber("excessRate").toString();
+            prevCapacity = car.getNumber("capacity") == null ? 0 : car.getNumber("capacity").intValue();
 
             tvHeader.setText("Update car");
             etCarModel.setText(prevCarModel);
             etDescripton.setText(prevCarDescription);
+            etCapacity.setText(prevCapacity+"");
             etPlateNo.setText(prevPlateNo);
             etRatePer3Hours.setText(prevRatePer3Hours);
             etRatePer10Hours.setText(prevRatePer10Hours);
@@ -207,15 +211,20 @@ public class AddCarDialogFragment extends DialogFragment {
             final String carModel = etCarModel.getText().toString();
             final String plateNo = etPlateNo.getText().toString();
             final String desc = etDescripton.getText().toString();
+            final String capacity = etCapacity.getText().toString();
             final String ratePer3Hours = etRatePer3Hours.getText().toString();
             final String ratePer10Hours = etRatePer10Hours.getText().toString();
             final String excessRate = etExcess.getText().toString();
             final String purpose = spnrPurpose.getSelectedItem().toString();
 
-             if (carModel.isEmpty()) {
+            if (carModel.isEmpty()) {
                 activity.setError(etCarModel, AppConstants.WARN_FIELD_REQUIRED);
             } else if (plateNo.isEmpty()) {
                 activity.setError(etPlateNo, AppConstants.WARN_FIELD_REQUIRED);
+            } else if (capacity.isEmpty()) {
+                activity.setError(etCapacity, AppConstants.WARN_FIELD_REQUIRED);
+            } else if (Integer.valueOf(capacity) < 1) {
+                activity.setError(etCapacity, AppConstants.WARN_INVALID_SEATING_CAPACITY);
             } else if (ratePer3Hours.isEmpty()) {
                 activity.setError(etRatePer3Hours, AppConstants.WARN_FIELD_REQUIRED);
             } else if (ratePer10Hours.isEmpty()) {
@@ -227,13 +236,15 @@ public class AddCarDialogFragment extends DialogFragment {
                     if (prevCarModel.equals(carModel) && prevPlateNo.equals(plateNo)
                         && prevCarDescription.equals(desc) && prevRatePer3Hours.equals(ratePer3Hours)
                         && prevRatePer10Hours.equals(prevRatePer10Hours) && prevExcessRate.equals(excessRate)
-                            && prevCarPurpose.equals(purpose)) {
+                        && prevCarPurpose.equals(purpose) && Integer.valueOf(capacity) == prevCapacity) {
                         activity.showSweetDialog(AppConstants.WARN_NO_CHANGES_DETECTED,"warning");
                     } else {
-                        new ConvertImage(carModel,plateNo,desc,ratePer3Hours,ratePer10Hours,excessRate,purpose).execute();
+                        new ConvertImage(carModel,plateNo,desc,ratePer3Hours,
+                                ratePer10Hours,excessRate,purpose,Integer.valueOf(capacity)).execute();
                     }
                 } else {
-                    new ConvertImage(carModel,plateNo,desc,ratePer3Hours,ratePer10Hours,excessRate,purpose).execute();
+                    new ConvertImage(carModel,plateNo,desc,ratePer3Hours,
+                            ratePer10Hours,excessRate,purpose,Integer.valueOf(capacity)).execute();
                 }
             }
         }
@@ -248,9 +259,10 @@ public class AddCarDialogFragment extends DialogFragment {
         private String ratePer10Hours;
         private String excessRate;
         private String carPurpose;
+        private int capacity;
 
         public ConvertImage(String carModel, String plateNo, String desc, String ratePer3Hours,
-                            String ratePer10Hours, String excessRate, String carPurpose) {
+                            String ratePer10Hours, String excessRate, String carPurpose, int capacity) {
             this.carModel = carModel;
             this.plateNo = plateNo;
             this.desc = desc;
@@ -258,6 +270,7 @@ public class AddCarDialogFragment extends DialogFragment {
             this.ratePer10Hours = ratePer10Hours;
             this.excessRate = excessRate;
             this.carPurpose = carPurpose;
+            this.capacity = capacity;
         }
 
         @Override
@@ -295,6 +308,7 @@ public class AddCarDialogFragment extends DialogFragment {
             car.put("carModel", carModel);
             car.put("plateNo",plateNo);
             car.put("description", desc.isEmpty() ? "No descriptions provided" : desc);
+            car.put("capacity",capacity);
             car.put("ratePer3Hours",Double.parseDouble(ratePer3Hours));
             car.put("ratePer10Hours",Double.parseDouble(ratePer10Hours));
             car.put("excessRate", Double.parseDouble(excessRate));
