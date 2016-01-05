@@ -66,16 +66,61 @@
         android:elevation="@dimen/dp_ten"
         card_view:cardCornerRadius="@dimen/dp_five">
 
-        <TextView
-            android:id="@+id/tvDestination"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:drawableLeft="@drawable/car_hire"
-            android:drawablePadding="@dimen/dp_twenty"
-            android:padding="@dimen/dp_five"
-            android:text="@string/app_name"
-            android:textSize="@dimen/sp_twenty"
-            android:textColor="@android:color/black" />
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/ivCar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:padding="@dimen/dp_five"
+                android:layout_centerVertical="true"
+                android:src="@drawable/car_hire" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/ivCar"
+                android:layout_margin="@dimen/dp_five"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@id/ivCar"
+                    android:text="@string/destination"
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="@dimen/sp_fifteen" />
+
+                <TextView
+                    android:id="@+id/tvDestination"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/app_name"
+                    android:textColor="@android:color/black"
+                    android:textSize="@dimen/sp_twenty" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@id/ivCar"
+                    android:text="@string/distance"
+                    android:layout_marginTop="@dimen/dp_ten"
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="@dimen/sp_fifteen" />
+
+                <TextView
+                    android:id="@+id/tvDistance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/app_name"
+                    android:textColor="@android:color/black"
+                    android:textSize="@dimen/sp_twenty" />
+            </LinearLayout>
+
+        </RelativeLayout>
 
     </android.support.v7.widget.CardView>
 
@@ -83,10 +128,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/metro_yellow_alpha"
-        android:paddingLeft="@dimen/dp_five"
-        android:paddingTop="@dimen/dp_ten"
+        android:orientation="vertical"
         android:paddingBottom="@dimen/dp_ten"
-        android:orientation="vertical">
+        android:paddingLeft="@dimen/dp_five"
+        android:paddingTop="@dimen/dp_ten">
 
         <TextView
             android:id="@+id/tvCustomerName"

@@ -132,4 +132,7 @@
     <string name="continue_booking">Continue</string>
     <string name="hire">Car Hire</string>
     <string name="hours_of_rental">No. of Rental Hour/s</string>
+    <string name="distance">Distance from Client</string>
+
+    <string name="call">Call</string>
 </resources>

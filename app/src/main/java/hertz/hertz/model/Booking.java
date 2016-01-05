@@ -44,11 +44,10 @@ public class Booking extends ParseObject {
 
     public double getDestiLongitude() {
         return getNumber("destiLongitude").doubleValue();
-
     }
 
     public void setDestiLongitude(double destiLongitude) {
-        put("destiLatitude",destiLongitude);
+        put("destiLongitude",destiLongitude);
     }
 
     public ParseUser getUser() {

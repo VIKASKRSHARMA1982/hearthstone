@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="hertz.hertz" >
+    package="hertz.hertz">
 
     <permission
         android:name="hertz.hertz.driverapp.permission.MAPS_RECEIVE"
@@ -20,27 +20,31 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
-    <permission android:protectionLevel="signature"
-        android:name="hertz.hertz.driverapp.permission.C2D_MESSAGE" />
+    <permission
+        android:name="hertz.hertz.driverapp.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
     <uses-permission android:name="hertz.hertz.driverapp.permission.C2D_MESSAGE" />
 
     <application
-        tools:replace="android:icon,android:theme"
+        android:name=".activities.BaseApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:name=".activities.BaseApplication"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme"
+        tools:replace="android:icon,android:theme">
 
         <service android:name="com.parse.PushService" />
-        <receiver android:name=".services.MyPushNotificationReceiver"
+
+        <receiver
+            android:name=".services.MyPushNotificationReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.parse.push.intent.RECEIVE" />
@@ -49,7 +53,8 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name="com.parse.GcmBroadcastReceiver"
+        <receiver
+            android:name="com.parse.GcmBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
@@ -61,8 +66,7 @@
 
         <activity
             android:name=".activities.CSplashScreenActivity"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -70,31 +74,23 @@
         </activity>
         <activity
             android:name=".activities.CLoginActivity"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait" >
-        </activity>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".activities.CReservationActivity"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait" >
-        </activity>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".activities.COpeningScreenActivity"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait" >
-        </activity>
-
+            android:screenOrientation="portrait" />
         <activity
             android:name=".activities.DriverDashBoardActivity"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait" >
-        </activity>
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.AttendedBookingActivity"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".activities.CRegistrationActivity"
-            android:label="@string/app_name"
-            android:windowSoftInputMode="adjustPan"
-            android:screenOrientation="portrait" >
-        </activity>
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan" />
 
         <meta-data
             android:name="com.google.android.gms.version"

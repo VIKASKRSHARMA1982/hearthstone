@@ -57,6 +57,7 @@ public class BaseActivity extends AppCompatActivity {
     private CustomProgress customProgress;
     private static ArrayList<ParseObject> availableCars = new ArrayList<>();
     private static Booking booking = new Booking();
+    private static ParseObject attendedBooking;
 
     public void showProgressDialog(String message) {
         pDialog = new ProgressDialog(this);
@@ -348,5 +349,13 @@ public class BaseActivity extends AppCompatActivity {
     public void clearBooking() {
         booking = null;
         booking = new Booking();
+    }
+
+    public static ParseObject getAttendedBooking() {
+        return attendedBooking;
+    }
+
+    public static void setAttendedBooking(ParseObject attendedBooking) {
+        BaseActivity.attendedBooking = attendedBooking;
     }
 }

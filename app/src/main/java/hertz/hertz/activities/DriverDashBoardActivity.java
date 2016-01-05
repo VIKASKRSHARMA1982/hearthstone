@@ -345,7 +345,7 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
                     public void done(ParseObject object, ParseException e) {
                         dismissProgressDialog();
                         if (e == null) {
-                            final BookingInfoDialogFragment fragment = BookingInfoDialogFragment.newInstance(object);
+                            final BookingInfoDialogFragment fragment = BookingInfoDialogFragment.newInstance(object,latLng);
                             fragment.setOnAttendBookingListener(new BookingInfoDialogFragment.OnAttendBookingListener() {
                                 @Override
                                 public void onAttend(final String bookingId) {
@@ -371,6 +371,7 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
                                                                             public void done(ParseException e) {
                                                                                 dismissCustomProgress();
                                                                                 if (e == null) {
+                                                                                    //AppConstants.FIREBASE.child(bookingId).removeValue();
                                                                                     showToast(AppConstants.OK_BOOKING_ATTENDED);
                                                                                     showAttendedBookingWindow(booking);
                                                                                 } else {
@@ -404,6 +405,8 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
     }
 
     private void showAttendedBookingWindow(ParseObject booking) {
-
+        setAttendedBooking(booking);
+        startActivity(new Intent(this, AttendedBookingActivity.class));
+        finish();
     }
 }

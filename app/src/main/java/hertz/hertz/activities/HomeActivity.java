@@ -262,7 +262,6 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
 
                         }
                     });
-
         } else {
             Log.d("profilePic","not loading anything");
         }
