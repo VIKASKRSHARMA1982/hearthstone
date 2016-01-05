@@ -129,4 +129,7 @@
     <string name="accept">Accept</string>
     <string name="decline">Decline</string>
     <string name="book_now">Book Now</string>
+    <string name="continue_booking">Continue</string>
+    <string name="hire">Car Hire</string>
+    <string name="hours_of_rental">No. of Rental Hour/s</string>
 </resources>

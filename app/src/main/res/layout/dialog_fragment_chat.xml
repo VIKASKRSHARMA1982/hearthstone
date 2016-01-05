@@ -13,7 +13,7 @@
         android:gravity="center_vertical"
         android:paddingLeft="@dimen/dp_ten"
         android:text="@string/app_name"
-        android:textColor="@android:color/white"
+        android:textColor="@android:color/black"
         android:textSize="@dimen/sp_thirty" />
 
     <RelativeLayout
@@ -43,12 +43,21 @@
                 android:imeOptions="actionDone"
                 android:hint="@string/hint_enter_message" />
 
-            <Button
+            <com.rey.material.widget.Button
                 android:id="@+id/btnSend"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="@dimen/dp_ten"
+                android:layout_marginRight="@dimen/dp_ten"
                 android:layout_weight="20"
-                android:text="@string/send" />
+                android:background="@color/metro_yellow"
+                android:text="@string/send"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/sp_twenty"
+                app:rd_enable="true"
+                app:rd_maxRippleRadius="match_view"
+                app:rd_rippleType="touch" />
 
         </LinearLayout>
 

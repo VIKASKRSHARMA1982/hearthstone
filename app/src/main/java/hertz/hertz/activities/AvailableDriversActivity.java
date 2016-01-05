@@ -138,7 +138,7 @@ public class AvailableDriversActivity extends BaseActivity implements OnMapReady
             circle = null;
         }
         circle = googleMap.addCircle(drawMarkerWithCircle(5000, googleMap, latLng));
-        //yourMarker = addMapMarker(googleMap, latLng.latitude, latLng.longitude, "You're currently here", "", -1, true);
+        yourMarker = addMapMarker(googleMap, latLng.latitude, latLng.longitude, "You're currently here", "", -1, true);
         if (geoQuery == null) {
             initGeoQuery();
         }

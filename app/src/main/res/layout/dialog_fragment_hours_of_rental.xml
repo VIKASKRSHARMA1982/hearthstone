@@ -14,7 +14,7 @@
         android:textSize="@dimen/sp_thirty"
         android:paddingLeft="@dimen/dp_ten"
         android:gravity="center_vertical"
-        android:text="@string/app_name"/>
+        android:text="@string/hire"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -23,21 +23,20 @@
         android:layout_marginBottom="@dimen/dp_fifteen"
         android:orientation="vertical">
 
-        <!-- email -->
+        <!-- hours of rental -->
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <EditText
-                android:id="@+id/etEmail"
+                android:id="@+id/etHours"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/enter_email"
+                android:hint="@string/hours_of_rental"
                 android:textColor="@android:color/black"
                 android:imeOptions="actionDone"
-                android:inputType="textEmailAddress"
-                android:singleLine="true"
-                app:customEditTextFont="Roboto-Thin.ttf" />
+                android:inputType="number"
+                android:singleLine="true" />
 
         </android.support.design.widget.TextInputLayout>
 

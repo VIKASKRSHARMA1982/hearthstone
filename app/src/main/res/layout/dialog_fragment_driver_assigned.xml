@@ -13,7 +13,7 @@
         android:gravity="center_vertical"
         android:paddingLeft="@dimen/dp_ten"
         android:text="@string/driver_assigned"
-        android:textColor="@android:color/white"
+        android:textColor="@android:color/black"
         android:textSize="@dimen/sp_thirty" />
 
     <LinearLayout

@@ -4,30 +4,27 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
-import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
+import com.firebase.geofire.GeoLocation;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.SaveCallback;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import hertz.hertz.R;
 import hertz.hertz.adapters.ViewPagerAdapter;
 import hertz.hertz.fragments.CarFragment;
+import hertz.hertz.fragments.HoursOfRentalDialogFragment;
 import hertz.hertz.helpers.AppConstants;
 
 public class CReservationActivity extends BaseActivity {
@@ -82,6 +79,49 @@ public class CReservationActivity extends BaseActivity {
                         forDropOffPager.setVisibility(View.GONE);
                         forHirePager.setVisibility(View.VISIBLE);
                         break;
+                }
+            }
+        });
+    }
+
+    @OnClick(R.id.btnContinue)
+    public void continueBooking() {
+        if (rbCarHire.isChecked()) {
+            final HoursOfRentalDialogFragment fragment = HoursOfRentalDialogFragment.newInstance();
+            fragment.setOnRentalHoursListener(new HoursOfRentalDialogFragment.OnRentalHoursListener() {
+                @Override
+                public void onDesiredRentalHours(int hours) {
+                    fragment.dismiss();
+                    getBooking().setHoursToRent(hours);
+                    getBooking().setTxType("carhire");
+                    createBooking();
+                }
+            });
+            fragment.show(getSupportFragmentManager(),"rental");
+        } else {
+            getBooking().setTxType("pickup");
+            createBooking();
+        }
+    }
+
+    private void createBooking() {
+        showCustomProgress(AppConstants.LOAD_CREATING_BOOKING);
+        getBooking().saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                dismissCustomProgress();
+                if (e == null) {
+                    showToast(AppConstants.OK_BOOKING_CREATED);
+                    /** create booking in fire base */
+                    AppConstants.GEOFIRE.setLocation(getBooking().getObjectId(),
+                            new GeoLocation(getBooking().getOrigin().getLatitude(),
+                                    getBooking().getOrigin().getLongitude()));
+                    clearBooking();
+                    startActivity(new Intent(CReservationActivity.this, AvailableDriversActivity.class));
+                    animateToLeft(CReservationActivity.this);
+                    finish();
+                } else {
+                    showSweetDialog(e.getMessage(),"error");
                 }
             }
         });

@@ -45,7 +45,6 @@ import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
-import com.parse.ParseObject;
 import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -68,7 +67,6 @@ import hertz.hertz.R;
 import hertz.hertz.adapters.PlaceAutocompleteAdapter;
 import hertz.hertz.customviews.DrawerArrowDrawable;
 import hertz.hertz.fragments.DriverInfoDialogFragment;
-import hertz.hertz.fragments.SelectCarDialogFragment;
 import hertz.hertz.helpers.AppConstants;
 import hertz.hertz.helpers.MapHelper;
 import hertz.hertz.interfaces.OnCalculateDirectionListener;
@@ -440,49 +438,35 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
 
     @OnClick(R.id.btnBook)
     public void bookNow() {
-
-        startActivity(new Intent(HomeActivity.this, CReservationActivity.class));
-        animateToLeft(HomeActivity.this);
-
-/*        if (!isNetworkAvailable()) {
+        if (!isNetworkAvailable()) {
             showToast(AppConstants.ERR_CONNECTION);
         } else if (placeOrigin == null) {
             showSweetDialog("Please select your origin location","warning",false,null,null);
         } else if (placeDesti == null) {
             showSweetDialog("Please select your destination location","warning",false,null,null);
         } else {
-            *//** create booking in parse *//*
-            final ParseObject booking = new ParseObject("Booking");
+            /** create booking in parse */
+            /** create booking in parse */
             ParseGeoPoint origin = new ParseGeoPoint();
             origin.setLatitude(placeOrigin.getLatLng().latitude);
             origin.setLongitude(placeOrigin.getLatLng().longitude);
-            booking.put("origin", origin);
-            booking.put("user", ParseUser.getCurrentUser());
-            booking.put("to",placeDesti.getName().toString());
-            booking.put("from",placeOrigin.getName().toString());
-            booking.put("destiLatitude", placeDesti.getLatLng().latitude);
-            booking.put("destiLongitude", placeDesti.getLatLng().longitude);
-            booking.put("bookedBy",ParseUser.getCurrentUser().getString("firstName") + " " +
-                                    ParseUser.getCurrentUser().getString("lastName"));
-            booking.put("status","Pending");
-            showCustomProgress(AppConstants.LOAD_CREATING_BOOKING);
-            booking.saveInBackground(new SaveCallback() {
-                @Override
-                public void done(ParseException e) {
-                    dismissCustomProgress();
-                    if (e == null) {
-                        *//** create booking in fire base *//*
-                        AppConstants.GEOFIRE.setLocation(booking.getObjectId(),
-                                new GeoLocation(placeOrigin.getLatLng().latitude,
-                                        placeOrigin.getLatLng().longitude));
-                        showToast(AppConstants.OK_BOOKING_CREATED);
-                        startActivity(new Intent(HomeActivity.this, CReservationActivity.class));
-                        animateToLeft(HomeActivity.this);
-                    } else {
-                        showToast(AppConstants.ERR_CREATE_BOOKING);
-                    }
-                }
-            });
-        }*/
+
+            getBooking().setOrigin(origin);
+            getBooking().setUser(ParseUser.getCurrentUser());
+            getBooking().setTo(placeDesti.getName().toString());
+            getBooking().setFrom(placeOrigin.getName().toString());
+            getBooking().setDestiLatitude(placeDesti.getLatLng().latitude);
+            getBooking().setDestiLongitude(placeDesti.getLatLng().longitude);
+            getBooking().setStatus("Pending");
+            getBooking().setBookedBy(ParseUser.getCurrentUser().getString("firstName") + " " +
+                    ParseUser.getCurrentUser().getString("lastName"));
+            autoDestination.setText("");
+            autoOrigin.setText("");
+            placeDesti = null;
+            placeOrigin = null;
+            map.clear();
+            startActivity(new Intent(HomeActivity.this, CReservationActivity.class));
+            animateToLeft(HomeActivity.this);
+        }
     }
 }

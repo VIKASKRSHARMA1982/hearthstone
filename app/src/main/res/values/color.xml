@@ -52,5 +52,7 @@
     <color name="metro_red">#A80C16</color>
     <color name="metro_red_alpha">#96A80C16</color>
 
+    <color name="black_translucent">#80000000</color>
+
 
 </resources>

@@ -9,10 +9,12 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.QueueProcessingType;
 import com.parse.Parse;
+import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 import hertz.hertz.R;
 import hertz.hertz.helpers.AppConstants;
+import hertz.hertz.model.Booking;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 
 
@@ -30,6 +32,7 @@ public class BaseApplication extends Application {
         AppConstants.GEOFIRE = new GeoFire(AppConstants.FIREBASE);
 
         Parse.enableLocalDatastore(this);
+        ParseObject.registerSubclass(Booking.class);
         Parse.initialize(this, AppConstants.PARSE_APP_ID, AppConstants.PARSE_CLIENT_KEY);
         ParseUser.enableRevocableSessionInBackground();
 

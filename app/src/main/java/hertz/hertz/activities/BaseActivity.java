@@ -44,6 +44,7 @@ import cn.pedant.SweetAlert.SweetAlertDialog;
 import hertz.hertz.R;
 import hertz.hertz.customviews.CustomProgress;
 import hertz.hertz.helpers.AppConstants;
+import hertz.hertz.model.Booking;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
 
 /**
@@ -55,6 +56,7 @@ public class BaseActivity extends AppCompatActivity {
     private ProgressDialog pDialog;
     private CustomProgress customProgress;
     private static ArrayList<ParseObject> availableCars = new ArrayList<>();
+    private static Booking booking = new Booking();
 
     public void showProgressDialog(String message) {
         pDialog = new ProgressDialog(this);
@@ -337,5 +339,14 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
+    }
+
+    public Booking getBooking() {
+        return booking;
+    }
+
+    public void clearBooking() {
+        booking = null;
+        booking = new Booking();
     }
 }
