@@ -11,6 +11,8 @@
     android:elevation="@dimen/dp_five">
 
     <LinearLayout
+        android:id="@+id/llReservations"
+        android:clickable="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginLeft="@dimen/dp_five"

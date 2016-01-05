@@ -3,17 +3,21 @@ package hertz.hertz.activities;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Point;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.provider.Settings;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -25,6 +29,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.client.ChildEventListener;
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.FirebaseError;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -36,6 +43,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.ParseObject;
 import com.rey.material.app.Dialog;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -43,6 +53,7 @@ import java.util.ArrayList;
 import cn.pedant.SweetAlert.SweetAlertDialog;
 import hertz.hertz.R;
 import hertz.hertz.customviews.CustomProgress;
+import hertz.hertz.fragments.ChatDialogFragment;
 import hertz.hertz.helpers.AppConstants;
 import hertz.hertz.model.Booking;
 import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
@@ -58,6 +69,86 @@ public class BaseActivity extends AppCompatActivity {
     private static ArrayList<ParseObject> availableCars = new ArrayList<>();
     private static Booking booking = new Booking();
     private static ParseObject attendedBooking;
+    private BroadcastReceiver broadcastReceiver;
+    private boolean isChatWindowOpen;
+    private boolean isListeningToRoom;
+
+    public void listenToChat() {
+        broadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                final String data = intent.getStringExtra("com.parse.Data");
+                Log.d("push","ON RECEIVE!");
+                try {
+                    final JSONObject json = new JSONObject(data);
+                    if (json.has("room")) {
+                        showChatWindow(data);
+                    }
+                } catch (JSONException e) {
+                    Log.d("push","ERROR IN PARSING JSON --> " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        };
+        final LocalBroadcastManager mgr = LocalBroadcastManager.getInstance(this);
+        mgr.registerReceiver(broadcastReceiver, new IntentFilter("broadcast_action"));
+    }
+
+    private void listenToRoom(final String room, final String data) {
+        AppConstants.FIREBASE.child("Chat").child(room).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                showChatWindow(data);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+    }
+
+    private void showChatWindow(final String data) {
+        if (!isChatWindowOpen) {
+            isChatWindowOpen = true;
+            try {
+                JSONObject obj = new JSONObject(data);
+                final String room = obj.getJSONObject("json").getString("room");
+                final String sender = obj.getJSONObject("json").getString("sender");
+                final String senderName = obj.getJSONObject("json").getString("senderName");
+                ChatDialogFragment chat = ChatDialogFragment.newInstance(room, sender, senderName);
+                chat.setOnDismissListener(new ChatDialogFragment.OnDismissListener() {
+                    @Override
+                    public void onDismiss() {
+                        isChatWindowOpen = false;
+                        if (!isListeningToRoom) {
+                            isListeningToRoom = true;
+                            listenToRoom(room,data);
+                        }
+                    }
+                });
+                chat.show(getFragmentManager(), "chat");
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Log.d("push","error --> " + e.toString());
+            }
+        }
+    }
 
     public void showProgressDialog(String message) {
         pDialog = new ProgressDialog(this);

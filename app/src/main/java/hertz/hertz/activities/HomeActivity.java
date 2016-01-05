@@ -21,6 +21,9 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.firebase.client.ChildEventListener;
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.FirebaseError;
 import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -66,6 +69,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import hertz.hertz.R;
 import hertz.hertz.adapters.PlaceAutocompleteAdapter;
 import hertz.hertz.customviews.DrawerArrowDrawable;
+import hertz.hertz.fragments.ChatDialogFragment;
 import hertz.hertz.fragments.DriverInfoDialogFragment;
 import hertz.hertz.helpers.AppConstants;
 import hertz.hertz.helpers.MapHelper;
@@ -100,8 +104,9 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
     private PlaceAutocompleteAdapter mAdapter;
     private String selectedPlace;
     private boolean plotExisting = false;
-    private TextView tvFullName;
     private boolean profilePicLoaded;
+    private boolean isChatWindowOpen;
+    private boolean isListeningToRoom;
     private BroadcastReceiver broadcastReceiver;
 
     @Override
@@ -115,7 +120,7 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
             AppConstants.FULL_NAME = ParseUser.getCurrentUser().getString("firstName") + " " +
                     ParseUser.getCurrentUser().getString("lastName");
         }
-        Log.d("user","on create --> " + AppConstants.FULL_NAME);
+        Log.d("user", "on create --> " + AppConstants.FULL_NAME);
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         ParsePush.subscribeInBackground("Client", new SaveCallback() {
@@ -144,24 +149,30 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
                 final String data = intent.getStringExtra("com.parse.Data");
                 try {
                     final JSONObject json = new JSONObject(data);
-                    final String status = json.getJSONObject("json").getString("bookingStatus");
-                    if (status.equals("Attended")) {
-                        showCustomProgress(AppConstants.LOAD_FETCH_DRIVER_INFO);
-                        final String driverId = json.getJSONObject("json").getString("driverId");
-                        ParseQuery<ParseUser> driver = ParseUser.getQuery();
-                        driver.include("car");
-                        driver.getInBackground(driverId, new GetCallback<ParseUser>() {
-                            @Override
-                            public void done(ParseUser object, ParseException e) {
-                                dismissCustomProgress();
-                                if (e == null) {
-                                    final DriverInfoDialogFragment fragment = DriverInfoDialogFragment.newInstance(object);
-                                    fragment.show(getSupportFragmentManager(),"driver");
-                                } else {
-                                    showSweetDialog(e.getMessage(),"error");
+                    if (json.has("bookingStatus")) {
+                        final String status = json.getJSONObject("json").getString("bookingStatus");
+                        if (status.equals("Attended")) {
+                            showCustomProgress(AppConstants.LOAD_FETCH_DRIVER_INFO);
+                            final String driverId = json.getJSONObject("json").getString("driverId");
+                            ParseQuery<ParseUser> driver = ParseUser.getQuery();
+                            driver.include("driver");
+                            driver.include("driver.car");
+                            driver.getInBackground(driverId, new GetCallback<ParseUser>() {
+                                @Override
+                                public void done(ParseUser driver, ParseException e) {
+                                    dismissCustomProgress();
+                                    if (e == null) {
+                                        final DriverInfoDialogFragment fragment = DriverInfoDialogFragment
+                                                .newInstance(driver.getParseObject("driver"));
+                                        fragment.show(getSupportFragmentManager(),"driver");
+                                    } else {
+                                        showSweetDialog(e.getMessage(),"error");
+                                    }
                                 }
-                            }
-                        });
+                            });
+                        }
+                    } else {
+                        showChatWindow(data);
                     }
                 } catch (JSONException e) {
                     Log.d("push","ERROR IN PARSING JSON --> " + e.getMessage());
@@ -467,5 +478,61 @@ public class HomeActivity extends BaseActivity implements OnMapReadyCallback,
             startActivity(new Intent(HomeActivity.this, CReservationActivity.class));
             animateToLeft(HomeActivity.this);
         }
+    }
+
+    private void showChatWindow(final String data) {
+        if (!isChatWindowOpen) {
+            isChatWindowOpen = true;
+            try {
+                JSONObject obj = new JSONObject(data);
+                final String room = obj.getJSONObject("json").getString("room");
+                final String sender = obj.getJSONObject("json").getString("sender");
+                final String senderName = obj.getJSONObject("json").getString("senderName");
+                ChatDialogFragment chat = ChatDialogFragment.newInstance(room, sender, senderName);
+                chat.setOnDismissListener(new ChatDialogFragment.OnDismissListener() {
+                    @Override
+                    public void onDismiss() {
+                        isChatWindowOpen = false;
+                        if (!isListeningToRoom) {
+                            isListeningToRoom = true;
+                            listenToRoom(room, data);
+                        }
+                    }
+                });
+                chat.show(getFragmentManager(), "chat");
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Log.d("push", "error --> " + e.toString());
+            }
+        }
+    }
+
+    private void listenToRoom(final String room, final String data) {
+        AppConstants.FIREBASE.child("Chat").child(room).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                showChatWindow(data);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
     }
 }

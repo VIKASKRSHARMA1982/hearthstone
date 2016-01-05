@@ -107,11 +107,13 @@
                 class="com.google.android.gms.maps.MapFragment"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
+                android:layout_marginBottom="@dimen/dp_ten"
                 android:layout_weight="70" />
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="10"
                 android:orientation="horizontal">
 
                 <com.rey.material.widget.Button
@@ -139,10 +141,12 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginLeft="@dimen/dp_ten"
+                    android:drawableLeft="@drawable/chat"
                     android:layout_marginRight="@dimen/dp_ten"
+                    android:paddingLeft="@dimen/dp_five"
                     android:layout_weight="50"
-                    android:background="@color/metro_red"
-                    android:text="@string/decline"
+                    android:background="@color/metro_yellow"
+                    android:text="@string/send_chat"
                     android:textColor="@android:color/white"
                     android:textSize="@dimen/sp_twenty"
                     app:rd_enable="true"

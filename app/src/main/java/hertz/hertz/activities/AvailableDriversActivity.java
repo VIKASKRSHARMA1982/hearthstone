@@ -10,8 +10,6 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.cocosw.bottomsheet.BottomSheet;
-import com.firebase.client.ChildEventListener;
-import com.firebase.client.DataSnapshot;
 import com.firebase.client.FirebaseError;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
@@ -23,15 +21,10 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.parse.ParseException;
-import com.parse.ParsePush;
-import com.parse.ParseUser;
-import com.parse.SendCallback;
 
 import java.util.HashMap;
 
 import hertz.hertz.R;
-import hertz.hertz.fragments.ChatDialogFragment;
 import hertz.hertz.helpers.AppConstants;
 import hertz.hertz.services.GPSTrackerService;
 
@@ -47,10 +40,6 @@ public class AvailableDriversActivity extends BaseActivity implements OnMapReady
     private HashMap<String,Marker> markers = new HashMap<>();
     private Circle circle;
     private Marker yourMarker;
-    private boolean isChatWindowOpen;
-    private boolean isListeningToRoom;
-    private String room;
-    private String driver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,13 +50,7 @@ public class AvailableDriversActivity extends BaseActivity implements OnMapReady
         if (!isGPSEnabled()) {
             enableGPS();
         }
-/*        Chat chat = new Chat("Sample","Sample","Sample","Sample");
-        AppConstants.GEOFIRE.getFirebase().child("Chat").child("Driver001").setValue(chat);
-        AppConstants.GEOFIRE.getFirebase().child("Chat").child("Driver002").setValue(chat);
-        AppConstants.GEOFIRE.getFirebase().child("Chat").child("5K2oYNXWcW").setValue(chat);
-        AppConstants.GEOFIRE.getFirebase().child("Chat").child("CtAeXj4HOw").setValue(chat);
-        AppConstants.GEOFIRE.getFirebase().child("Chat").child("yR2gfutFix").setValue(chat);
-        AppConstants.GEOFIRE.getFirebase().child("Chat").child("wFicMPHplC").setValue(chat);*/
+        listenToChat();
     }
 
     @Override
@@ -210,63 +193,11 @@ public class AvailableDriversActivity extends BaseActivity implements OnMapReady
                                     break;
                                 case R.id.action_rent_car:
                                     break;
-                                case R.id.action_chat:
-                                    driver = marker.getTitle();
-                                    room = ParseUser.getCurrentUser().getObjectId() + "-" + driver;
-                                    showChatWindow();
-                                    break;
                             }
                         }
                     }).show();
         }
         return false;
-    }
-
-    private void showChatWindow() {
-        if (!isChatWindowOpen) {
-            isChatWindowOpen = true;
-            ChatDialogFragment chat = ChatDialogFragment.newInstance(room,driver);
-            chat.setOnDismissListener(new ChatDialogFragment.OnDismissListener() {
-                @Override
-                public void onDismiss() {
-                    isChatWindowOpen = false;
-                    if (!isListeningToRoom) {
-                        isListeningToRoom = true;
-                        listenToRoom(room);
-                    }
-                }
-            });
-            chat.show(getFragmentManager(), "chat");
-        }
-    }
-
-    private void listenToRoom(String room) {
-        AppConstants.FIREBASE.child("Chat").child(room).addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                showChatWindow();
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
     }
 
     @Override

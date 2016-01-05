@@ -9,9 +9,5 @@
             android:id="@+id/action_rent_car"
             android:icon="@drawable/menu_rent_car"
             android:title="@string/rent_car"/>
-        <item
-            android:id="@+id/action_chat"
-            android:icon="@drawable/menu_chat"
-            android:title="@string/send_chat"/>
     </group>
 </menu>

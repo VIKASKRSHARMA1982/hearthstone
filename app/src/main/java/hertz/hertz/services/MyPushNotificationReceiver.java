@@ -29,20 +29,26 @@ public class MyPushNotificationReceiver extends ParsePushBroadcastReceiver {
         Notification n = super.getNotification(context, intent);
         notification_id = intent.getExtras().getInt("NOTIFICATION_TYPE");
         final String data = intent.getStringExtra("com.parse.Data");
+        Log.d("push","data --> " + data);
         try {
             final JSONObject json = new JSONObject(data);
-            final String status = json.getJSONObject("json").getString("bookingStatus");
-            if (status.equals("Attended")) {
-                if (!BuildConfig.FLAVOR.equals("booking")) {
-                    mNotificationManager.cancel(notification_id);
-                    Log.d("push", "must cancel notification");
+            if (json.has("bookingStatus")) {
+                final String status = json.getJSONObject("json").getString("bookingStatus");
+                if (status.equals("Attended")) {
+                    if (!BuildConfig.FLAVOR.equals("booking")) {
+                        mNotificationManager.cancel(notification_id);
+                        Log.d("push", "must cancel notification");
+                    } else {
+                        mNotificationManager.notify(notification_id, n);
+                        Log.d("push", "booking app must show notification");
+                    }
                 } else {
                     mNotificationManager.notify(notification_id, n);
-                    Log.d("push", "booking app must show notification");
+                    Log.d("push", "notification must show");
                 }
             } else {
+                /** chat notification */
                 mNotificationManager.notify(notification_id, n);
-                Log.d("push", "notification must show");
             }
             intent.setAction("broadcast_action");
             LocalBroadcastManager mgr = LocalBroadcastManager.getInstance(context);

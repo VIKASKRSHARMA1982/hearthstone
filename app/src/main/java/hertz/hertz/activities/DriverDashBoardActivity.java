@@ -6,15 +6,23 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.support.design.widget.NavigationView;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
-import com.firebase.client.ChildEventListener;
-import com.firebase.client.DataSnapshot;
-import com.firebase.client.FirebaseError;
 import com.firebase.geofire.GeoQuery;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -23,6 +31,9 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.parse.FindCallback;
 import com.parse.FunctionCallback;
 import com.parse.GetCallback;
@@ -40,9 +51,14 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import cn.pedant.SweetAlert.SweetAlertDialog;
+import de.hdodenhof.circleimageview.CircleImageView;
 import hertz.hertz.R;
+import hertz.hertz.customviews.DrawerArrowDrawable;
 import hertz.hertz.fragments.BookingInfoDialogFragment;
-import hertz.hertz.fragments.ChatDialogFragment;
 import hertz.hertz.helpers.AppConstants;
 import hertz.hertz.services.GPSTrackerService;
 
@@ -50,8 +66,12 @@ import hertz.hertz.services.GPSTrackerService;
  * Created by rsbulanon on 11/17/15.
  */
 public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyCallback ,
-                                                                    GoogleMap.OnMarkerClickListener {
+                                                                    GoogleMap.OnMarkerClickListener,
+                                                                    NavigationView.OnNavigationItemSelectedListener {
 
+    @Bind(R.id.drawerLayout) DrawerLayout drawerLayout;
+    @Bind(R.id.drawerIndicator) ImageView drawerIndicator;
+    @Bind(R.id.navDrawer) NavigationView navDrawer;
     private GoogleMap googleMap;
     private LatLng latLng = new LatLng(0,0);
     private GeoQuery geoQuery;
@@ -59,15 +79,22 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
     private Circle circle;
     private Marker yourMarker;
     private BroadcastReceiver broadcastReceiver;
-    private boolean isChatWindowOpen;
-    private boolean isListeningToRoom;
+    private DrawerArrowDrawable drawerArrowDrawable;
+    private final Handler mDrawerActionHandler = new Handler();
+    private static final long DRAWER_CLOSE_DELAY_MS = 250;
+    private float offset;
+    private boolean flipped;
+    private boolean profilePicLoaded;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_driver_dashboard);
+        ButterKnife.bind(this);
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        initDrawerArrowDrawable();
+        listenToChat();
         ParsePush.subscribeInBackground("Drivers", new SaveCallback() {
             @Override
             public void done(ParseException e) {
@@ -95,9 +122,7 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
                 final String data = intent.getStringExtra("com.parse.Data");
                 try {
                     final JSONObject json = new JSONObject(data);
-                    if (json.has("room")) {
-                        showChatWindow(data);
-                    } else {
+                    if (json.has("bookingStatus")) {
                         final String status = json.getJSONObject("json").getString("bookingStatus");
                         final String bookingId = json.getJSONObject("json").getString("bookingId");
                         final double latitude = json.getJSONObject("json").getDouble("latitude");
@@ -126,7 +151,7 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
     }
 
     private void fetchAvailableBooking() {
-        Log.d("gps","FETCH BOOKINGS");
+        Log.d("gps", "FETCH BOOKINGS");
         showCustomProgress(AppConstants.LOAD_FETCH_NEARBY_BOOKING);
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Booking");
         query.whereEqualTo("status","Pending");
@@ -149,32 +174,6 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
         });
     }
 
-    private void showChatWindow(final String data) {
-        if (!isChatWindowOpen) {
-            isChatWindowOpen = true;
-            try {
-                JSONObject obj = new JSONObject(data);
-                final String room = obj.getJSONObject("json").getString("room");
-                final String sender = obj.getJSONObject("json").getString("senderName");
-                ChatDialogFragment chat = ChatDialogFragment.newInstance(room, sender);
-                chat.setOnDismissListener(new ChatDialogFragment.OnDismissListener() {
-                    @Override
-                    public void onDismiss() {
-                        isChatWindowOpen = false;
-                        if (!isListeningToRoom) {
-                            isListeningToRoom = true;
-                            listenToRoom(room,data);
-                        }
-                    }
-                });
-                chat.show(getFragmentManager(), "chat");
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Log.d("push","error --> " + e.toString());
-            }
-        }
-    }
-
     private void showBookingMarker(String bookingId, double latitude, double longitude) {
         final Location bookingLocation = new Location("");
         bookingLocation.setLatitude(latitude);
@@ -191,36 +190,6 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
             markers.put(bookingId, addMapMarker(googleMap, latitude, longitude, "Booking Id : " + bookingId, "", 1, false));
         }
     }
-
-    private void listenToRoom(final String room, final String data) {
-        AppConstants.FIREBASE.child("Chat").child(room).addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                showChatWindow(data);
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
-    }
-
 
     @Override
     protected void onStart() {
@@ -328,7 +297,6 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
         }
     }
 
-
     /** map marker listener */
     @Override
     public boolean onMarkerClick(Marker marker) {
@@ -408,5 +376,123 @@ public class DriverDashBoardActivity extends BaseActivity implements OnMapReadyC
         setAttendedBooking(booking);
         startActivity(new Intent(this, AttendedBookingActivity.class));
         finish();
+    }
+
+    private void initDrawerArrowDrawable() {
+        drawerArrowDrawable = new DrawerArrowDrawable(getResources());
+        drawerArrowDrawable.setStrokeColor(Color.WHITE);
+        drawerIndicator.setImageDrawable(drawerArrowDrawable);
+        drawerLayout.setDrawerListener(new DrawerLayout.SimpleDrawerListener() {
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+                offset = slideOffset;
+                // Sometimes slideOffset ends up so close to but not quite 1 or 0.
+                if (slideOffset >= .995) {
+                    flipped = true;
+                    drawerArrowDrawable.setFlip(flipped);
+                } else if (slideOffset <= .005) {
+                    flipped = false;
+                    drawerArrowDrawable.setFlip(flipped);
+                }
+                drawerArrowDrawable.setParameter(offset);
+            }
+        });
+
+        View view = navDrawer.inflateHeaderView(R.layout.drawer_header);
+        TextView tvFullName = (TextView)view.findViewById(R.id.tvFullName);
+        if (AppConstants.FULL_NAME.isEmpty()) {
+            AppConstants.FULL_NAME = ParseUser.getCurrentUser().getString("firstName") + " " +
+                    ParseUser.getCurrentUser().getString("lastName");
+        }
+        if (ParseUser.getCurrentUser().getParseFile("profilePic") != null && !profilePicLoaded) {
+            Log.d("profilePic","must load profile pic");
+            final CircleImageView ivProfilePic = (CircleImageView)view.findViewById(R.id.ivProfilePic);
+            final ProgressBar pbLoadImage = (ProgressBar)view.findViewById(R.id.pbLoadImage);
+            ImageLoader.getInstance().loadImage(ParseUser.getCurrentUser().getParseFile("profilePic").getUrl(),
+                    new ImageLoadingListener() {
+                        @Override
+                        public void onLoadingStarted(String imageUri, View view) {
+                            pbLoadImage.setVisibility(View.VISIBLE);
+                            Log.d("profilePic", "start loading");
+                        }
+
+                        @Override
+                        public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+
+                        }
+
+                        @Override
+                        public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                            profilePicLoaded = true;
+                            pbLoadImage.setVisibility(View.GONE);
+                            ivProfilePic.setImageBitmap(loadedImage);
+                            Log.d("profilePic", "loading completed");
+                        }
+
+                        @Override
+                        public void onLoadingCancelled(String imageUri, View view) {
+
+                        }
+                    });
+        } else {
+            Log.d("profilePic","not loading anything");
+        }
+
+        tvFullName.setText(AppConstants.FULL_NAME);
+        navDrawer.setNavigationItemSelectedListener(this);
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(final MenuItem item) {
+        drawerLayout.closeDrawer(GravityCompat.START);
+        mDrawerActionHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                navigate(item.getItemId());
+            }
+        }, DRAWER_CLOSE_DELAY_MS);
+        return true;
+    }
+
+    @OnClick(R.id.drawerIndicator)
+    public void toggleDrawerMenu() {
+        if (drawerLayout.isDrawerVisible(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            drawerLayout.openDrawer(GravityCompat.START);
+        }
+    }
+
+    private void navigate(int menu) {
+        switch (menu) {
+            case R.id.navigation_item_1:
+                startActivity(new Intent(this,MyBookingsActivity.class));
+                animateToLeft(this);
+                break;
+            case R.id.navigation_item_5:
+                new SweetAlertDialog(this,SweetAlertDialog.WARNING_TYPE)
+                        .setTitleText("Hertz")
+                        .setContentText("Are you sure you want to logout from the app?")
+                        .setConfirmText("Yes")
+                        .setConfirmClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                            @Override
+                            public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                sweetAlertDialog.dismiss();
+                                ParseUser.logOut();
+                                startActivity(new Intent(DriverDashBoardActivity.this, CLoginActivity.class));
+                                animateToRight(DriverDashBoardActivity.this);
+                                finish();
+                            }
+                        })
+                        .setCancelText("No")
+                        .setCancelClickListener(new SweetAlertDialog.OnSweetClickListener() {
+                            @Override
+                            public void onClick(SweetAlertDialog sweetAlertDialog) {
+                                sweetAlertDialog.dismiss();
+                            }
+                        })
+                        .show();
+                break;
+            default:        }
     }
 }

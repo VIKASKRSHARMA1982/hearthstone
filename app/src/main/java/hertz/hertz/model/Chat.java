@@ -5,6 +5,7 @@ package hertz.hertz.model;
  */
 public class Chat {
 
+    private String room;
     private String sender;
     private String message;
     private String timeStamp;
@@ -12,10 +13,19 @@ public class Chat {
     public Chat() {
     }
 
-    public Chat(String sender, String message, String timeStamp) {
+    public Chat(String room, String sender, String message, String timeStamp) {
+        this.room = room;
         this.sender = sender;
         this.message = message;
         this.timeStamp = timeStamp;
+    }
+
+    public String getRoom() {
+        return room;
+    }
+
+    public void setRoom(String room) {
+        this.room = room;
     }
 
     public String getSender() {

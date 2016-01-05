@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 import butterknife.Bind;
@@ -38,10 +39,10 @@ public class DriverInfoDialogFragment extends DialogFragment {
     @Bind(R.id.ivProfilePic) CircleImageView ivProfilePic;
     @Bind(R.id.pbLoadImage) ProgressBar pbLoadImage;
     private View view;
-    private ParseUser driver;
+    private ParseObject driver;
     private HomeActivity activity;
 
-    public static DriverInfoDialogFragment newInstance(ParseUser driver) {
+    public static DriverInfoDialogFragment newInstance(ParseObject driver) {
         final DriverInfoDialogFragment frag = new DriverInfoDialogFragment();
         frag.driver = driver;
         return frag;

@@ -50,14 +50,16 @@ public class ChatDialogFragment extends DialogFragment {
     private View view;
     private BaseActivity activity;
     private String recipient;
+    private String room;
     private ArrayList<Chat> chats = new ArrayList<>();
     private OnDismissListener onDismissListener;
     private String header;
 
-    public static ChatDialogFragment newInstance(String recipient, String header) {
+    public static ChatDialogFragment newInstance(String room, String recipient, String header) {
         ChatDialogFragment frag = new ChatDialogFragment();
         frag.recipient = recipient;
         frag.header = header;
+        frag.room = room;
         return frag;
     }
 
@@ -74,7 +76,7 @@ public class ChatDialogFragment extends DialogFragment {
         activity = (BaseActivity)getActivity();
         tvHeader.setText(header);
         lvChat.setAdapter(new ChatAdapter(getActivity(), chats));
-        listenToRoom(recipient);
+        listenToRoom(room);
         final Dialog mDialog = new Dialog(getActivity());
         mDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         mDialog.setContentView(view);
@@ -92,45 +94,31 @@ public class ChatDialogFragment extends DialogFragment {
                 final JSONObject conv = new JSONObject();
                 try {
                     /** chat data */
-                    conv.put("room",recipient);
+                    conv.put("room",room);
                     conv.put("message",etMessage.getText().toString());
                     conv.put("sender", ParseUser.getCurrentUser().getObjectId());
                     conv.put("senderName",ParseUser.getCurrentUser().getString("firstName")+ " "
                                     + ParseUser.getCurrentUser().getString("lastName"));
                     conv.put("timestamp", Calendar.getInstance().getTime().toString());
                     data.put("json", conv);
-                    Chat chat = new Chat(ParseUser.getCurrentUser().getObjectId(),
-                            etMessage.getText().toString(),activity.getSDFWithTime().format(Calendar.getInstance().getTime()));
+                    Chat chat = new Chat(room, recipient, etMessage.getText().toString(),
+                            activity.getSDFWithTime().format(Calendar.getInstance().getTime()));
+                    AppConstants.FIREBASE.child("Chat").child(room).push().setValue(chat);
 
-                    AppConstants.FIREBASE.child("Chat").child(recipient).addValueEventListener(
-                            new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    Log.d("push","isExisting --> " + dataSnapshot.exists());
-                                    if (!dataSnapshot.exists()) {
-                                        /** push notification message */
-                                        ParsePush push = new ParsePush();
-                                        push.setChannel((recipient.split("-")[1]).toString());
-                                        try {
-                                            data.put("alert", "You received message from " +
-                                                    ParseUser.getCurrentUser().getString("firstName")
-                                                    + " " + ParseUser.getCurrentUser().getString("lastName"));
-                                            push.setData(data);
-                                            push.sendInBackground();
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                }
-
-                                @Override
-                                public void onCancelled(FirebaseError firebaseError) {
-
-                                }
-                            }
-                    );
-
-                    AppConstants.FIREBASE.child("Chat").child(recipient).push().setValue(chat);
+                    /** push notification message */
+                    ParsePush push = new ParsePush();
+                    push.setChannel("C" + recipient);
+                    try {
+                        data.put("alert", "You received message from " +
+                                ParseUser.getCurrentUser().getString("firstName")
+                                + " " + ParseUser.getCurrentUser().getString("lastName"));
+                        push.setData(data);
+                        push.sendInBackground();
+                        Log.d("push","push successfully sent!");
+                    } catch (JSONException e) {
+                        Log.d("push","failed to send push --> " + e.getMessage());
+                        e.printStackTrace();
+                    }
                     etMessage.setText("");
                 } catch (JSONException e) {
                     Log.d("push","error in creating json --> " + e.toString());

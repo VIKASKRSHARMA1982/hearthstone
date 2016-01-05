@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.parse.ParseObject;
@@ -21,6 +22,7 @@ public class MyReservationsAdapter extends RecyclerView.Adapter<MyReservationsAd
 
     private ArrayList<ParseObject> tx;
     private Context context;
+    private OnTxClickListener onTxClickListener;
     private String[] months = new String[]{"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug",
                                             "Sep","Oct","Nov","Dec"};
 
@@ -42,6 +44,7 @@ public class MyReservationsAdapter extends RecyclerView.Adapter<MyReservationsAd
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
+        LinearLayout llReservations;
         TextView tvMonth;
         TextView tvDay;
         TextView tvYear;
@@ -52,6 +55,7 @@ public class MyReservationsAdapter extends RecyclerView.Adapter<MyReservationsAd
 
         ViewHolder(View view) {
             super(view);
+            llReservations = (LinearLayout)view.findViewById(R.id.llReservations);
             tvMonth = (TextView)view.findViewById(R.id.tvMonth);
             tvDay = (TextView)view.findViewById(R.id.tvDay);
             tvYear = (TextView)view.findViewById(R.id.tvYear);
@@ -74,6 +78,12 @@ public class MyReservationsAdapter extends RecyclerView.Adapter<MyReservationsAd
         holder.tvFrom.setText(obj.getString("from"));
         holder.tvTo.setText(obj.getString("to"));
         holder.tvStatus.setText(obj.getString("status"));
+        holder.llReservations.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onTxClickListener.onSelected(obj);
+            }
+        });
     }
 
     @Override
@@ -81,4 +91,11 @@ public class MyReservationsAdapter extends RecyclerView.Adapter<MyReservationsAd
         super.onAttachedToRecyclerView(recyclerView);
     }
 
+    public interface OnTxClickListener {
+        void onSelected(ParseObject parseObject);
+    }
+
+    public void setOnTxClickListener(OnTxClickListener onTxClickListener) {
+        this.onTxClickListener = onTxClickListener;
+    }
 }

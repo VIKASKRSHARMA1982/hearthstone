@@ -37,6 +37,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.hdodenhof.circleimageview.CircleImageView;
 import hertz.hertz.R;
+import hertz.hertz.fragments.ChatDialogFragment;
 import hertz.hertz.helpers.MapHelper;
 import hertz.hertz.interfaces.OnCalculateDirectionListener;
 import hertz.hertz.tasks.GetDirectionsAsyncTask;
@@ -65,6 +66,7 @@ public class AttendedBookingActivity extends BaseActivity implements OnMapReadyC
         setContentView(R.layout.activity_attended_booking);
         ButterKnife.bind(this);
         initGoogleClient();
+        listenToChat();
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         final ParseObject booking = getAttendedBooking();
@@ -191,5 +193,28 @@ public class AttendedBookingActivity extends BaseActivity implements OnMapReadyC
         Intent intent = new Intent(Intent.ACTION_DIAL);
         intent.setData(Uri.parse("tel:" + tvContactNo.getText().toString()));
         startActivity(intent);
+    }
+
+    @OnClick(R.id.btnChat)
+    public void sendChat() {
+        final ChatDialogFragment fragment = ChatDialogFragment
+                .newInstance(getAttendedBooking().getObjectId(),
+                        getAttendedBooking().getParseUser("user").getObjectId(),
+                        tvFullName.getText().toString());
+        fragment.setOnDismissListener(new ChatDialogFragment.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+
+            }
+        });
+        fragment.show(getFragmentManager(),"chat");
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+        animateToRight(this);
     }
 }

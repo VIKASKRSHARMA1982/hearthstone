@@ -66,12 +66,16 @@
     <string name="welcome">Welcome to <b>Hertz Philippines</b></string>
     <string name="sample_name">Juan Dela Cruz</string>
     
-    <!-- drawer menu -->
+    <!--client drawer menu -->
     <string name="menu_reservation">Reservations</string>
     <string name="menu_info">Information</string>
     <string name="menu_my_account">My Account</string>
     <string name="menu_contact_us">Contact Us</string>
     <string name="menu_logout">Log Out</string>
+
+    <!-- driver drawer menu -->
+    <string name="menu_my_bookings">My Bookings</string>
+    <string name="menu_history">History</string>
 
     <!-- booking -->
     <string name="origin">Origin</string>
@@ -92,7 +96,7 @@
 
     <string name="driver_info">View Driver Info</string>
     <string name="rent_car">Rent Car</string>
-    <string name="send_chat">Send Chat</string>
+    <string name="send_chat">Chat</string>
     <string name="hint_enter_message">Enter your message here</string>
     <string name="send">Send</string>
 
