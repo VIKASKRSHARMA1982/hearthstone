@@ -71,8 +71,10 @@ public class ChatAdapter extends BaseAdapter {
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                                                                 ViewGroup.LayoutParams.WRAP_CONTENT,
                                                                 ViewGroup.LayoutParams.WRAP_CONTENT);
-        Log.d("sender","sender --> " + getItem(position).getSender());
-        if (!getItem(position).getSender().equals(ParseUser.getCurrentUser().getObjectId())) {
+        Log.d("sender","recipient --> " + getItem(position).getRecipient()
+                + "  current user id --> " + ParseUser.getCurrentUser().getObjectId());
+        final String recipeint = getItem(position).getRecipient().substring(1);
+        if (!recipeint.equals(ParseUser.getCurrentUser().getObjectId())) {
             bgShape.setColor(ContextCompat.getColor(context, R.color.metro_blue));
             lp.gravity= Gravity.RIGHT;
         } else {

@@ -130,6 +130,8 @@
     <string name="assign_to_car">Assign to Car</string>
 
     <string name="purpose">Car Purpose</string>
+    <string name="car_type">Car Type</string>
+    <string name="car_mode">Mode</string>
     <string name="accept">Accept</string>
     <string name="decline">Decline</string>
     <string name="book_now">Book Now</string>
@@ -137,6 +139,14 @@
     <string name="hire">Car Hire</string>
     <string name="hours_of_rental">No. of Rental Hour/s</string>
     <string name="distance">Distance from Client</string>
+    <string name="add_to_my_reservations">Add to my reservations</string>
 
     <string name="call">Call</string>
+
+    <string name="hint_search_car">Search Car</string>
+    <string name="select_rate">Select Rate</string>
+
+    <string name="please_note"><b>Please Note:</b> The vehicle shown are examples.
+        Specific models within a car class may vary in availability and features such as passenger
+        seating, luggage capacity, equipment, and mileage.</string>
 </resources>

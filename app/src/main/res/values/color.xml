@@ -39,9 +39,11 @@
     <item name="darkorange" type="color">#FFFF8800</item>
     <item name="darkred" type="color">#FFCC0000</item>
     <color name="black_alpha">#96000000</color>
+    <color name="black_alpha_2">#52000000</color>
 
     <color name="metro_yellow">#fbe31d</color>
     <color name="metro_yellow_alpha">#96fbe31d</color>
+    <color name="metro_yellow_alpha_2">#32fbe31d</color>
     <color name="metro_teal">#00aba9</color>
 
     <color name="metro_blue">#2d89ef</color>

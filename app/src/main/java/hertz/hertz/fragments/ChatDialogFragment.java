@@ -96,7 +96,8 @@ public class ChatDialogFragment extends DialogFragment {
                     /** chat data */
                     conv.put("room",room);
                     conv.put("message",etMessage.getText().toString());
-                    conv.put("sender", ParseUser.getCurrentUser().getObjectId());
+                    conv.put("sender", (ParseUser.getCurrentUser().getString("userRole").equals("driver") ? "D" : "C")
+                                            + ParseUser.getCurrentUser().getObjectId());
                     conv.put("senderName",ParseUser.getCurrentUser().getString("firstName")+ " "
                                     + ParseUser.getCurrentUser().getString("lastName"));
                     conv.put("timestamp", Calendar.getInstance().getTime().toString());
@@ -107,7 +108,7 @@ public class ChatDialogFragment extends DialogFragment {
 
                     /** push notification message */
                     ParsePush push = new ParsePush();
-                    push.setChannel("C" + recipient);
+                    push.setChannel(recipient);
                     try {
                         data.put("alert", "You received message from " +
                                 ParseUser.getCurrentUser().getString("firstName")

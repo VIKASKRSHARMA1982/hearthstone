@@ -11,7 +11,6 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -25,7 +24,6 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 import com.parse.ParseObject;
-import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,7 +43,7 @@ import hertz.hertz.tasks.GetDirectionsAsyncTask;
 /**
  * Created by rsbulanon on 11/13/15.
  */
-public class AttendedBookingActivity extends BaseActivity implements OnMapReadyCallback,
+public class MyBookingReviewActivity extends BaseActivity implements OnMapReadyCallback,
                                                     OnCalculateDirectionListener,
                                                     GoogleApiClient.OnConnectionFailedListener {
 
@@ -54,7 +52,6 @@ public class AttendedBookingActivity extends BaseActivity implements OnMapReadyC
     @Bind(R.id.ivProfilePic) CircleImageView ivProfilePic;
     @Bind(R.id.pbLoadImage) ProgressBar pbLoadImage;
     @BindColor(R.color.metro_teal) int metro_teal;
-    private GoogleApiClient googleApiClient;
     private GoogleMap map;
     private boolean profilePicLoaded;
     private LatLng origin;
@@ -65,19 +62,18 @@ public class AttendedBookingActivity extends BaseActivity implements OnMapReadyC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_attended_booking);
         ButterKnife.bind(this);
-        initGoogleClient();
         listenToChat();
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         final ParseObject booking = getAttendedBooking();
-        if (booking.getParseObject("user").getString("mobileNo") != null) {
-            tvContactNo.setText(getAttendedBooking().getParseObject("user").getString("mobileNo"));
+        if (booking.getParseObject("driver").getString("mobileNo") != null) {
+            tvContactNo.setText(getAttendedBooking().getParseObject("driver").getString("mobileNo"));
         }
-        tvFullName.setText(booking.getParseObject("user").getString("firstName") + " " +
-                            booking.getParseObject("user").getString("lastName"));
-        if (booking.getParseObject("user").getParseFile("profilePic") != null && !profilePicLoaded) {
+        tvFullName.setText(booking.getParseObject("driver").getString("firstName") + " " +
+                            booking.getParseObject("driver").getString("lastName"));
+        if (booking.getParseObject("driver").getParseFile("profilePic") != null && !profilePicLoaded) {
             Log.d("profilePic","must load profile pic");
-            ImageLoader.getInstance().loadImage(booking.getParseObject("user").getParseFile("profilePic").getUrl(),
+            ImageLoader.getInstance().loadImage(booking.getParseObject("driver").getParseFile("profilePic").getUrl(),
                     new ImageLoadingListener() {
                         @Override
                         public void onLoadingStarted(String imageUri, View view) {
@@ -110,16 +106,6 @@ public class AttendedBookingActivity extends BaseActivity implements OnMapReadyC
         desti = new LatLng(booking.getNumber("destiLatitude").doubleValue(), booking.getNumber("destiLongitude").doubleValue());
         plotDirection(origin,desti);
     }
-
-    private void initGoogleClient() {
-        googleApiClient = new GoogleApiClient
-                .Builder(this)
-                .enableAutoManage(this, 0, this)
-                .addApi(Places.GEO_DATA_API)
-                .addOnConnectionFailedListener( this )
-                .build();
-    }
-
 
     @Override
     public void onMapReady(GoogleMap map) {
@@ -199,7 +185,7 @@ public class AttendedBookingActivity extends BaseActivity implements OnMapReadyC
     public void sendChat() {
         final ChatDialogFragment fragment = ChatDialogFragment
                 .newInstance(getAttendedBooking().getObjectId(),
-                        "C"+getAttendedBooking().getParseUser("user").getObjectId(),
+                        "D"+getAttendedBooking().getParseUser("driver").getObjectId(),
                         tvFullName.getText().toString());
         fragment.setOnDismissListener(new ChatDialogFragment.OnDismissListener() {
             @Override

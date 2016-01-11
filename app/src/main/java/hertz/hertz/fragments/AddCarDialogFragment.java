@@ -63,6 +63,8 @@ public class AddCarDialogFragment extends DialogFragment {
     @Bind(R.id.tvHeader) TextView tvHeader;
     @Bind(R.id.pbLoadImage) ProgressBar pbLoadImage;
     @Bind(R.id.spnrPurpose) Spinner spnrPurpose;
+    @Bind(R.id.spnrMode) Spinner spnrMode;
+    @Bind(R.id.spnrType) Spinner spnrType;
     private static final int SELECT_IMAGE = 1;
     private View view;
     private CarManagementActivity activity;
@@ -77,6 +79,8 @@ public class AddCarDialogFragment extends DialogFragment {
     private String prevRatePer10Hours;
     private String prevExcessRate;
     private String prevCarPurpose;
+    private String prevCarMode;
+    private String prevCarType;
     private int prevCapacity;
 
     public static AddCarDialogFragment newInstance(ParseObject car) {
@@ -96,11 +100,34 @@ public class AddCarDialogFragment extends DialogFragment {
         view = getActivity().getLayoutInflater().inflate(R.layout.dialog_fragment_add_car, null);
         ButterKnife.bind(this, view);
         activity = (CarManagementActivity)getActivity();
-        initSpinner();
+
+        /** initialize items for purpose spinner */
+        ArrayList<String> purpose = new ArrayList<>();
+        purpose.add("For Hire");
+        purpose.add("For Pick and Drop off");
+
+        /** initialize items for mode spinner */
+        ArrayList<String> mode = new ArrayList<>();
+        mode.add("Automatic");
+        mode.add("Manual");
+
+        /** initialize items for type */
+        ArrayList<String> type = new ArrayList<>();
+        type.add("Car/Sedan");
+        type.add("SUV/MiniVan");
+
+        initSpinner(spnrPurpose, purpose);
+        initSpinner(spnrType, type);
+        initSpinner(spnrMode, mode);
+
+        initSelections();
+
         if (car != null) {
             prevCarModel = car.getString("carModel");
             prevPlateNo = car.getString("plateNo") == null ? "Not Set" : car.getString("plateNo");
             prevCarPurpose = car.getString("purpose") == null ? "Not Set" : car.getString("purpose");
+            prevCarMode = car.getString("mode") == null ? "Not Set" : car.getString("mode");
+            prevCarType = car.getString("type") == null ? "Not Set" : car.getString("type");
             prevCarDescription = car.getString("description");
             prevRatePer3Hours = car.getNumber("ratePer3Hours").toString();
             prevRatePer10Hours = car.getNumber("ratePer10Hours").toString();
@@ -150,6 +177,8 @@ public class AddCarDialogFragment extends DialogFragment {
                 tvAddCarImage.setText("Upload the car image");
                 ivDeleteImage.setVisibility(View.GONE);
             }
+        } else {
+            pbLoadImage.setVisibility(View.GONE);
         }
 
         final Dialog mDialog = new Dialog(getActivity());
@@ -216,6 +245,8 @@ public class AddCarDialogFragment extends DialogFragment {
             final String ratePer10Hours = etRatePer10Hours.getText().toString();
             final String excessRate = etExcess.getText().toString();
             final String purpose = spnrPurpose.getSelectedItem().toString();
+            final String carMode = spnrMode.getSelectedItem().toString();
+            final String carType = spnrType.getSelectedItem().toString();
 
             if (carModel.isEmpty()) {
                 activity.setError(etCarModel, AppConstants.WARN_FIELD_REQUIRED);
@@ -236,15 +267,16 @@ public class AddCarDialogFragment extends DialogFragment {
                     if (prevCarModel.equals(carModel) && prevPlateNo.equals(plateNo)
                         && prevCarDescription.equals(desc) && prevRatePer3Hours.equals(ratePer3Hours)
                         && prevRatePer10Hours.equals(prevRatePer10Hours) && prevExcessRate.equals(excessRate)
-                        && prevCarPurpose.equals(purpose) && Integer.valueOf(capacity) == prevCapacity) {
+                        && prevCarPurpose.equals(purpose) && Integer.valueOf(capacity) == prevCapacity
+                        && prevCarMode.equals(carMode) && prevCarType.equals(carType)) {
                         activity.showSweetDialog(AppConstants.WARN_NO_CHANGES_DETECTED,"warning");
                     } else {
-                        new ConvertImage(carModel,plateNo,desc,ratePer3Hours,
-                                ratePer10Hours,excessRate,purpose,Integer.valueOf(capacity)).execute();
+                        new ConvertImage(carModel,plateNo,desc,ratePer3Hours, ratePer10Hours,excessRate,
+                                purpose,Integer.valueOf(capacity),carMode,carType).execute();
                     }
                 } else {
-                    new ConvertImage(carModel,plateNo,desc,ratePer3Hours,
-                            ratePer10Hours,excessRate,purpose,Integer.valueOf(capacity)).execute();
+                    new ConvertImage(carModel,plateNo,desc,ratePer3Hours, ratePer10Hours,excessRate,
+                            purpose,Integer.valueOf(capacity),carMode,carType).execute();
                 }
             }
         }
@@ -260,9 +292,12 @@ public class AddCarDialogFragment extends DialogFragment {
         private String excessRate;
         private String carPurpose;
         private int capacity;
+        private String carMode;
+        private String carType;
 
         public ConvertImage(String carModel, String plateNo, String desc, String ratePer3Hours,
-                            String ratePer10Hours, String excessRate, String carPurpose, int capacity) {
+                            String ratePer10Hours, String excessRate, String carPurpose, int capacity,
+                            String carMode, String carType) {
             this.carModel = carModel;
             this.plateNo = plateNo;
             this.desc = desc;
@@ -271,6 +306,8 @@ public class AddCarDialogFragment extends DialogFragment {
             this.excessRate = excessRate;
             this.carPurpose = carPurpose;
             this.capacity = capacity;
+            this.carMode = carMode;
+            this.carType = carType;
         }
 
         @Override
@@ -314,6 +351,8 @@ public class AddCarDialogFragment extends DialogFragment {
             car.put("excessRate", Double.parseDouble(excessRate));
             car.put("markedAsDeleted",false);
             car.put("purpose",carPurpose);
+            car.put("mode",carMode);
+            car.put("type",carType);
             car.saveInBackground(new SaveCallback() {
                 @Override
                 public void done(ParseException e) {
@@ -337,23 +376,44 @@ public class AddCarDialogFragment extends DialogFragment {
         this.onAddCarListener = onAddCarListener;
     }
 
-    private void initSpinner() {
-        ArrayList<String> items = new ArrayList<>();
-
-        items.add("For Hire");
-        items.add("For Pick and Drop off");
+    private void initSpinner(final Spinner spinner, ArrayList<String> items) {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), R.layout.row_spinner, items);
         adapter.setDropDownViewResource(R.layout.row_spinner_dropdown);
-        spnrPurpose.setAdapter(adapter);
-
-        if (car != null) {
-            spnrPurpose.setSelection(getIndexOfCarPurpose());
-        }
+        spinner.setAdapter(adapter);
     }
 
+    private void initSelections() {
+        if (car != null) {
+            spnrPurpose.setSelection(getIndexOfCarPurpose());
+            spnrMode.setSelection(getIndexOfCarMode());
+            spnrType.setSelection(getIndexOfCarType());
+        }
+    }
     private int getIndexOfCarPurpose() {
         if (car.getString("purpose") != null) {
             if (car.getString("purpose").equals("For Hire")) {
+                return 0;
+            } else {
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    private int getIndexOfCarMode() {
+        if (car.getString("mode") != null) {
+            if (car.getString("mode").equals("Automatic")) {
+                return 0;
+            } else {
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    private int getIndexOfCarType() {
+        if (car.getString("type") != null) {
+            if (car.getString("type").equals("Car/Sedan")) {
                 return 0;
             } else {
                 return 1;

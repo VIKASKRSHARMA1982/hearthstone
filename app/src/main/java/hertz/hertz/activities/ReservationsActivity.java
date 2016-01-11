@@ -1,5 +1,6 @@
 package hertz.hertz.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -39,6 +40,14 @@ public class ReservationsActivity extends BaseActivity {
         ScaleInAnimationAdapter scaleAdapter = new ScaleInAnimationAdapter(alphaAdapter);
         rvReservations.setAdapter(scaleAdapter);
         rvReservations.setLayoutManager(new LinearLayoutManager(this));
+        adapter.setOnTxClickListener(new MyReservationsAdapter.OnTxClickListener() {
+            @Override
+            public void onSelected(ParseObject parseObject) {
+                setAttendedBooking(parseObject);
+                startActivity(new Intent(ReservationsActivity.this, MyBookingReviewActivity.class));
+                animateToLeft(ReservationsActivity.this);
+            }
+        });
         loadBookings();
     }
 
@@ -46,7 +55,12 @@ public class ReservationsActivity extends BaseActivity {
         showCustomProgress(AppConstants.LOAD_FETCH_BOOKING);
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Booking");
         query.whereEqualTo("user", ParseUser.getCurrentUser());
-        query.whereEqualTo("status","Pending");
+        ArrayList<String> condition = new ArrayList<>();
+        query.include("driver");
+        query.include("driver.driver");
+        condition.add("Pending");
+        condition.add("Attended");
+        query.whereContainedIn("status",condition);
         query.findInBackground(new FindCallback<ParseObject>() {
             @Override
             public void done(List<ParseObject> objects, ParseException e) {

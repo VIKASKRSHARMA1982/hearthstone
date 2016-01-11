@@ -72,18 +72,18 @@ public class BaseActivity extends AppCompatActivity {
     private BroadcastReceiver broadcastReceiver;
     private boolean isChatWindowOpen;
     private boolean isListeningToRoom;
+    private static ArrayList<ParseObject> forHireCars = new ArrayList<>();
+    private static ArrayList<ParseObject> forPickUpCars = new ArrayList<>();
 
     public void listenToChat() {
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 final String data = intent.getStringExtra("com.parse.Data");
-                Log.d("push","ON RECEIVE!");
                 try {
                     final JSONObject json = new JSONObject(data);
-                    if (json.has("room")) {
-                        showChatWindow(data);
-                    }
+                    Log.d("push","BASE ON RECEIVED DATA! --> " + json);
+                    showChatWindow(data);
                 } catch (JSONException e) {
                     Log.d("push","ERROR IN PARSING JSON --> " + e.getMessage());
                     e.printStackTrace();
@@ -127,6 +127,7 @@ public class BaseActivity extends AppCompatActivity {
         if (!isChatWindowOpen) {
             isChatWindowOpen = true;
             try {
+                Log.d("push","BASE --> chat window must open!");
                 JSONObject obj = new JSONObject(data);
                 final String room = obj.getJSONObject("json").getString("room");
                 final String sender = obj.getJSONObject("json").getString("sender");
@@ -145,7 +146,7 @@ public class BaseActivity extends AppCompatActivity {
                 chat.show(getFragmentManager(), "chat");
             } catch (JSONException e) {
                 e.printStackTrace();
-                Log.d("push","error --> " + e.toString());
+                Log.d("push","BASE error --> " + e.toString());
             }
         }
     }
@@ -448,5 +449,23 @@ public class BaseActivity extends AppCompatActivity {
 
     public static void setAttendedBooking(ParseObject attendedBooking) {
         BaseActivity.attendedBooking = attendedBooking;
+    }
+
+    public ArrayList<ParseObject> getForHireCars() {
+        return forHireCars;
+    }
+
+    public ArrayList<ParseObject> getForPickUpCars() {
+        return forPickUpCars;
+    }
+
+    public ArrayList<ParseObject> getForHireCars(final String type) {
+        ArrayList<ParseObject> cars = new ArrayList<>();
+        for (ParseObject o : forHireCars) {
+            if (o.getString("type").equals(type)) {
+                cars.add(o);
+            }
+        }
+        return cars;
     }
 }

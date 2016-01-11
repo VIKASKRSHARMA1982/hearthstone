@@ -46,6 +46,7 @@ public class BookingInfoDialogFragment extends DialogFragment implements OnCalcu
     @Bind(R.id.tvHoursToRent) TextView tvHoursToRent;
     @Bind(R.id.tvDestination) TextView tvDestination;
     @Bind(R.id.tvDistance) TextView tvDistance;
+    @Bind(R.id.llParent) LinearLayout llParent;
     private View view;
     private ParseObject booking;
     private BaseActivity activity;
@@ -83,13 +84,16 @@ public class BookingInfoDialogFragment extends DialogFragment implements OnCalcu
         LatLng desti = new LatLng(booking.getNumber("destiLatitude").doubleValue(),
                                     booking.getNumber("destiLongitude").doubleValue());
         plotDirection(origin,desti);
+        llParent.measure(llParent.getWidth(),llParent.getHeight());
+        Log.d("height","height ---> " + llParent.getMeasuredHeight());
         tvDestination.setText(booking.getString("from"));
         tvDate.setText(activity.getSDFWithTime().format(booking.getCreatedAt()));
         final Dialog mDialog = new Dialog(getActivity());
         mDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         mDialog.setContentView(view);
         mDialog.setCanceledOnTouchOutside(true);
-        mDialog.getWindow().setLayout(LinearLayout.LayoutParams.WRAP_CONTENT, 650);
+        mDialog.getWindow().setLayout(LinearLayout.LayoutParams.WRAP_CONTENT,
+                                llParent.getMeasuredHeight());
         return mDialog;
     }
 
@@ -123,11 +127,6 @@ public class BookingInfoDialogFragment extends DialogFragment implements OnCalcu
                 dismiss();
             }
         }.start();
-    }
-
-    @OnClick(R.id.btnDecline)
-    public void decline() {
-        dismiss();
     }
 
     private void plotDirection(LatLng origin, LatLng desti) {

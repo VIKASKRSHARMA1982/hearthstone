@@ -29,12 +29,8 @@ import hertz.hertz.helpers.AppConstants;
 
 public class CReservationActivity extends BaseActivity {
 
-    @Bind(R.id.forDropOffPager) ViewPager forDropOffPager;
-    @Bind(R.id.forHirePager) ViewPager forHirePager;
     @Bind(R.id.rbPickUp) RadioButton rbPickUp;
     @Bind(R.id.rbCarHire) RadioButton rbCarHire;
-    private ArrayList<Fragment> forHireFragments = new ArrayList<>();
-    private ArrayList<Fragment> forDropOffsFragments = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,32 +49,13 @@ public class CReservationActivity extends BaseActivity {
                     rbPickUp.setChecked(true);
                     for (ParseObject car : objects) {
                         if (car.getString("purpose").equals("For Hire")) {
-                            forHireFragments.add(CarFragment.newInstance(car));
+                            getForHireCars().add(car);
                         } else {
-                            forDropOffsFragments.add(CarFragment.newInstance(car));
+                            getForPickUpCars().add(car);
                         }
                     }
-                    forDropOffPager.setAdapter(new ViewPagerAdapter(getSupportFragmentManager(), forHireFragments));
-                    forHirePager.setAdapter(new ViewPagerAdapter(getSupportFragmentManager(), forDropOffsFragments));
                 } else {
                     showSweetDialog(e.getMessage(), "error");
-                }
-            }
-        });
-
-        RadioGroup radioGroup = (RadioGroup) findViewById(R.id.pick_car);
-        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch (checkedId) {
-                    case R.id.rbPickUp:
-                        forDropOffPager.setVisibility(View.VISIBLE);
-                        forHirePager.setVisibility(View.GONE);
-                        break;
-                    case R.id.rbCarHire:
-                        forDropOffPager.setVisibility(View.GONE);
-                        forHirePager.setVisibility(View.VISIBLE);
-                        break;
                 }
             }
         });
@@ -87,17 +64,8 @@ public class CReservationActivity extends BaseActivity {
     @OnClick(R.id.btnContinue)
     public void continueBooking() {
         if (rbCarHire.isChecked()) {
-            final HoursOfRentalDialogFragment fragment = HoursOfRentalDialogFragment.newInstance();
-            fragment.setOnRentalHoursListener(new HoursOfRentalDialogFragment.OnRentalHoursListener() {
-                @Override
-                public void onDesiredRentalHours(int hours) {
-                    fragment.dismiss();
-                    getBooking().setHoursToRent(hours);
-                    getBooking().setTxType("carhire");
-                    createBooking();
-                }
-            });
-            fragment.show(getSupportFragmentManager(),"rental");
+            startActivity(new Intent(this, CarHireActivity.class));
+            animateToLeft(this);
         } else {
             getBooking().setTxType("pickup");
             createBooking();
@@ -121,9 +89,21 @@ public class CReservationActivity extends BaseActivity {
                     animateToLeft(CReservationActivity.this);
                     finish();
                 } else {
-                    showSweetDialog(e.getMessage(),"error");
+                    showSweetDialog(e.getMessage(), "error");
                 }
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+        animateToRight(this);
+    }
+
+    @OnClick(R.id.ivNavBack)
+    public void close() {
+        onBackPressed();
     }
 }

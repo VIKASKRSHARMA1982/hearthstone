@@ -239,6 +239,44 @@
                 app:rd_style="@style/Material.Drawable.Ripple.Wave"
                 android:dropDownWidth="match_parent"/>
 
+            <com.rey.material.widget.Spinner
+                android:id="@+id/spnrType"
+                android:layout_width="match_parent"
+                android:layout_margin="@dimen/dp_ten"
+                android:layout_height="wrap_content"
+                app:spn_arrowColor="@color/metro_yellow"
+                app:spn_labelEnable="true"
+                app:spn_arrowSize="@dimen/dp_ten"
+                app:spn_arrowPadding="@dimen/sp_ten"
+                app:spn_arrowSwitchMode="true"
+                app:spn_labelTextColor="@color/metro_yellow"
+                app:spn_arrowAnimDuration="@android:integer/config_shortAnimTime"
+                app:spn_popupItemAnimOffset="60"
+                app:spn_label="@string/car_type"
+                app:spn_arrowInterpolator="@android:anim/decelerate_interpolator"
+                app:spn_popupItemAnimation="@anim/abc_grow_fade_in_from_bottom"
+                app:rd_style="@style/Material.Drawable.Ripple.Wave"
+                android:dropDownWidth="match_parent"/>
+
+            <com.rey.material.widget.Spinner
+                android:id="@+id/spnrMode"
+                android:layout_width="match_parent"
+                android:layout_margin="@dimen/dp_ten"
+                android:layout_height="wrap_content"
+                app:spn_arrowColor="@color/metro_yellow"
+                app:spn_labelEnable="true"
+                app:spn_arrowSize="@dimen/dp_ten"
+                app:spn_arrowPadding="@dimen/sp_ten"
+                app:spn_arrowSwitchMode="true"
+                app:spn_labelTextColor="@color/metro_yellow"
+                app:spn_arrowAnimDuration="@android:integer/config_shortAnimTime"
+                app:spn_popupItemAnimOffset="60"
+                app:spn_label="@string/car_mode"
+                app:spn_arrowInterpolator="@android:anim/decelerate_interpolator"
+                app:spn_popupItemAnimation="@anim/abc_grow_fade_in_from_bottom"
+                app:rd_style="@style/Material.Drawable.Ripple.Wave"
+                android:dropDownWidth="match_parent"/>
+
             <com.rey.material.widget.FloatingActionButton
                 android:id="@+id/btnAdd"
                 android:layout_width="wrap_content"

@@ -6,16 +6,16 @@ package hertz.hertz.model;
 public class Chat {
 
     private String room;
-    private String sender;
+    private String recipient;
     private String message;
     private String timeStamp;
 
     public Chat() {
     }
 
-    public Chat(String room, String sender, String message, String timeStamp) {
+    public Chat(String room, String recipient, String message, String timeStamp) {
         this.room = room;
-        this.sender = sender;
+        this.recipient = recipient;
         this.message = message;
         this.timeStamp = timeStamp;
     }
@@ -28,12 +28,12 @@ public class Chat {
         this.room = room;
     }
 
-    public String getSender() {
-        return sender;
+    public String getRecipient() {
+        return recipient;
     }
 
-    public void setSender(String sender) {
-        this.sender = sender;
+    public void setRecipient(String recipient) {
+        this.recipient = recipient;
     }
 
     public String getMessage() {
